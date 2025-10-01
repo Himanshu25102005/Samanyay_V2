@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Reserve space for fixed sidebar navbar */
+body::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari, Opera */
+}
+
+/* .contentWithSidebar {
+  margin-left: 280px;
+} */
+
+@media (max-width: 1024px) {
+  .contentWithSidebar {
+    margin-left: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contentWithSidebar {
+    margin-left: 70px;
+  }
+}
+
+/* Prevent horizontal scrollbars due to transforms/100vw artifacts */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Safer box sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Ensure main containers don't introduce horizontal overflow */
+main, .contentWithSidebar {
+  overflow-x: hidden;
+}
+
+
