@@ -1,15 +1,24 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import LanguageSelector from "../../../../components/LanguageSelector.jsx";
 import { useI18n } from "../../../../components/I18nProvider.jsx";
 import { motion } from "framer-motion";
 
-export default function NewDraftPage() {
-  const { t } = useI18n();
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+function SearchParamsHandler({ onParamsLoaded }) {
   const params = useSearchParams();
   const type = params.get("type") || "Document";
   const initialDid = params.get("did") || "";
+  
+  // Call the callback with the params
+  onParamsLoaded({ type, initialDid });
+  
+  return null; // This component doesn't render anything
+}
+
+function NewDraftContent({ type, initialDid }) {
+  const { t } = useI18n();
 
   const [documentId, setDocumentId] = useState(initialDid || null);
   const [prompt, setPrompt] = useState("");
@@ -172,6 +181,27 @@ export default function NewDraftPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function NewDraftPage() {
+  const [params, setParams] = useState({ type: "Document", initialDid: "" });
+  const [paramsLoaded, setParamsLoaded] = useState(false);
+
+  const handleParamsLoaded = ({ type, initialDid }) => {
+    setParams({ type, initialDid });
+    setParamsLoaded(true);
+  };
+
+  return (
+    <>
+      <Suspense fallback={<div className="min-h-screen bg-gradient-to-b from-white to-slate-50 flex items-center justify-center">
+        <div className="text-slate-600">Loading...</div>
+      </div>}>
+        <SearchParamsHandler onParamsLoaded={handleParamsLoaded} />
+      </Suspense>
+      {paramsLoaded && <NewDraftContent type={params.type} initialDid={params.initialDid} />}
+    </>
   );
 }
 
