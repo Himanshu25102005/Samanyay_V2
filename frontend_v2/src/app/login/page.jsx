@@ -17,7 +17,7 @@ export default function Home() {
       console.log("Sending data:", { email, password, name }); */
       
       // Try to connect to backend if available
-      const response = await axios.post("http://localhost:5000/api/register", { 
+      const response = await axios.post("https://samanyay-v2-backend.onrender.com/api/register", { 
         email, 
         password, 
         name 
@@ -71,7 +71,7 @@ export default function Home() {
 
     try {
 
-      window.location.href = 'http://localhost:5000/api/auth/google';
+      window.location.href = 'https://samanyay-v2-backend.onrender.com/api/auth/google';
       
       /* const response = await axios.post("http://localhost:5000/api/auth/google", {
         headers: {
