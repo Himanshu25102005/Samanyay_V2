@@ -239,12 +239,17 @@ export default function Home() {
           </motion.h2>
           <p className="mt-3 text-slate-600 max-w-2xl">A modern toolkit balancing legal rigor with AI efficiency.</p>
 
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {[
               {
                 title: "Document Analysis & Summarization",
                 desc: "Understand lengthy documents in seconds.",
                 href: "/Document-Analysis",
+                points: [
+                  "Upload PDFs, DOCX, or images",
+                  "Instant summaries and key clauses",
+                  "Risk flags and obligations",
+                ],
                 svg: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" stroke="#1A2C4E" strokeWidth="1.6" />
@@ -256,6 +261,11 @@ export default function Home() {
                 title: "AI-Driven Legal Research",
                 desc: "Search jurisprudence and insights intelligently.",
                 href: "/Legal-Research",
+                points: [
+                  "Cite cases with paragraphs",
+                  "Jurisdiction and year filters",
+                  "Export references",
+                ],
                 svg: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <circle cx="11" cy="11" r="7" stroke="#1A2C4E" strokeWidth="1.6" />
@@ -263,7 +273,7 @@ export default function Home() {
                   </svg>
                 )
               },
-              { title: "Multilingual Support", desc: "Work across languages with ease.", svg: (
+              { title: "Multilingual Support", desc: "Work across languages with ease.", points: ["Translate drafts", "Localize clauses"], svg: (
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <path d="M4 5h16M6 9h12M8 13h8M10 17h4" stroke="#1A2C4E" strokeWidth="1.6" />
                   <path d="M18 5l2 2-2 2" stroke="#2EA27E" strokeWidth="1.6" />
@@ -273,13 +283,18 @@ export default function Home() {
                 title: "Custom Document Generation",
                 desc: "Draft contracts, notices, and more.",
                 href: "/Drafting-Assistant",
+                points: [
+                  "Templates + prompts",
+                  "Voice-to-draft",
+                  "Download DOCX",
+                ],
                 svg: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#1A2C4E" strokeWidth="1.6" strokeLinejoin="round" />
                   </svg>
                 )
               },
-              { title: "Secure & Private Assistance", desc: "Your data stays confidential.", svg: (
+              { title: "Secure & Private Assistance", desc: "Your data stays confidential.", points: ["Encrypted in transit & at rest", "No data selling"], svg: (
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <path d="M7 10V7a5 5 0 0 1 10 0v3" stroke="#1A2C4E" strokeWidth="1.6" />
                   <rect x="4" y="10" width="16" height="10" rx="2" stroke="#2EA27E" strokeWidth="1.6" />
@@ -294,14 +309,33 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ duration: 0.5, delay: i * 0.05 }}
-                  whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(26,44,78,0.12)" }}
-                  className={`group h-full rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur p-5 shadow-sm transition will-change-transform ${f.href ? "ring-1 ring-transparent hover:ring-emerald-200 cursor-pointer" : ""}`}
+                  whileHover={{ y: -4, boxShadow: "0 24px 60px rgba(26,44,78,0.14)" }}
+                  className={`group h-full rounded-3xl border border-slate-200/70 bg-white/80 backdrop-blur p-7 md:p-8 shadow-[0_10px_40px_rgba(26,44,78,0.08)] transition will-change-transform ${f.href ? "ring-1 ring-transparent hover:ring-emerald-200 cursor-pointer" : ""}`}
                 >
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1A2C4E]/10 to-[#2EA27E]/10 flex items-center justify-center ring-1 ring-slate-200">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1A2C4E]/10 to-[#2EA27E]/10 flex items-center justify-center ring-1 ring-slate-200">
                     {f.svg}
                   </div>
-                  <div className="mt-4 font-medium text-[#1A2C4E]">{f.title}</div>
-                  <div className="text-sm text-slate-600 mt-1">{f.desc}</div>
+                  <div className="mt-4 text-lg md:text-xl font-semibold text-[#1A2C4E]">{f.title}</div>
+                  <div className="text-sm md:text-base text-slate-600 mt-1">{f.desc}</div>
+                  {Array.isArray(f.points) && (
+                    <ul className="mt-4 space-y-2 text-sm text-slate-700">
+                      {f.points.map((p) => (
+                        <li key={p} className="flex items-start gap-2">
+                          <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full border border-emerald-300/70 bg-emerald-50 text-emerald-700">✓</span>
+                          <span>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {f.href && (
+                    <div className="mt-6">
+                      <span className="inline-flex items-center gap-2 rounded-xl bg-[#2EA27E] px-4 py-2 text-sm text-white group-hover:brightness-110">Explore
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <path d="M5 12h14M13 5l7 7-7 7" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                    </div>
+                  )}
                 </motion.div>
               );
               return f.href ? (
