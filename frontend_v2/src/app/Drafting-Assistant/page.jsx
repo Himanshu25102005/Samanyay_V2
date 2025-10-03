@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import LanguageSelector from "../../../components/LanguageSelector.jsx";
+import Navbar from "../../../components/Navbar.jsx";
 import { useI18n } from "../../../components/I18nProvider.jsx";
 
 const DOC_TYPES = [
@@ -36,7 +37,9 @@ export default function DraftingAssistant() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900">
+        <>
+            <Navbar />
+            <div className="ml-[280px] min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900">
             <div className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b border-slate-200">
                 <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
                     <h1 className="text-2xl md:text-3xl font-semibold text-sky-800">{t('draftingAssistant')}</h1>
@@ -76,7 +79,7 @@ export default function DraftingAssistant() {
                             whileHover={{ y: -2 }}
                             className="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
                         >
-                            <div className="flex items-start gap-3">
+                            <div className="flex h-25  items-start gap-3">
                                 <div className="h-10 w-10 rounded-full bg-sky-50 text-sky-700 flex items-center justify-center">📄</div>
                                 <div className="font-medium text-slate-800">{name}</div>
                             </div>
@@ -103,6 +106,7 @@ export default function DraftingAssistant() {
                     ))}
                 </div>
             </main>
-        </div>
+            </div>
+        </>
     );
 }

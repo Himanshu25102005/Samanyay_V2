@@ -24,6 +24,7 @@ export default function Home() {
   );
 
   const [activeIdx, setActiveIdx] = useState(0);
+  const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setActiveIdx((i) => (i + 1) % testimonials.length), 4500);
     return () => clearInterval(id);
@@ -121,17 +122,83 @@ export default function Home() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut", delay: 0.25 }}
-                className="mt-7 flex flex-wrap gap-3"
+                className="mt-7 flex flex-wrap items-center gap-3"
               >
-                <a href="/login" className="inline-flex items-center justify-center rounded-xl px-5 py-3 text-white bg-[#2EA27E] shadow-sm hover:shadow-md hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2EA27E] transition">
-                  Get Started
-                </a>
-                <a
-                  href="#document-analysis"
-                  className="inline-flex items-center justify-center rounded-xl px-5 py-3 text-[#1A2C4E] border border-slate-300/80 bg-white/60 backdrop-blur hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300 transition"
+                <motion.a
+                  href="/login"
+                  className="relative inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 shadow-[0_10px_24px_rgba(46,162,126,0.35)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                  animate={{ y: [0, -2, 0] }}
+                  transition={{ duration: 3, ease: "easeInOut", repeat: Infinity, repeatType: "loop" }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 16px 40px rgba(46,162,126,0.45)" }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  Try Document Analysis
-                </a>
+                  <span className="relative z-10">Get Started</span>
+                  <span aria-hidden className="absolute inset-0 rounded-2xl bg-white/10 mix-blend-overlay" />
+                </motion.a>
+
+                <div className="relative z-50">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-300/80 bg-white/70 px-5 py-3 text-sm text-[#1A2C4E] backdrop-blur hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300 transition"
+                    aria-haspopup="menu"
+                    aria-expanded={isFeaturesOpen}
+                    onClick={() => setIsFeaturesOpen((v) => !v)}
+                  >
+                    Our Features
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                      <path d="M6 9l6 6 6-6" stroke="#1A2C4E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+
+                  {isFeaturesOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.98, y: 6 }}
+                      animate={{ opacity: 1, scale: 1, y: 6 }}
+                      exit={{ opacity: 0, scale: 0.98, y: 6 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      role="menu"
+                      className="absolute left-0 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200/70 bg-white/90 backdrop-blur shadow-[0_20px_50px_rgba(26,44,78,0.15)]"
+                      onMouseEnter={() => setIsFeaturesOpen(true)}
+                      onMouseLeave={() => setIsFeaturesOpen(false)}
+                    >
+                      <a href="/Legal-Research" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+                            <path d="M3 5h18M6 8h12M8 11h8M10 14h4" stroke="#2EA27E" strokeWidth="1.6" />
+                            <circle cx="12" cy="18" r="3" stroke="#1A2C4E" strokeWidth="1.6" />
+                          </svg>
+                        </span>
+                        <div>
+                          <div className="font-medium text-[#1A2C4E]">Legal Research</div>
+                          <div className="text-xs text-slate-500">Smart search across jurisprudence</div>
+                        </div>
+                      </a>
+                      <a href="/Drafting-Assistant" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+                            <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#2EA27E" strokeWidth="1.6" strokeLinejoin="round" />
+                          </svg>
+                        </span>
+                        <div>
+                          <div className="font-medium text-[#1A2C4E]">Drafting Assistant</div>
+                          <div className="text-xs text-slate-500">Create and refine legal drafts</div>
+                        </div>
+                      </a>
+                      <a href="/Document-Analysis" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+                            <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" stroke="#1A2C4E" strokeWidth="1.6" />
+                            <path d="M12 10h4M12 14h4M8 10h2M8 14h2" stroke="#2EA27E" strokeWidth="1.6" />
+                          </svg>
+                        </span>
+                        <div>
+                          <div className="font-medium text-[#1A2C4E]">Document Analyser</div>
+                          <div className="text-xs text-slate-500">Summaries, risks, and insights</div>
+                        </div>
+                      </a>
+                    </motion.div>
+                  )}
+                </div>
               </motion.div>
             </div>
 
@@ -150,7 +217,7 @@ export default function Home() {
                 className="relative rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur p-4 shadow-[0_10px_40px_rgba(26,44,78,0.08)]"
               >
                 <div className="aspect-[16/10] w-full overflow-hidden rounded-2xl">
-                  <Image src="/window.png" alt="AI legal assistant" fill priority className="object-contain" />
+                  <Image src="/window2.png" alt="AI legal assistant" fill priority className="object-cover rounded-2xl" />
                 </div>
               </motion.div>
             </div>
@@ -174,27 +241,77 @@ export default function Home() {
 
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
             {[
-              { title: "Document Analysis & Summarization", icon: "file.svg", desc: "Understand lengthy documents in seconds." },
-              { title: "AI-Driven Legal Research", icon: "globe.svg", desc: "Search jurisprudence and insights intelligently." },
-              { title: "Multilingual Support", icon: "next.svg", desc: "Work across languages with ease." },
-              { title: "Custom Document Generation", icon: "vercel.svg", desc: "Draft contracts, notices, and more." },
-              { title: "Secure & Private Assistance", icon: "window.svg", desc: "Your data stays confidential." },
-            ].map((f, i) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.5, delay: i * 0.05 }}
-                className="group rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur p-5 shadow-sm hover:shadow-md transition will-change-transform"
-              >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1A2C4E]/10 to-[#2EA27E]/10 flex items-center justify-center ring-1 ring-slate-200">
-                  <Image src={`/${f.icon}`} alt="" width={24} height={24} className="opacity-80" />
-                </div>
-                <div className="mt-4 font-medium text-[#1A2C4E]">{f.title}</div>
-                <div className="text-sm text-slate-600 mt-1">{f.desc}</div>
-              </motion.div>
-            ))}
+              {
+                title: "Document Analysis & Summarization",
+                desc: "Understand lengthy documents in seconds.",
+                href: "/Document-Analysis",
+                svg: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" stroke="#1A2C4E" strokeWidth="1.6" />
+                    <path d="M12 10h4M12 14h4M8 10h2M8 14h2" stroke="#2EA27E" strokeWidth="1.6" />
+                  </svg>
+                )
+              },
+              {
+                title: "AI-Driven Legal Research",
+                desc: "Search jurisprudence and insights intelligently.",
+                href: "/Legal-Research",
+                svg: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <circle cx="11" cy="11" r="7" stroke="#1A2C4E" strokeWidth="1.6" />
+                    <path d="M21 21l-4.3-4.3" stroke="#2EA27E" strokeWidth="1.6" strokeLinecap="round" />
+                  </svg>
+                )
+              },
+              { title: "Multilingual Support", desc: "Work across languages with ease.", svg: (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M4 5h16M6 9h12M8 13h8M10 17h4" stroke="#1A2C4E" strokeWidth="1.6" />
+                  <path d="M18 5l2 2-2 2" stroke="#2EA27E" strokeWidth="1.6" />
+                </svg>
+              ) },
+              {
+                title: "Custom Document Generation",
+                desc: "Draft contracts, notices, and more.",
+                href: "/Drafting-Assistant",
+                svg: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#1A2C4E" strokeWidth="1.6" strokeLinejoin="round" />
+                  </svg>
+                )
+              },
+              { title: "Secure & Private Assistance", desc: "Your data stays confidential.", svg: (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M7 10V7a5 5 0 0 1 10 0v3" stroke="#1A2C4E" strokeWidth="1.6" />
+                  <rect x="4" y="10" width="16" height="10" rx="2" stroke="#2EA27E" strokeWidth="1.6" />
+                  <circle cx="12" cy="15" r="2" stroke="#1A2C4E" strokeWidth="1.6" />
+                </svg>
+              ) },
+            ].map((f, i) => {
+              const Card = (
+                <motion.div
+                  key={f.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.5, delay: i * 0.05 }}
+                  whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(26,44,78,0.12)" }}
+                  className={`group h-full rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur p-5 shadow-sm transition will-change-transform ${f.href ? "ring-1 ring-transparent hover:ring-emerald-200 cursor-pointer" : ""}`}
+                >
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1A2C4E]/10 to-[#2EA27E]/10 flex items-center justify-center ring-1 ring-slate-200">
+                    {f.svg}
+                  </div>
+                  <div className="mt-4 font-medium text-[#1A2C4E]">{f.title}</div>
+                  <div className="text-sm text-slate-600 mt-1">{f.desc}</div>
+                </motion.div>
+              );
+              return f.href ? (
+                <a key={f.title} href={f.href} aria-label={f.title} className="block h-full">
+                  {Card}
+                </a>
+              ) : (
+                <div key={f.title} className="h-full">{Card}</div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -355,14 +472,14 @@ export default function Home() {
                   </svg>
                 )
               },
-              {
+              /* {
                 title: "GDPR-Compliant Data Handling", desc: "Built with global privacy standards.", svg: (
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <circle cx="12" cy="12" r="9" stroke="#1A2C4E" strokeWidth="1.6" />
                     <path d="M7 12h10M12 7v10" stroke="#2EA27E" strokeWidth="1.6" />
                   </svg>
                 )
-              },
+              }, */
             ].map((c, i) => (
               <motion.div
                 key={c.title}

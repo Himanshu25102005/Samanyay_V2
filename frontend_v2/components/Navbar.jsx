@@ -6,13 +6,26 @@ import styles from './Navbar.module.css';
 export default function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
-    const [activeSection, setActiveSection] = useState('dashboard');
+
+    const deriveActiveSection = (path) => {
+        if (!path) return 'home';
+        if (path === '/' || path === '/page') return 'home';
+        if (path.startsWith('/profile')) return 'dashboard';
+        if (path.startsWith('/Legal-Research')) return 'legal-research';
+        if (path.startsWith('/Drafting-Assistant')) return 'drafting-assistant';
+        if (path.startsWith('/Document-Analysis')) return 'document-analysis';
+        return 'home';
+    };
+
+    const [activeSection, setActiveSection] = useState(() => deriveActiveSection(pathname));
+    const [isMounted, setIsMounted] = useState(false);
 
     // Handle navigation clicks
     const handleNavigation = (section) => {
         setActiveSection(section);
         // Route to proper pages
-        if (section === 'dashboard') router.push('/');
+        if (section === 'home') router.push('/');
+        else if (section === 'dashboard') router.push('/profile');
         else if (section === 'legal-research') router.push('/Legal-Research');
         else if (section === 'drafting-assistant') router.push('/Drafting-Assistant');
         else if (section === 'document-analysis') router.push('/Document-Analysis');
@@ -26,12 +39,12 @@ export default function Navbar() {
 
     // Set active based on current pathname
     useEffect(() => {
-        if (!pathname) return;
-        if (pathname === '/' || pathname === '/page') setActiveSection('dashboard');
-        else if (pathname.startsWith('/Legal-Research')) setActiveSection('legal-research');
-        else if (pathname.startsWith('/Drafting-Assistant')) setActiveSection('drafting-assistant');
-        else if (pathname.startsWith('/Document-Analysis')) setActiveSection('document-analysis');
+        setActiveSection(deriveActiveSection(pathname));
     }, [pathname]);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     return (
         <nav className={styles.navbar} role="navigation" aria-label="Main navigation">
@@ -50,10 +63,10 @@ export default function Navbar() {
             <ul className={styles.navList} role="menubar">
                 <li role="none">
                     <button
-                        className={`${styles.navButton} ${activeSection === 'dashboard' ? styles.active : ''}`}
-                        onClick={() => handleNavigation('dashboard')}
+                        className={`${styles.navButton} ${isMounted && activeSection === 'home' ? styles.active : ''}`}
+                        onClick={() => handleNavigation('home')}
                         role="menuitem"
-                        aria-label="Navigate to Dashboard"
+                        aria-label="Navigate to Home"
                         tabIndex="0"
                     >
                         <svg 
@@ -66,10 +79,33 @@ export default function Navbar() {
                             strokeLinejoin="round"
                             aria-hidden="true"
                         >
-                            <rect x="3" y="3" width="7" height="7" rx="1"/>
-                            <rect x="14" y="3" width="7" height="7" rx="1"/>
-                            <rect x="14" y="14" width="7" height="7" rx="1"/>
-                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <path d="M3 11l9-7 9 7"/>
+                            <path d="M9 22V12h6v10"/>
+                            <path d="M21 22H3"/>
+                        </svg>
+                        <span className={styles.navText}>Home</span>
+                    </button>
+                </li>
+                <li role="none">
+                    <button
+                        className={`${styles.navButton} ${isMounted && activeSection === 'dashboard' ? styles.active : ''}`}
+                        onClick={() => handleNavigation('dashboard')}
+                        role="menuitem"
+                        aria-label="Navigate to Profile"
+                        tabIndex="0"
+                    >
+                        <svg 
+                            className={styles.navIcon} 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                        >
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M6 20a6 6 0 0 1 12 0"/>
                         </svg>
                         <span className={styles.navText}>Dashboard</span>
                     </button>
@@ -77,7 +113,7 @@ export default function Navbar() {
                 
                 <li role="none">
                     <button
-                        className={`${styles.navButton} ${activeSection === 'legal-research' ? styles.active : ''}`}
+                        className={`${styles.navButton} ${isMounted && activeSection === 'legal-research' ? styles.active : ''}`}
                         onClick={() => handleNavigation('legal-research')}
                         role="menuitem"
                         aria-label="Navigate to Legal Research"
@@ -107,7 +143,7 @@ export default function Navbar() {
                 
                 <li role="none">
                     <button
-                        className={`${styles.navButton} ${activeSection === 'drafting-assistant' ? styles.active : ''}`}
+                        className={`${styles.navButton} ${isMounted && activeSection === 'drafting-assistant' ? styles.active : ''}`}
                         onClick={() => handleNavigation('drafting-assistant')}
                         role="menuitem"
                         aria-label="Navigate to Drafting Assistant"
@@ -124,7 +160,7 @@ export default function Navbar() {
                 
                 <li role="none">
                     <button
-                        className={`${styles.navButton} ${activeSection === 'document-analysis' ? styles.active : ''}`}
+                        className={`${styles.navButton} ${isMounted && activeSection === 'document-analysis' ? styles.active : ''}`}
                         onClick={() => handleNavigation('document-analysis')}
                         role="menuitem"
                         aria-label="Navigate to Document Analysis"

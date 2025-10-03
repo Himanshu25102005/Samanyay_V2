@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import LanguageSelector from "../../../../components/LanguageSelector.jsx";
+import Navbar from "../../../../components/Navbar.jsx";
 import { useI18n } from "../../../../components/I18nProvider.jsx";
 
 export default function ImproveDraftPage() {
@@ -59,7 +60,9 @@ export default function ImproveDraftPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900">
+    <>
+      <Navbar />
+      <div className="ml-[280px] min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900">
       <div className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b border-slate-200">
         <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl md:text-3xl font-semibold text-sky-800">{t('draftingAssistant')}</h1>
@@ -113,6 +116,7 @@ export default function ImproveDraftPage() {
         )}
       </main>
     </div>
+    </>
   );
 }
 

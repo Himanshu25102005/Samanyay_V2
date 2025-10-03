@@ -64,6 +64,21 @@ export default function LegalResearch() {
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     }
 
+    function exportNote() {
+        const title = panel.title || 'Answer';
+        const summary = panel.summary ? `\n\nSummary:\n${panel.summary}` : '';
+        const text = panel.text ? `\n\nAnswer:\n${panel.text}` : '';
+        const refs = Array.isArray(panel.references) && panel.references.length
+            ? `\n\nSources:\n${panel.references.map((r, i) => `- ${r.case || 'Reference'} ${r.citation ? `(${r.citation})` : ''}`).join('\n')}`
+            : '';
+        const full = `${title}${summary}${text}${refs}`.trim();
+        const blob = new Blob([full], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'legal-research-note.txt';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+
     function clearChat() { setChat([]); setPanel({ title: '', text: '', summary: '', references: [] }); }
 
     return (
@@ -82,12 +97,6 @@ export default function LegalResearch() {
                             <span className={`text-xs px-2 py-0.5 rounded ${health==='running'?(dark?'bg-green-900 text-green-200':'bg-green-100 text-green-700'):(dark?'bg-slate-800 text-slate-300':'bg-gray-100 text-gray-600')}`}>{health}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                            {/* Bigger, clearer segmented control */}
-                            <div className={`flex items-center gap-1 ${dark?'bg-slate-900 border-slate-700':'bg-white'} rounded-full border shadow p-1`}> 
-                                {['detailed','short'].map(v => (
-                                    <button key={v} onClick={()=>setAnswerType(v)} className={`px-4 py-2 text-base rounded-full transition-all ${answerType===v?(dark?'bg-teal-600 text-white shadow':'bg-blue-600 text-white shadow'):(dark?'text-slate-200 hover:bg-slate-800':'text-gray-700 hover:bg-gray-50')}`}>{v==='detailed'?'Detailed':'Short'}</button>
-                                ))}
-                            </div>
                             <button onClick={()=>setDark(d=>!d)} className={`px-3 py-2 rounded-lg border shadow-sm ${dark?'bg-slate-900 border-slate-700':'bg-white'}`}>{dark?'Dark':'Light'}</button>
                             <LanguageSelector />
                         </div>
@@ -115,13 +124,20 @@ export default function LegalResearch() {
                             </AnimatePresence>
                         </div>
                         {error && <div className="mt-2 text-sm text-red-600">{error}</div>}
-                        <div className="mt-3 grid grid-cols-12 gap-2">
-                            <textarea value={question} onChange={e=>setQuestion(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } }} placeholder="Type your legal question…" rows={1} className={`col-span-9 rounded-xl border-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[44px] ${dark?'bg-slate-900 border-slate-700 text-slate-100':'bg-white border-blue-100 hover:border-blue-200'}`} />
-                            <button onClick={send} className={`col-span-3 rounded-xl ${dark?'bg-teal-600 hover:bg-teal-700':'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#1e4ed8] hover:to-[#2563eb]'} text-white font-semibold shadow-md`}>Send</button>
+                        <div className="mt-3 grid grid-cols-12 gap-2 items-stretch">
+                            <textarea value={question} onChange={e=>setQuestion(e.target.value)} onKeyDown={(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } }} placeholder="Type your legal question…" rows={1} className={`col-span-12 md:col-span-7 h-full rounded-xl border-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[44px] ${dark?'bg-slate-900 border-slate-700 text-slate-100':'bg-white border-blue-100 hover:border-blue-200'}`} />
+                            <div className={`col-span-12 md:col-span-3 h-full min-h-[44px] flex items-center justify-center ${dark?'bg-slate-900 border-slate-700':'bg-white'} rounded-xl border shadow px-1 py-1 overflow-hidden`}>
+                                <div className="flex items-center flex-nowrap gap-1 w-full justify-center">
+                                    {['detailed','short'].map(v => (
+                                        <button key={v} onClick={()=>setAnswerType(v)} className={`px-2 md:px-3 py-1.5 text-xs md:text-sm rounded-full transition-all whitespace-nowrap ${answerType===v?(dark?'bg-teal-600 text-white shadow':'bg-blue-600 text-white shadow'):(dark?'text-slate-200 hover:bg-slate-800':'text-gray-700 hover:bg-gray-50')}`}>{v==='detailed'?'Detailed':'Short'}</button>
+                                    ))}
+                                </div>
+                            </div>
+                            <button onClick={send} className={`col-span-12 md:col-span-2 h-full min-h-[44px] rounded-xl ${dark?'bg-teal-600 hover:bg-teal-700':'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#1e4ed8] hover:to-[#2563eb]'} text-white font-semibold shadow-md`}>Send</button>
                         </div>
-                        <div className="mt-2 flex items-center gap-2 text-xs">
-                            <button onClick={clearChat} className={`px-3 py-1.5 rounded-lg border ${dark?'bg-slate-900 border-slate-700':'bg-white'} shadow-sm hover:opacity-90`}>Clear chat</button>
-                            <button onClick={exportChat} className={`px-3 py-1.5 rounded-lg border ${dark?'bg-slate-900 border-slate-700':'bg-white'} shadow-sm hover:opacity-90`}>Export</button>
+                        <div className="mt-3 flex items-center justify-end gap-3 text-sm">
+                            <button onClick={clearChat} className={`inline-flex items-center h-9 px-3 rounded-lg border ${dark?'bg-slate-900 border-slate-700':'bg-white'} shadow-sm hover:opacity-90`}>Clear chat</button>
+                            <button onClick={exportChat} className={`inline-flex items-center h-9 px-3 rounded-lg border ${dark?'bg-slate-900 border-slate-700':'bg-white'} shadow-sm hover:opacity-90`}>Download</button>
                         </div>
                     </motion.div>
 
@@ -129,7 +145,10 @@ export default function LegalResearch() {
                     <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className={`rounded-2xl ${dark?'bg-[#0f172a] border-slate-700 text-slate-100':'bg-white/90'} border-2 ${dark?'border-slate-700':'border-blue-100'} shadow-lg p-4 h-fit backdrop-blur`}>
                         <div className="flex items-center justify-between border-b pb-2">
                             <div className="text-xl font-bold tracking-tight">{panel.title || 'Answer'}</div>
-                            <button onClick={()=>setShowFullAnswer(s=>!s)} className={`px-3 py-1.5 rounded-full border ${dark?'bg-slate-900 border-slate-700':'bg-white'} text-xs shadow-sm`}>{showFullAnswer?'Show summary':'Show full'}</button>
+                            <div className="flex items-center gap-2">
+                                <button onClick={()=>setShowFullAnswer(s=>!s)} className={`px-3 py-1.5 rounded-full border ${dark?'bg-slate-900 border-slate-700':'bg-white'} text-xs shadow-sm`}>{showFullAnswer?'Show summary':'Show full'}</button>
+                                <button onClick={exportNote} className={`px-3 py-1.5 rounded-full border ${dark?'bg-slate-900 border-slate-700':'bg-white'} text-xs shadow-sm`}>Download note</button>
+                            </div>
                         </div>
                         {panel.summary && (
                             <div className={`mt-3 p-3 rounded-xl ${dark?'bg-slate-800 border-slate-700 text-slate-200':'bg-blue-50 border border-blue-100 text-blue-900'} text-sm`}>{panel.summary}</div>

@@ -11,13 +11,13 @@ body::-webkit-scrollbar {
 
 @media (max-width: 1024px) {
   .contentWithSidebar {
-    margin-left: 80px;
+    margin-left: 0px;
   }
 }
 
 @media (max-width: 768px) {
   .contentWithSidebar {
-    margin-left: 70px;
+    margin-left: 0px;
   }
 }
 
