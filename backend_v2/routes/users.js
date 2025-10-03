@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+// mongoose.connect("mongodb://127.0.0.1:27017/Samanyay_v2");
 mongoose.connect("mongodb://127.0.0.1:27017/Samanyay_v2");
 const plm = require("passport-local-mongoose");
 

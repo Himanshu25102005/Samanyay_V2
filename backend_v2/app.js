@@ -15,7 +15,7 @@ var app = express();
 
 
 app.use(cors({
-  origin: 'http://localhost:3000', // Your React app's URL
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Your React app's URL
   credentials: true, // Allow cookies/sessions
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -28,7 +28,7 @@ app.set('view engine', 'ejs');
 app.use(session({
   resave:false,
   saveUninitialized:false,
-  secret: "hey hey hey"
+  secret: process.env.SESSION_SECRET || "hey hey hey"
 }))
 
 // Initialize Passport

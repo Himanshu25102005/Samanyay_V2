@@ -1,0 +1,28 @@
+services:
+  # Backend Service
+  - type: web
+    name: samanyay-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://samanyay-frontend.onrender.com
+    healthCheckPath: /
+    
+  # Frontend Service  
+  - type: web
+    name: samanyay-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: .next
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://samanyay-backend.onrender.com
+
