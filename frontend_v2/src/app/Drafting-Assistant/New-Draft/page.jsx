@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import LanguageSelector from "../../../../components/LanguageSelector.jsx";
 import Navbar from "../../../../components/Navbar.jsx";
@@ -12,8 +12,10 @@ function SearchParamsHandler({ onParamsLoaded }) {
   const type = params.get("type") || "Document";
   const initialDid = params.get("did") || "";
   
-  // Call the callback with the params
-  onParamsLoaded({ type, initialDid });
+  // Use useEffect to call the callback after render
+  useEffect(() => {
+    onParamsLoaded({ type, initialDid });
+  }, [type, initialDid, onParamsLoaded]);
   
   return null; // This component doesn't render anything
 }
@@ -192,10 +194,10 @@ export default function NewDraftPage() {
   const [params, setParams] = useState({ type: "Document", initialDid: "" });
   const [paramsLoaded, setParamsLoaded] = useState(false);
 
-  const handleParamsLoaded = ({ type, initialDid }) => {
+  const handleParamsLoaded = useCallback(({ type, initialDid }) => {
     setParams({ type, initialDid });
     setParamsLoaded(true);
-  };
+  }, []);
 
   return (
     <>

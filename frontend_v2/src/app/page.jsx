@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Playfair_Display, Inter } from "next/font/google";
 import Plasma from "../../animations/Plasma";
+import { createPortal } from "react-dom";
 
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
@@ -25,10 +26,88 @@ export default function Home() {
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ left: '0', right: 'auto', top: '100%' });
+  const [mounted, setMounted] = useState(false);
+  const buttonRef = useRef(null);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     const id = setInterval(() => setActiveIdx((i) => (i + 1) % testimonials.length), 4500);
     return () => clearInterval(id);
   }, [testimonials.length]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      // Get button position if available
+      const button = buttonRef.current || document.querySelector('[aria-haspopup="menu"]');
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        const spaceBelow = height - rect.bottom;
+        const spaceAbove = rect.top;
+        const dropdownHeight = 200; // Approximate dropdown height
+        
+        // Special handling for the problematic range 769px to 1160px
+        if (width >= 769 && width <= 1160) {
+          // For this range, always position below but ensure it doesn't get clipped
+          const maxBottom = height - 20; // 20px margin from bottom
+          const calculatedBottom = rect.bottom + dropdownHeight;
+          
+          if (calculatedBottom > maxBottom) {
+            // Position above if it would be clipped below
+            setDropdownPosition({ 
+              left: '0', 
+              right: 'auto', 
+              top: 'auto',
+              bottom: '100%',
+              marginTop: '0',
+              marginBottom: '0.5rem'
+            });
+          } else {
+            // Position below with proper spacing
+            setDropdownPosition({ 
+              left: '0', 
+              right: 'auto', 
+              top: '100%',
+              bottom: 'auto',
+              marginTop: '0.5rem',
+              marginBottom: '0'
+            });
+          }
+        } else if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+          // Position above the button for other ranges
+          setDropdownPosition({ 
+            left: '0', 
+            right: 'auto', 
+            top: 'auto',
+            bottom: '100%',
+            marginTop: '0',
+            marginBottom: '0.5rem'
+          });
+        } else {
+          // Position below the button for other ranges
+          setDropdownPosition({ 
+            left: '0', 
+            right: 'auto', 
+            top: '100%',
+            bottom: 'auto',
+            marginTop: '0.5rem',
+            marginBottom: '0'
+          });
+        }
+      } else {
+        setDropdownPosition({ left: '0', right: 'auto', top: '100%' });
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isFeaturesOpen]);
 
   function onNavClick(e, id) {
     e.preventDefault();
@@ -37,6 +116,90 @@ export default function Home() {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
+
+  // Portal-based dropdown component
+  const DropdownPortal = () => {
+    if (!mounted || !isFeaturesOpen || !buttonRef.current) return null;
+
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const dropdownHeight = 200;
+    const dropdownWidth = 256; // 16rem = 256px
+
+    // Calculate position
+    let top = buttonRect.bottom + 8;
+    let left = buttonRect.left;
+    let right = 'auto';
+
+    // Check if dropdown would be clipped on the right
+    if (left + dropdownWidth > viewportWidth - 16) {
+      left = 'auto';
+      right = viewportWidth - buttonRect.right;
+    }
+
+    // Check if dropdown would be clipped at the bottom
+    if (top + dropdownHeight > viewportHeight - 16) {
+      top = buttonRect.top - dropdownHeight - 8;
+    }
+
+    return createPortal(
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98, y: 6 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.98, y: 6 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
+        role="menu"
+        className="fixed z-[9999] w-64 overflow-hidden rounded-xl border border-slate-200/70 bg-white/90 backdrop-blur shadow-[0_20px_50px_rgba(26,44,78,0.15)]"
+        style={{
+          top: `${top}px`,
+          left: left === 'auto' ? 'auto' : `${left}px`,
+          right: right === 'auto' ? 'auto' : `${right}px`,
+          maxHeight: `${Math.min(dropdownHeight, viewportHeight - 32)}px`,
+          overflowY: 'auto'
+        }}
+        onMouseEnter={() => setIsFeaturesOpen(true)}
+        onMouseLeave={() => setIsFeaturesOpen(false)}
+      >
+        <a href="/Legal-Research" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M3 5h18M6 8h12M8 11h8M10 14h4" stroke="#2EA27E" strokeWidth="1.6" />
+              <circle cx="12" cy="18" r="3" stroke="#1A2C4E" strokeWidth="1.6" />
+            </svg>
+          </span>
+          <div>
+            <div className="font-medium text-[#1A2C4E]">Legal Research</div>
+            <div className="text-xs text-slate-500">Smart search across jurisprudence</div>
+          </div>
+        </a>
+        <a href="/Drafting-Assistant" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#2EA27E" strokeWidth="1.6" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <div>
+            <div className="font-medium text-[#1A2C4E]">Drafting Assistant</div>
+            <div className="text-xs text-slate-500">Create and refine legal drafts</div>
+          </div>
+        </a>
+        <a href="/Document-Analysis" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" stroke="#1A2C4E" strokeWidth="1.6" />
+              <path d="M12 10h4M12 14h4M8 10h2M8 14h2" stroke="#2EA27E" strokeWidth="1.6" />
+            </svg>
+          </span>
+          <div>
+            <div className="font-medium text-[#1A2C4E]">Document Analyser</div>
+            <div className="text-xs text-slate-500">Summaries, risks, and insights</div>
+          </div>
+        </a>
+      </motion.div>,
+      document.body
+    );
+  };
 
   return (
     <main className={`${inter.variable} ${playfair.variable} text-slate-800`}>
@@ -123,6 +286,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut", delay: 0.25 }}
                 className="mt-7 flex flex-wrap items-center gap-3"
+                style={{ overflow: 'visible' }}
               >
                 <motion.a
                   href="/login"
@@ -136,13 +300,75 @@ export default function Home() {
                   <span aria-hidden className="absolute inset-0 rounded-2xl bg-white/10 mix-blend-overlay" />
                 </motion.a>
 
-                <div className="relative z-50">
+                <div className="relative z-50" style={{ overflow: 'visible' }}>
                   <button
+                    ref={buttonRef}
                     type="button"
                     className="inline-flex items-center gap-2 rounded-2xl border border-slate-300/80 bg-white/70 px-5 py-3 text-sm text-[#1A2C4E] backdrop-blur hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300 transition"
                     aria-haspopup="menu"
                     aria-expanded={isFeaturesOpen}
-                    onClick={() => setIsFeaturesOpen((v) => !v)}
+                    onClick={() => {
+                      const newState = !isFeaturesOpen;
+                      setIsFeaturesOpen(newState);
+                      if (newState) {
+                        // Recalculate position when opening
+                        setTimeout(() => {
+                          const button = buttonRef.current;
+                          if (button) {
+                            const rect = button.getBoundingClientRect();
+                            const height = window.innerHeight;
+                            const width = window.innerWidth;
+                            const spaceBelow = height - rect.bottom;
+                            const spaceAbove = rect.top;
+                            const dropdownHeight = 200;
+                            
+                            // Special handling for the problematic range 769px to 1160px
+                            if (width >= 769 && width <= 1160) {
+                              const maxBottom = height - 20; // 20px margin from bottom
+                              const calculatedBottom = rect.bottom + dropdownHeight;
+                              
+                              if (calculatedBottom > maxBottom) {
+                                setDropdownPosition({ 
+                                  left: '0', 
+                                  right: 'auto', 
+                                  top: 'auto',
+                                  bottom: '100%',
+                                  marginTop: '0',
+                                  marginBottom: '0.5rem'
+                                });
+                              } else {
+                                setDropdownPosition({ 
+                                  left: '0', 
+                                  right: 'auto', 
+                                  top: '100%',
+                                  bottom: 'auto',
+                                  marginTop: '0.5rem',
+                                  marginBottom: '0'
+                                });
+                              }
+                            } else if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+                              setDropdownPosition({ 
+                                left: '0', 
+                                right: 'auto', 
+                                top: 'auto',
+                                bottom: '100%',
+                                marginTop: '0',
+                                marginBottom: '0.5rem'
+                              });
+                            } else {
+                              setDropdownPosition({ 
+                                left: '0', 
+                                right: 'auto', 
+                                top: '100%',
+                                bottom: 'auto',
+                                marginTop: '0.5rem',
+                                marginBottom: '0'
+                              });
+                            }
+                          }
+                        }, 10);
+                      }
+                    }}
                   >
                     Our Features
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -150,54 +376,6 @@ export default function Home() {
                     </svg>
                   </button>
 
-                  {isFeaturesOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.98, y: 6 }}
-                      animate={{ opacity: 1, scale: 1, y: 6 }}
-                      exit={{ opacity: 0, scale: 0.98, y: 6 }}
-                      transition={{ duration: 0.18, ease: "easeOut" }}
-                      role="menu"
-                      className="absolute left-0 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200/70 bg-white/90 backdrop-blur shadow-[0_20px_50px_rgba(26,44,78,0.15)]"
-                      onMouseEnter={() => setIsFeaturesOpen(true)}
-                      onMouseLeave={() => setIsFeaturesOpen(false)}
-                    >
-                      <a href="/Legal-Research" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                            <path d="M3 5h18M6 8h12M8 11h8M10 14h4" stroke="#2EA27E" strokeWidth="1.6" />
-                            <circle cx="12" cy="18" r="3" stroke="#1A2C4E" strokeWidth="1.6" />
-                          </svg>
-                        </span>
-                        <div>
-                          <div className="font-medium text-[#1A2C4E]">Legal Research</div>
-                          <div className="text-xs text-slate-500">Smart search across jurisprudence</div>
-                        </div>
-                      </a>
-                      <a href="/Drafting-Assistant" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                            <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#2EA27E" strokeWidth="1.6" strokeLinejoin="round" />
-                          </svg>
-                        </span>
-                        <div>
-                          <div className="font-medium text-[#1A2C4E]">Drafting Assistant</div>
-                          <div className="text-xs text-slate-500">Create and refine legal drafts</div>
-                        </div>
-                      </a>
-                      <a href="/Document-Analysis" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                            <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" stroke="#1A2C4E" strokeWidth="1.6" />
-                            <path d="M12 10h4M12 14h4M8 10h2M8 14h2" stroke="#2EA27E" strokeWidth="1.6" />
-                          </svg>
-                        </span>
-                        <div>
-                          <div className="font-medium text-[#1A2C4E]">Document Analyser</div>
-                          <div className="text-xs text-slate-500">Summaries, risks, and insights</div>
-                        </div>
-                      </a>
-                    </motion.div>
-                  )}
                 </div>
               </motion.div>
             </div>
@@ -587,6 +765,9 @@ export default function Home() {
           <div className="mt-8 text-xs text-slate-200/80">© {new Date().getFullYear()} Samanyay. All rights reserved.</div>
         </div>
       </footer>
+      
+      {/* Portal-based dropdown */}
+      <DropdownPortal />
     </main>
   );
 }
