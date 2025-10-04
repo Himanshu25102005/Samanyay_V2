@@ -112,7 +112,7 @@ export default function AnalyseSpecificDocument() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {card(
                             'chargesheet',
                             'Chargesheet Analyser',
@@ -136,6 +136,27 @@ export default function AnalyseSpecificDocument() {
                             'Upload Case Documents',
                             'from-white to-teal-50 border-teal-100',
                             <span>📂</span>
+                        )}
+                        {card(
+                            'timeline',
+                            'Timeline Generator',
+                            'Upload legal documents to automatically generate chronological timelines and event sequences.',
+                            'Upload Documents',
+                            'from-white to-purple-50 border-purple-100',
+                            <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {/* Timeline line */}
+                                <path d="M3 12h18" strokeWidth="2" strokeLinecap="round"/>
+                                {/* Timeline events */}
+                                <circle cx="6" cy="12" r="2" fill="currentColor"/>
+                                <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                                <circle cx="18" cy="12" r="2" fill="currentColor"/>
+                                {/* Arrow indicating progression */}
+                                <path d="M20 10l2 2-2 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                {/* Calendar/clock elements */}
+                                <rect x="2" y="4" width="4" height="3" rx="1" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                                <rect x="10" y="4" width="4" height="3" rx="1" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                                <rect x="18" y="4" width="4" height="3" rx="1" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                            </svg>
                         )}
                         <motion.div
                             initial={{ opacity: 0, y: 16 }}

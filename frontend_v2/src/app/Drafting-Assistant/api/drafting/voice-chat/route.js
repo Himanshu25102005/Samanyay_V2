@@ -12,6 +12,7 @@ export async function POST(req) {
       method: 'POST',
       headers: { 'content-type': req.headers.get('content-type') || undefined },
       body: req.body,
+      duplex: 'half', // Required for Node.js fetch API when sending a body
     });
 
     const text = await res.text();

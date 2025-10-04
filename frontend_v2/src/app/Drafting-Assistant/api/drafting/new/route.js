@@ -11,6 +11,7 @@ export async function POST(req) {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: await req.text(),
+      duplex: 'half', // Required for Node.js fetch API when sending a body
     });
     const text = await res.text();
     return new Response(text, { status: res.status, headers: { 'content-type': res.headers.get('content-type') || 'application/json' } });
