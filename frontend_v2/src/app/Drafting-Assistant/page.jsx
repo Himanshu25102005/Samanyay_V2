@@ -14,9 +14,23 @@ const DOC_TYPES = [
     "Draft a Memorandum of Understanding",
     "Draft a Non-Disclosure Agreement",
     "Draft a Plaint/Complaint/Petition",
-    "Draft a Rent Agreement",
     "Draft a Reply/Rejoinder",
 ].sort();
+
+// Custom improve button text for each document type
+const getImproveButtonText = (docType) => {
+    const improveTexts = {
+        "Draft a Bail/Anticipatory Bail Application": "Improve Application",
+        "Draft a Contract": "Improve Contract",
+        "Draft a Discharge Application": "Improve Application",
+        "Draft a Legal Notice": "Improve Legal Notice",
+        "Draft a Memorandum of Understanding": "Improve MoU Draft",
+        "Draft a Non-Disclosure Agreement": "Improve NDA",
+        "Draft a Plaint/Complaint/Petition": "Improve Plaint/Complaint",
+        "Draft a Reply/Rejoinder": "Improve Reply/Rejoinder"
+    };
+    return improveTexts[docType] || "Improve Document";
+};
 
 export default function DraftingAssistant() {
     const { t } = useI18n();
@@ -24,8 +38,9 @@ export default function DraftingAssistant() {
     const [documentId, setDocumentId] = useState(null);
 
     const filtered = useMemo(() => {
-        if (!query) return DOC_TYPES;
-        return DOC_TYPES.filter((d) => d.toLowerCase().includes(query.toLowerCase()));
+        const allTypes = [...DOC_TYPES, "General Purpose Draft"];
+        if (!query) return allTypes;
+        return allTypes.filter((d) => d.toLowerCase().includes(query.toLowerCase()));
     }, [query]);
 
     async function handleGeneralPurposeUpload() {
@@ -48,18 +63,6 @@ export default function DraftingAssistant() {
             </div>
 
             <main className="mx-auto max-w-6xl px-4 py-6 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <button
-                        onClick={handleGeneralPurposeUpload}
-                        className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-white hover:bg-sky-700 transition-colors shadow-sm"
-                    >
-                        {t('generalPurposeDraft')}
-                    </button>
-                    {documentId && (
-                        <div className="text-sm text-slate-600">document_id: <span className="font-mono">{documentId}</span></div>
-                    )}
-                </div>
-
                 <div>
                     <input
                         type="text"
@@ -79,29 +82,46 @@ export default function DraftingAssistant() {
                             whileHover={{ y: -2 }}
                             className="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
                         >
-                            <div className="flex h-25  items-start gap-3">
-                                <div className="h-10 w-10 rounded-full bg-sky-50 text-sky-700 flex items-center justify-center">📄</div>
+                            <div className="flex h-25 items-start gap-3">
+                                <div className="h-10 w-10 rounded-full bg-sky-50 text-sky-700 flex items-center justify-center">
+                                    {name === "General Purpose Draft" ? "⚡" : "📄"}
+                                </div>
                                 <div className="font-medium text-slate-800">{name}</div>
                             </div>
 
-                            <div className="mt-4 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Link href={{ pathname: "/Drafting-Assistant/New-Draft", query: { type: name, did: documentId || "" }}} className="flex-1">
-                                    <motion.span
+                            {name === "General Purpose Draft" ? (
+                                <div className="mt-4">
+                                    <motion.button
                                         whileTap={{ scale: 0.98 }}
-                                        className="inline-flex w-full items-center justify-center rounded-lg border border-sky-600 text-sky-700 px-3 py-2 hover:bg-sky-50"
+                                        onClick={handleGeneralPurposeUpload}
+                                        className="w-full inline-flex items-center justify-center rounded-lg bg-sky-600 text-white px-3 py-2 hover:bg-sky-700 transition-colors"
                                     >
-                                        {t('makeNewDraft')}
-                                    </motion.span>
-                                </Link>
-                                <Link href={{ pathname: "/Drafting-Assistant/Improve-Draft", query: { type: name, did: documentId || "" }}} className="flex-1">
-                                    <motion.span
-                                        whileTap={{ scale: 0.98 }}
-                                        className="inline-flex w-full items-center justify-center rounded-lg bg-sky-600 text-white px-3 py-2 hover:bg-sky-700"
-                                    >
-                                        {t('improveDocument')}
-                                    </motion.span>
-                                </Link>
-                            </div>
+                                        {t('generalPurposeDraft')}
+                                    </motion.button>
+                                    {documentId && (
+                                        <div className="mt-2 text-xs text-slate-500">document_id: <span className="font-mono">{documentId}</span></div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="mt-4 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Link href={{ pathname: "/Drafting-Assistant/New-Draft", query: { type: name, did: documentId || "" }}} className="flex-1">
+                                        <motion.span
+                                            whileTap={{ scale: 0.98 }}
+                                            className="inline-flex w-full items-center justify-center rounded-lg border border-sky-600 text-sky-700 px-3 py-2 hover:bg-sky-50 min-h-[40px] text-sm"
+                                        >
+                                            {t('makeNewDraft')}
+                                        </motion.span>
+                                    </Link>
+                                    <Link href={{ pathname: "/Drafting-Assistant/Improve-Draft", query: { type: name, did: documentId || "" }}} className="flex-1">
+                                        <motion.span
+                                            whileTap={{ scale: 0.98 }}
+                                            className="inline-flex w-full items-center justify-center rounded-lg bg-sky-600 text-white px-3 py-2 hover:bg-sky-700 min-h-[40px] text-sm"
+                                        >
+                                            {getImproveButtonText(name)}
+                                        </motion.span>
+                                    </Link>
+                                </div>
+                            )}
                         </motion.div>
                     ))}
                 </div>

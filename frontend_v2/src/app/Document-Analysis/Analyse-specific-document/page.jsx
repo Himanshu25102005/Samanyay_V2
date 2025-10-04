@@ -1,19 +1,16 @@
 'use client'
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Navbar from "../../../../components/Navbar.jsx";
 
 export default function AnalyseSpecificDocument() {
     const router = useRouter();
-    const [language, setLanguage] = useState('English');
     const [health, setHealth] = useState('unknown');
-    const fileInputsRef = useRef({});
-    const [selectedFiles, setSelectedFiles] = useState({});
-    const [isUploading, setIsUploading] = useState(false);
+    const [language, setLanguage] = useState('English');
 
     useEffect(() => {
-        // Step 1: Health check
+        // Health check
         fetch('/api/analyzer/health')
             .then(r => r.json())
             .then(data => {
@@ -26,43 +23,15 @@ export default function AnalyseSpecificDocument() {
             });
     }, []);
 
-    async function handleUpload(kind) {
-        const input = fileInputsRef.current[kind];
-        if (!input || !input.files || input.files.length === 0) return;
-        const file = input.files[0];
-        const form = new FormData();
-        form.append('file', file);
-
-        try {
-            setIsUploading(true);
-            const res = await fetch('/api/analyzer/upload', { method: 'POST', body: form });
-            const json = await res.json();
-            console.log('Upload response:', json);
-            const documentId = json?.data?.document_id;
-            if (documentId) {
-                sessionStorage.setItem('document_id', documentId);
-                console.log('Document ID:', documentId);
-                sessionStorage.setItem('language', language);
-                try {
-                    sessionStorage.setItem('document_preview', json?.data?.preview || '');
-                    sessionStorage.setItem('document_info', JSON.stringify(json?.data?.info || {}));
-                } catch {}
-                router.push('/Document-Analysis/Analyse-specific-document/Analysis');
-            }
-        } catch (e) {
-            console.error('Upload failed:', e);
-        } finally {
-            setIsUploading(false);
-        }
-    }
-
-    const card = (key, title, description, buttonLabel, gradient, icon) => (
+    const card = (key, title, description, gradient, icon) => (
         <motion.div
             key={key}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.22,1,0.36,1] }}
-            className={`rounded-3xl shadow-lg hover:shadow-2xl border p-8 bg-gradient-to-br ${gradient} transition-all min-h-[280px] flex flex-col`}
+            whileHover={{ y: -4, scale: 1.02 }}
+            className={`rounded-3xl shadow-lg hover:shadow-2xl border p-8 bg-gradient-to-br ${gradient} transition-all min-h-[280px] flex flex-col cursor-pointer`}
+            onClick={() => router.push('/Document-Analysis/Analyse-specific-document/Analysis')}
         >
             <div className="flex items-center justify-between mb-6">
                 <div className="w-12 h-12 rounded-xl bg-white/70 backdrop-blur flex items-center justify-center text-2xl">
@@ -75,17 +44,12 @@ export default function AnalyseSpecificDocument() {
             <h2 className="text-2xl font-semibold text-gray-900">{title}</h2>
             <p className="text-base text-gray-700 mt-2 leading-relaxed flex-1">{description}</p>
             <div className="mt-6">
-                <input ref={el => (fileInputsRef.current[key] = el)} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={(e)=>{ setSelectedFiles(prev=>({...prev,[key]: e.target.files?.[0]?.name || ''})); handleUpload(key); }} />
-                <button
-                    onClick={() => fileInputsRef.current[key]?.click()}
-                    disabled={isUploading}
-                    className={`w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl text-white shadow ${isUploading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
-                >
-                    {isUploading ? 'Uploading...' : buttonLabel}
-                </button>
-                {selectedFiles[key] && (
-                    <div className="mt-2 text-xs text-gray-600 truncate">Selected: {selectedFiles[key]}</div>
-                )}
+                <div className="w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors">
+                    <span>Start Analysis</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
             </div>
         </motion.div>
     );
@@ -117,7 +81,6 @@ export default function AnalyseSpecificDocument() {
                             'chargesheet',
                             'Chargesheet Analyser',
                             'Upload a chargesheet to begin automated legal insights and drafting support.',
-                            'Upload Chargesheet',
                             'from-white to-blue-50 border-blue-100',
                             <span>🧾</span>
                         )}
@@ -125,7 +88,6 @@ export default function AnalyseSpecificDocument() {
                             'contract',
                             'Contract Analyser',
                             'Upload a contract to analyze key clauses, risks, and obligations.',
-                            'Upload Contract',
                             'from-white to-indigo-50 border-indigo-100',
                             <span>📃</span>
                         )}
@@ -133,7 +95,6 @@ export default function AnalyseSpecificDocument() {
                             'case',
                             'Case Analyser',
                             'Upload case documents to summarize, extract issues and prepare notes.',
-                            'Upload Case Documents',
                             'from-white to-teal-50 border-teal-100',
                             <span>📂</span>
                         )}
@@ -141,7 +102,6 @@ export default function AnalyseSpecificDocument() {
                             'timeline',
                             'Timeline Generator',
                             'Upload legal documents to automatically generate chronological timelines and event sequences.',
-                            'Upload Documents',
                             'from-white to-purple-50 border-purple-100',
                             <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {/* Timeline line */}
@@ -162,7 +122,9 @@ export default function AnalyseSpecificDocument() {
                             initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.4, ease: [0.22,1,0.36,1] }}
-                            className={`rounded-3xl shadow-lg hover:shadow-2xl border p-8 bg-gradient-to-br from-white to-amber-50 border-amber-100 transition-all min-h-[280px] flex flex-col`}
+                            whileHover={{ y: -4, scale: 1.02 }}
+                            className={`rounded-3xl shadow-lg hover:shadow-2xl border p-8 bg-gradient-to-br from-white to-amber-50 border-amber-100 transition-all min-h-[280px] flex flex-col cursor-pointer`}
+                            onClick={() => router.push('/Document-Analysis/Analyse-specific-document/Analysis')}
                         >
                             <div className="flex items-center justify-between mb-6">
                                 <div className="w-12 h-12 rounded-xl bg-white/70 backdrop-blur flex items-center justify-center text-2xl">
@@ -173,12 +135,13 @@ export default function AnalyseSpecificDocument() {
                             <h2 className="text-2xl font-semibold text-gray-900">General Document</h2>
                             <p className="text-base text-gray-700 mt-2 leading-relaxed flex-1">Provide a specific query and upload any document to get targeted insights.</p>
 
-                            <textarea placeholder="Enter your specific query..." className="mt-4 w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500" rows={3}></textarea>
-
                             <div className="mt-6">
-                                <input ref={el => (fileInputsRef.current['general'] = el)} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={(e)=>{ setSelectedFiles(prev=>({...prev,['general']: e.target.files?.[0]?.name || ''})); handleUpload('general'); }} />
-                                <button onClick={() => fileInputsRef.current['general']?.click()} disabled={isUploading} className={`w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-base font-medium rounded-xl text-white shadow ${isUploading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}> {isUploading ? 'Uploading...' : 'Upload Document'} </button>
-                                {selectedFiles['general'] && (<div className="mt-2 text-xs text-gray-600 truncate">Selected: {selectedFiles['general']}</div>)}
+                                <div className="w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors">
+                                    <span>Start Analysis</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
                             </div>
                         </motion.div>
                     </div>
