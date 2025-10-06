@@ -103,7 +103,7 @@ export default function LegalResearch() {
     return (
         <>
             <Navbar />
-            <div className={`ml-0 xl:ml-[280px] min-h-screen ${dark?'bg-[#0b1220] text-slate-100':'bg-gradient-to-br from-white via-[#F9FAFB] to-blue-50 text-gray-900'} p-3 sm:p-4 lg:p-6`}>
+            <div className={`lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 ] min-h-screen ${dark?'bg-[#0b1220] text-slate-100':'bg-gradient-to-br from-white via-[#F9FAFB] to-blue-50 text-gray-900'} p-3 sm:p-4 lg:p-6`}>
                 <div className="w-full max-w-[1400px] mx-auto">
                     {/* Header */}
                     <div className="flex flex-col gap-3 mb-4 sm:mb-6">
