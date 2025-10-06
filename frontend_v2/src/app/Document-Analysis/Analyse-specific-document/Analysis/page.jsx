@@ -290,7 +290,7 @@ export default function AnalysisPage() {
     return (
         <>
             <Navbar />
-            <div className="ml-[280px] h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 overflow-hidden">
+            <div className="lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 ] h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 overflow-hidden">
                 <div className="max-w-7xl mx-auto h-full flex flex-col">
                     {/* Header */}
                     <motion.div 
