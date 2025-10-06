@@ -113,7 +113,7 @@ export default function ChatWithDocument() {
     return (
         <>
             <Navbar />
-            <div className="ml-[280px] min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center">
+            <div className="lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 ] min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center">
                 <div className="max-w-6xl mx-auto w-full grid grid-cols-1 gap-6">
                     {/* Upload Section */}
                     <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} className={`rounded-2xl border border-dashed ${dragOver?'border-sky-500 bg-sky-50/50':'border-gray-300 bg-white/90'} p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4`} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrag}>

@@ -57,7 +57,7 @@ export default function AnalyseSpecificDocument() {
     return (
         <>
             <Navbar />
-            <div className="ml-[280px] min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center">
+            <div className="lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 ] min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center">
                 <div className="max-w-6xl mx-auto w-full">
                     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
                         <div>
