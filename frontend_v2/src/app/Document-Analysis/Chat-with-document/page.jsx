@@ -26,6 +26,13 @@ export default function ChatWithDocument() {
     const audioChunksRef = useRef([]);
     const recordingIntervalRef = useRef(null);
 
+    function generateMessageId() {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    }
+
     useEffect(() => {
         const id = sessionStorage.getItem('document_id');
         const lang = language;
@@ -89,7 +96,7 @@ export default function ChatWithDocument() {
         if (!question.trim() || !documentId) return;
         const q = question.trim();
         setQuestion('');
-        setChat(prev => [...prev, { role: 'user', content: q, ts: new Date() }]);
+        setChat(prev => [...prev, { id: generateMessageId(), role: 'user', content: q, ts: new Date() }]);
         setIsSending(true);
         try {
             const res = await fetch('/api/analyzer/chat', {
@@ -99,7 +106,7 @@ export default function ChatWithDocument() {
             });
             const json = await res.json();
             const answer = json?.data?.answer || 'No answer';
-            setChat(prev => [...prev, { role: 'assistant', content: answer, ts: new Date() }]);
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: answer, ts: new Date() }]);
         } catch (e) {
             console.error('Chat error', e);
         } finally {
@@ -165,7 +172,7 @@ export default function ChatWithDocument() {
             });
             const json = await res.json();
             const response = json?.data?.response || 'No response';
-            setChat(prev => [...prev, { role: 'assistant', content: response, ts: new Date() }]);
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: response, ts: new Date() }]);
         } catch (e) {
             console.error('Voice chat error', e);
         } finally { 
@@ -183,7 +190,7 @@ export default function ChatWithDocument() {
             const res = await fetch(`/api/analyzer/voice-chat?document_id=${encodeURIComponent(documentId)}`, { method: 'POST', body: form });
             const json = await res.json();
             const response = json?.data?.response || 'No response';
-            setChat(prev => [...prev, { role: 'assistant', content: response, ts: new Date() }]);
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: response, ts: new Date() }]);
         } catch (e) {
             console.error('Voice chat error', e);
         } finally { setIsSending(false); }
@@ -220,16 +227,17 @@ export default function ChatWithDocument() {
                     </motion.div>
 
                     {/* Chat Section */}
-                    <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} className="rounded-2xl sm:rounded-3xl bg-white/90 backdrop-blur border border-gray-200 p-3 sm:p-4 lg:p-6 shadow flex flex-col min-h-[50vh] sm:min-h-[60vh] lg:min-h-[70vh]">
+                    <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} className="rounded-2xl sm:rounded-3xl bg-white/90 backdrop-blur border border-gray-200 p-3 sm:p-4 lg:p-6 shadow flex flex-col min-h-0 h-[calc(100vh-220px)]">
                         <div className="flex items-center justify-between mb-3 sm:mb-4">
                             <div className="text-base sm:text-lg font-semibold text-gray-900">{t('chatWithDoc')}</div>
                             <LanguageSelector />
                         </div>
 
-                        <div ref={scrollRef} className="flex-1 overflow-auto rounded-xl sm:rounded-2xl bg-sky-50 border border-gray-200 p-2 sm:p-3 lg:p-4 space-y-2 sm:space-y-3 lg:space-y-4">
+                        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto rounded-xl sm:rounded-2xl bg-sky-50 border border-gray-200 p-2 sm:p-3 lg:p-4 space-y-2 sm:space-y-3 lg:space-y-4">
                             <AnimatePresence>
                                 {chat.map((m, idx) => (
-                                    <motion.div key={idx} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} transition={{duration:0.2}}
+                                    <motion.div key={m.id || `${m.ts ? new Date(m.ts).getTime() : idx}-${idx}`}
+                                        initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} transition={{duration:0.2}}
                                         className={`max-w-full sm:max-w-3xl px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-sm leading-relaxed shadow-sm ${m.role==='user'?'bg-sky-700 text-white ml-auto':'bg-white border border-gray-200 text-gray-800 mr-auto'}`}>
                                         {m.content}
                                     </motion.div>
