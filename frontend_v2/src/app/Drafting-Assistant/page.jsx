@@ -6,16 +6,16 @@ import LanguageSelector from "../../../components/LanguageSelector.jsx";
 import Navbar from "../../../components/Navbar.jsx";
 import { useI18n } from "../../../components/I18nProvider.jsx";
 
-const DOC_TYPES = [
-    "Draft a Bail/Anticipatory Bail Application",
-    "Draft a Contract",
-    "Draft a Discharge Application",
-    "Draft a Legal Notice",
-    "Draft a Memorandum of Understanding",
-    "Draft a Non-Disclosure Agreement",
-    "Draft a Plaint/Complaint/Petition",
-    "Draft a Reply/Rejoinder",
-].sort();
+const DOC_TYPE_KEYS = [
+    "bailApplication",
+    "contract",
+    "dischargeApplication",
+    "legalNotice",
+    "mou",
+    "nda",
+    "plaintComplaintPetition",
+    "replyRejoinder",
+];
 
 // Custom improve button text for each document type
 const getImproveButtonText = (docType) => {
@@ -38,11 +38,16 @@ export default function DraftingAssistant() {
     const [documentId, setDocumentId] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    const localizedTypes = useMemo(() => {
+        const base = DOC_TYPE_KEYS.map((key) => ({ key, label: t(`type_${key}`) }));
+        return [...base, { key: "general", label: t('generalPurposeDraft') }];
+    }, [t]);
+
     const filtered = useMemo(() => {
-        const allTypes = [...DOC_TYPES, "General Purpose Draft"];
-        if (!query) return allTypes;
-        return allTypes.filter((d) => d.toLowerCase().includes(query.toLowerCase()));
-    }, [query]);
+        if (!query) return localizedTypes;
+        const q = query.toLowerCase();
+        return localizedTypes.filter((d) => d.label.toLowerCase().includes(q));
+    }, [query, localizedTypes]);
 
     async function handleGeneralPurposeUpload() {
         const fd = new FormData();
@@ -110,9 +115,9 @@ export default function DraftingAssistant() {
                     {/* Responsive grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 
                                   gap-2 sm:gap-3 lg:gap-4">
-                        {filtered.map((name) => (
+                        {filtered.map((item) => (
                             <motion.div
-                                key={name}
+                                key={item.key}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ y: -2 }}
@@ -128,17 +133,17 @@ export default function DraftingAssistant() {
                                                   rounded-full bg-sky-50 text-sky-700 
                                                   flex items-center justify-center flex-shrink-0
                                                   text-sm sm:text-base">
-                                        {name === "General Purpose Draft" ? "⚡" : "📄"}
+                                        {item.key === "general" ? "⚡" : "📄"}
                                     </div>
                                     <div className="font-medium text-slate-800 
                                                   text-sm sm:text-base 
                                                   break-words flex-1">
-                                        {name}
+                                        {item.label}
                                     </div>
                                 </div>
 
                                 {/* Action buttons */}
-                                {name === "General Purpose Draft" ? (
+                                {item.key === "general" ? (
                                     <div className="mt-2 sm:mt-3">
                                         <motion.button
                                             whileTap={{ scale: 0.98 }}
@@ -164,7 +169,7 @@ export default function DraftingAssistant() {
                                         <Link 
                                             href={{ 
                                                 pathname: "/Drafting-Assistant/New-Draft", 
-                                                query: { type: name, did: documentId || "" }
+                                                query: { type: item.label, did: documentId || "" }
                                             }} 
                                             className="flex-1"
                                         >
@@ -184,7 +189,7 @@ export default function DraftingAssistant() {
                                         <Link 
                                             href={{ 
                                                 pathname: "/Drafting-Assistant/Improve-Draft", 
-                                                query: { type: name, did: documentId || "" }
+                                                query: { type: item.label, did: documentId || "" }
                                             }} 
                                             className="flex-1"
                                         >
@@ -198,7 +203,7 @@ export default function DraftingAssistant() {
                                                          text-xs sm:text-sm
                                                          transition-colors duration-200"
                                             >
-                                                {getImproveButtonText(name)}
+                                                {getImproveButtonText(item.label)}
                                             </motion.span>
                                         </Link>
                                     </div>

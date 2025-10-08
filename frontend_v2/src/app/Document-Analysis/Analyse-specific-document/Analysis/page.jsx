@@ -1,89 +1,44 @@
 'use client'
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import Navbar from "../../../../../components/Navbar.jsx";
-import LanguageSelector from "../../../../../components/LanguageSelector.jsx";
+
+import { useI18n } from "../../../../../components/I18nProvider.jsx";
 import useAppLanguage from "../../../../../components/useAppLanguage.js";
+import LanguageSelector from "../../../../../components/LanguageSelector.jsx";
 
 export default function AnalysisPage() {
-    const router = useRouter();
-    const { language, setLanguage } = useAppLanguage();
+    const { t } = useI18n();
+    const { language } = useAppLanguage();
     
-    // User ID - in a real app, this would come from authentication
     const [userId] = useState('default_user');
-    
-    // Document upload states
     const [documentId, setDocumentId] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
-    const [uploadStatus, setUploadStatus] = useState(null);
     const [uploadError, setUploadError] = useState(null);
     const [docInfo, setDocInfo] = useState(null);
     const [previewText, setPreviewText] = useState('');
     const fileInputRef = useRef(null);
     
-    // Analysis states
     const [analysis, setAnalysis] = useState(null);
     const [loadingAnalysis, setLoadingAnalysis] = useState(false);
     const [analysisError, setAnalysisError] = useState(null);
     
-    // Chat states
     const [question, setQuestion] = useState('');
     const [chat, setChat] = useState([]);
     const [loadingChat, setLoadingChat] = useState(false);
     const [chatError, setChatError] = useState(null);
-    const [isExpanded, setIsExpanded] = useState(false);
     
-    // Translation states
     const [isTranslating, setIsTranslating] = useState(false);
-    const [translationError, setTranslationError] = useState(null);
+    const [showUploadPanel, setShowUploadPanel] = useState(true);
+    const chatEndRef = useRef(null);
 
-    // Check for existing document from session storage
     useEffect(() => {
-        const id = sessionStorage.getItem('document_id');
-        const storedLanguage = sessionStorage.getItem('language');
-        const storedUserId = sessionStorage.getItem('user_id');
-        
-        // Only restore if we have all required data and it's from the same session
-        if (id && storedLanguage && storedUserId === userId) {
-            setDocumentId(id);
-            try {
-                const info = sessionStorage.getItem('document_info');
-                if (info) setDocInfo(JSON.parse(info));
-                
-                const preview = sessionStorage.getItem('document_preview');
-                if (preview) setPreviewText(preview);
-            } catch (error) {
-                console.error('Error restoring session data:', error);
-                // Clear invalid session data
-                clearSession();
-            }
-        } else if (id) {
-            // Clear old session data if user_id doesn't match
-            clearSession();
-        }
-    }, [userId]);
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chat]);
 
-    // Clear session storage
-    function clearSession() {
-        sessionStorage.removeItem('document_id');
-        sessionStorage.removeItem('document_info');
-        sessionStorage.removeItem('document_preview');
-        sessionStorage.removeItem('language');
-        sessionStorage.removeItem('user_id');
-        setDocumentId(null);
-        setDocInfo(null);
-        setPreviewText('');
-        setAnalysis(null);
-        setChat([]);
-    }
-
-    // Upload document function
     async function handleFileUpload(file) {
         if (!file) return;
         
         setIsUploading(true);
-        setUploadStatus('uploading');
         setUploadError(null);
         setAnalysisError(null);
         setChatError(null);
@@ -91,57 +46,33 @@ export default function AnalysisPage() {
         try {
             const form = new FormData();
             form.append('file', file);
-            
-            // Add user_id as query parameter
             const url = `/api/analyzer/upload?user_id=${encodeURIComponent(userId)}`;
             
-            const res = await fetch(url, { 
-                method: 'POST', 
-                body: form 
-            });
+            const res = await fetch(url, { method: 'POST', body: form });
             
             if (!res.ok) {
                 const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.detail?.message || `Upload failed: ${res.status} ${res.statusText}`);
+                throw new Error(errorData.detail?.message || `Upload failed: ${res.status}`);
             }
             
             const json = await res.json();
-            console.log('Upload API Response:', json);
             
             if (json.status === 'success' && json.data?.document_id) {
-                const newDocumentId = json.data.document_id;
-                console.log('Document ID received:', newDocumentId);
-                console.log('Document info:', json.data.info);
-                setDocumentId(newDocumentId);
-                setUploadStatus('success');
+                setDocumentId(json.data.document_id);
                 setPreviewText(json.data.preview || '');
                 setDocInfo(json.data.info || null);
-                
-                // Store in session storage
-                sessionStorage.setItem('document_id', newDocumentId);
-                sessionStorage.setItem('language', language);
-                sessionStorage.setItem('user_id', userId);
-                
-                try {
-                    sessionStorage.setItem('document_preview', json.data.preview || '');
-                    sessionStorage.setItem('document_info', JSON.stringify(json.data.info || {}));
-                } catch {}
-                
-                // Automatically start analysis
-                await startAnalysis(newDocumentId);
+                setShowUploadPanel(false);
+                await startAnalysis(json.data.document_id);
             } else {
-                throw new Error(json.detail?.message || 'No document ID received from server');
+                throw new Error('No document ID received');
             }
         } catch (err) {
-            console.error('Upload error:', err);
             setUploadError(err.message);
-            setUploadStatus('error');
         } finally {
             setIsUploading(false);
         }
     }
 
-    // Start analysis function
     async function startAnalysis(docId = documentId) {
         if (!docId) return;
         
@@ -149,42 +80,31 @@ export default function AnalysisPage() {
         setAnalysisError(null);
         
         try {
-            const requestBody = {
-                document_id: docId,
-                language: language,
-                user_id: userId
-            };
-            
             const res = await fetch('/api/analyzer/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({ document_id: docId, language, user_id: userId })
             });
             
             if (!res.ok) {
                 const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.detail?.message || `Analysis failed: ${res.status} ${res.statusText}`);
+                throw new Error(errorData.detail?.message || 'Analysis failed');
             }
             
             const json = await res.json();
-            console.log('Analysis API Response:', json);
             
             if (json.status === 'success' && json.data?.analysis) {
-                console.log('Analysis data structure:', json.data.analysis);
                 setAnalysis(json.data.analysis);
             } else {
-                console.error('Analysis failed - response structure:', json);
-                throw new Error(json.detail?.message || 'Analysis failed - no data received');
+                throw new Error('No analysis data received');
             }
         } catch (err) {
-            console.error('Analysis error:', err);
             setAnalysisError(err.message);
         } finally {
             setLoadingAnalysis(false);
         }
     }
 
-    // Send chat message
     async function sendMessage() {
         if (!question.trim() || !documentId) return;
         
@@ -195,38 +115,29 @@ export default function AnalysisPage() {
         
         try {
             setLoadingChat(true);
-            const requestBody = {
-                document_id: documentId,
-                question: q,
-                language: language,
-                user_id: userId
-            };
-            
             const res = await fetch('/api/analyzer/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({ document_id: documentId, question: q, language, user_id: userId })
             });
             
             if (!res.ok) {
                 const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.detail?.message || `Chat failed: ${res.status} ${res.statusText}`);
+                throw new Error(errorData.detail?.message || 'Chat failed');
             }
             
             const json = await res.json();
             
             if (json.status === 'success' && json.data?.answer) {
-                const answer = json.data.answer;
-                setChat(prev => [...prev, { role: 'assistant', content: answer, timestamp: new Date() }]);
+                setChat(prev => [...prev, { role: 'assistant', content: json.data.answer, timestamp: new Date() }]);
             } else {
-                throw new Error(json.detail?.message || 'No answer received from server');
+                throw new Error('No answer received');
             }
         } catch (err) {
-            console.error('Chat error:', err);
             setChatError(err.message);
             setChat(prev => [...prev, { 
                 role: 'assistant', 
-                content: `Sorry, I encountered an error: ${err.message}. Please try again.`, 
+                content: `Sorry, I encountered an error: ${err.message}`,
                 timestamp: new Date() 
             }]);
         } finally {
@@ -234,47 +145,15 @@ export default function AnalysisPage() {
         }
     }
 
-    // Translation function
-    async function translateText(text, targetLanguage) {
-        if (!text || !targetLanguage) return text;
-        
-        setIsTranslating(true);
-        setTranslationError(null);
-        
-        try {
-            const requestBody = {
-                text: text,
-                target_language: targetLanguage
-            };
-            
-            const res = await fetch('/api/analyzer/translate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
-            });
-            
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.detail?.message || `Translation failed: ${res.status} ${res.statusText}`);
-            }
-            
-            const json = await res.json();
-            
-            if (json.status === 'success' && json.data?.translated_text) {
-                return json.data.translated_text;
-            } else {
-                throw new Error(json.detail?.message || 'Translation failed - no data received');
-            }
-        } catch (err) {
-            console.error('Translation error:', err);
-            setTranslationError(err.message);
-            return text; // Return original text if translation fails
-        } finally {
-            setIsTranslating(false);
-        }
+    function clearSession() {
+        setDocumentId(null);
+        setDocInfo(null);
+        setPreviewText('');
+        setAnalysis(null);
+        setChat([]);
+        setShowUploadPanel(true);
     }
 
-    // Download text function
     function downloadText(filename, text) {
         const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -287,44 +166,39 @@ export default function AnalysisPage() {
         URL.revokeObjectURL(url);
     }
 
+    const getSummaryText = () => {
+        return analysis?.summary ||
+            analysis?.Summary ||
+            analysis?.summary_text ||
+            analysis?.summaryText ||
+            analysis?.document_summary ||
+            analysis?.analysis_summary ||
+            analysis?.text ||
+            analysis?.content ||
+            analysis?.result ||
+            analysis?.output ||
+            (typeof analysis === 'string' ? analysis : 'No summary available');
+    };
+
     return (
-        <>
-            <Navbar />
-            <div className="lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 ] h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 overflow-hidden">
-                <div className="max-w-7xl mx-auto h-full flex flex-col">
-                    {/* Header */}
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+            {/* Floating Upload Panel */}
+            <AnimatePresence>
+                {showUploadPanel && (
                     <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-6 sm:mb-8"
+                        initial={{ y: -100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -100, opacity: 0 }}
+                        className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200"
                     >
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-                                    Document Analysis
-                                </h1>
-                                <p className="text-gray-600 mt-1">Upload and analyze your legal documents</p>
-                            </div>
-                            <LanguageSelector />
+                        <div className="max-w-6xl mx-auto px-4 py-4">
+                            <div className="flex items-center justify-between gap-4">
+                                <div className="flex-1">
+                   <h2 className="text-lg font-semibold text-gray-900 mb-1">{t('uploadDocument')}</h2>
+                   <p className="text-xs text-gray-500">{t('fileTypesHint')}</p>
                         </div>
-                    </motion.div>
 
-
-                    {/* Main Content - Two Section Layout with Fixed Height */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-200px)]">
-                        {/* Left Section - Upload and Chat Stacked */}
-                        <motion.div 
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="flex flex-col space-y-4 h-full"
-                        >
-                            {/* Upload Section - Fixed Height */}
-                            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 h-48 flex-shrink-0">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h2 className="text-lg font-semibold text-gray-900">Upload Document</h2>
-                                    
-                                    <div className="flex gap-2">
+                                <div className="flex gap-3">
                                         <input 
                                             ref={fileInputRef}
                                             type="file" 
@@ -336,379 +210,311 @@ export default function AnalysisPage() {
                                             className="hidden"
                                         />
                                         
-                                        <button
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
                                             onClick={() => fileInputRef.current?.click()}
                                             disabled={isUploading}
-                                            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                                        className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                         >
                                             {isUploading ? (
-                                                <>
+                                            <span className="flex items-center gap-2">
                                                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                    <span>Uploading...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                                    </svg>
-                                                    <span>Choose Document</span>
-                                                </>
-                                            )}
-                                        </button>
-                                        
-                                        {documentId && (
-                                            <button
-                                                onClick={clearSession}
-                                                className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                                            >
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                <span>Clear</span>
-                                            </button>
+                                                {t('uploading')}
+                                            </span>
+                                        ) : (
+                                            t('chooseDocument')
                                         )}
-                                    </div>
+                                    </motion.button>
                                 </div>
-                                
-                                <div className="space-y-3">
-                                    {/* Upload Status - Only show loading and errors */}
-                                    <AnimatePresence>
-                                        {uploadStatus === 'uploading' && (
-                                            <motion.div 
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                className="flex items-center gap-2 text-blue-600"
-                                            >
-                                                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                                <span className="text-sm">Uploading and analyzing document...</span>
-                                            </motion.div>
-                                        )}
+                            </div>
                                         
                                         {uploadError && (
                                             <motion.div 
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                className="flex items-center gap-2 text-red-600"
-                                            >
-                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                </svg>
-                                                <span className="text-sm">{uploadError}</span>
+                                    className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600"
+                                >
+                                    {uploadError}
+                                </motion.div>
+                            )}
+                        </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
 
-                                    {/* Document Preview - Only show when document is uploaded */}
-                                    {previewText && (
+            {/* Main Content */}
+      <div className={`max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 transition-all duration-300 ${showUploadPanel ? 'pt-28 sm:pt-32' : 'pt-4 sm:pt-6'}`}>
+                {/* Header */}
                                         <motion.div 
-                                            initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="bg-blue-50 rounded-lg p-3"
-                                        >
-                                            <h3 className="text-xs font-semibold text-blue-900 mb-1">Document Preview</h3>
-                                            <div className="text-xs text-gray-700 max-h-20 overflow-y-auto">
-                                                {previewText}
+                    className="mb-8"
+                >
+                    <div className="flex items-center justify-between gap-4 flex-col sm:flex-row">
+                        <div className="text-center sm:text-left">
+                            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent mb-2">
+                                {t('documentAnalysisTitle')}
+                            </h1>
+                            <p className="text-gray-600">{t('documentAnalysisSubtitle')}</p>
+                        </div>
+                        <div className="hidden sm:block">
+                            <LanguageSelector />
+                        </div>
                                             </div>
                                         </motion.div>
-                                    )}
+
+                {!documentId ? (
+                    /* Empty State */
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex items-center justify-center min-h-[60vh]"
+                    >
+                        <div className="text-center">
+                            <motion.div
+                                animate={{ y: [0, -10, 0] }}
+                                transition={{ repeat: Infinity, duration: 3 }}
+                                className="mb-6"
+                            >
+                                <svg className="w-32 h-32 mx-auto text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                            </motion.div>
+               <h3 className="text-2xl font-semibold text-gray-800 mb-2">{t('readyToAnalyze')}</h3>
+               <p className="text-gray-500 mb-6">{t('uploadToGetStarted')}</p>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => fileInputRef.current?.click()}
+                                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium shadow-xl hover:shadow-2xl transition-all"
+                            >
+                 {t('chooseDocument')}
+                            </motion.button>
                                 </div>
+                    </motion.div>
+                ) : (
+                    /* Main Layout */
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 justify-center">
+                        {/* Chat Section */}
+            <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+               className="flex flex-col min-h-[60vh] md:h-[calc(100vh-200px)]"
+                        >
+               <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-xl border border-gray-200 flex flex-col h-full overflow-hidden min-h-0">
+                 <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h2 className="text-xl font-bold text-gray-900">{t('chatWithAnalyzer')}</h2>
+                       <p className="text-xs text-gray-500 mt-0.5">{t('askAnythingAboutDoc')}</p>
                             </div>
-
-                            {/* Chat Section - Fixed height with internal scrolling */}
-                            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 flex flex-col h-[calc(100vh-350px)]">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h2 className="text-lg font-semibold text-gray-900">Chat with the Analyzer</h2>
-                                    <button
-                                        onClick={() => setIsExpanded(!isExpanded)}
-                                        className="px-3 py-1 rounded-lg bg-gray-100 text-gray-700 text-sm hover:bg-gray-200 transition-colors"
-                                    >
-                                        {isExpanded ? 'Collapse' : 'Expand'}
-                                    </button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => setShowUploadPanel(!showUploadPanel)}
+                                            className="p-2 rounded-full hover:bg-white/50 transition-colors"
+                                        >
+                                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                        </motion.button>
+                                    </div>
                                 </div>
 
-                                {/* Chat Messages */}
-                                <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-4">
+                 <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 min-h-0">
                                     {chat.length === 0 ? (
-                                        <div className="text-center py-8 text-gray-500">
-                                            <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        <div className="flex items-center justify-center h-full text-gray-400">
+                                            <div className="text-center">
+                                                <svg className="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                             </svg>
-                                            <p>Start a conversation about your document</p>
+                                                <p className="text-sm">{t('startConversationHint')}</p>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <AnimatePresence>
+                                        <>
                                             {chat.map((message, idx) => (
                                                 <motion.div
                                                     key={idx}
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: -10 }}
-                                                    className={`max-w-[85%] px-4 py-3 rounded-2xl ${
-                                                        message.role === 'user' 
-                                                            ? 'bg-blue-600 text-white ml-auto' 
-                                                            : 'bg-gray-100 text-gray-900 mr-auto'
-                                                    }`}
+                                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                                 >
-                                                    <div className="text-sm leading-relaxed">{message.content}</div>
-                                                    <div className={`flex items-center justify-between mt-1 ${
-                                                        message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
-                                                    }`}>
-                                                        <span className="text-xs">
-                                                            {message.timestamp ? new Date(message.timestamp).toLocaleTimeString() : ''}
+                                                    <div className={`max-w-[80%] ${message.role === 'user'
+                                                            ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-3xl rounded-br-md'
+                                                            : 'bg-gray-100 text-gray-900 rounded-3xl rounded-bl-md'
+                                                        } px-5 py-3 shadow-md`}>
+                                                        <p className="text-sm leading-relaxed">{message.content}</p>
+                                                        <span className={`text-xs mt-1 block ${message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                                                            }`}>
+                                                            {message.timestamp ? new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                                         </span>
-                                                        {message.role === 'assistant' && language !== 'English' && (
-                                                            <button
-                                                                onClick={async () => {
-                                                                    const translated = await translateText(message.content, 'English');
-                                                                    if (translated !== message.content) {
-                                                                        navigator.clipboard.writeText(translated);
-                                                                    }
-                                                                }}
-                                                                disabled={isTranslating}
-                                                                className="text-xs px-2 py-1 bg-white/20 rounded hover:bg-white/30 transition-colors disabled:opacity-50"
-                                                            >
-                                                                {isTranslating ? 'Translating...' : 'Translate'}
-                                                            </button>
-                                                        )}
                                                     </div>
                                                 </motion.div>
                                             ))}
-                                        </AnimatePresence>
-                                    )}
-                                    
                                     {loadingChat && (
                                         <motion.div 
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="flex items-center gap-2 text-gray-500"
-                                        >
-                                            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                                            <span className="text-sm">Analyzer is thinking...</span>
+                                                    className="flex justify-start"
+                                                >
+                                                    <div className="bg-gray-100 rounded-3xl rounded-bl-md px-5 py-3 shadow-md">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="flex gap-1">
+                                                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
+                                                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
+                                                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
+                                                            </div>
+                                                            <span className="text-xs text-gray-500">{t('analyzerThinking')}</span>
+                                                        </div>
+                                                    </div>
                                         </motion.div>
                                     )}
-                                    
-                                    {chatError && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="bg-red-50 border border-red-200 rounded-lg p-3"
-                                        >
-                                            <div className="flex items-center gap-2 text-red-600">
-                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                </svg>
-                                                <span className="text-sm font-medium">Chat Error</span>
-                                            </div>
-                                            <p className="text-red-600 text-sm mt-1">{chatError}</p>
-                                        </motion.div>
+                                            <div ref={chatEndRef} />
+                                        </>
                                     )}
                                 </div>
 
-                                {/* Chat Input */}
-                                <div className="space-y-3">
-                                    <div className="flex gap-2">
+                 <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50">
+                   <div className="flex gap-2 sm:gap-3">
                                         <input
                                             value={question}
                                             onChange={(e) => setQuestion(e.target.value)}
                                             onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                                            placeholder="Ask a question about your document..."
-                                            className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            disabled={!documentId || loadingChat}
+                       placeholder={t('askPlaceholder')}
+                       className="flex-1 rounded-full border-2 border-gray-200 px-4 sm:px-5 py-2.5 sm:py-3 text-sm focus:outline-none focus:border-blue-400 transition-colors bg-white"
+                                            disabled={loadingChat}
                                         />
-                                        <button
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                             onClick={sendMessage}
-                                            disabled={!question.trim() || !documentId || loadingChat}
-                                            className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            disabled={!question.trim() || loadingChat}
+                       className="px-5 sm:px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                         >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                             </svg>
-                                        </button>
+                                        </motion.button>
                                     </div>
-                                    
-                                    {!documentId && (
-                                        <p className="text-xs text-gray-500 text-center">
-                                            Upload a document to start chatting
-                                        </p>
-                                    )}
                                 </div>
                             </div>
                         </motion.div>
 
-                        {/* Right Section - Analysis */}
+                        {/* Analysis Section */}
                         <motion.div 
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="h-full"
+                            transition={{ delay: 0.1 }}
+               className="flex flex-col min-h-[60vh] md:h-[calc(100vh-200px)]"
                         >
-                            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 flex flex-col h-[calc(100vh-200px)]">
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">Analysis of the Document</h2>
-                                
-                                {loadingAnalysis ? (
-                                    <div className="flex items-center justify-center py-8">
-                                        <div className="flex items-center gap-3 text-gray-600">
-                                            <div className="w-6 h-6 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
-                                            <span>Analyzing document...</span>
+               <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-xl border border-gray-200 flex flex-col h-full overflow-hidden min-h-0">
+                 <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h2 className="text-xl font-bold text-gray-900">{t('analysisOfDocument')}</h2>
+                       <p className="text-xs text-gray-500 mt-0.5">{t('aiPoweredInsights')}</p>
+                                        </div>
+                                        <motion.button
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={clearSession}
+                                            className="p-2 rounded-full hover:bg-white/50 transition-colors"
+                                        >
+                                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </motion.button>
+                                    </div>
+                                </div>
+
+                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0">
+                                    {loadingAnalysis ? (
+                                        <div className="flex items-center justify-center h-full">
+                                            <div className="text-center">
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                                                    className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-4"
+                                                ></motion.div>
+                                                <p className="text-gray-600">{t('analyzingDocument')}</p>
                                         </div>
                                     </div>
                                 ) : analysisError ? (
-                                    <div className="flex items-center justify-center py-8">
+                                        <div className="flex items-center justify-center h-full">
                                         <div className="text-center">
-                                            <div className="w-12 h-12 mx-auto mb-3 text-red-500">
+                                                <div className="w-16 h-16 mx-auto mb-4 text-red-400">
                                                 <svg fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                                 </svg>
                                             </div>
-                                            <p className="text-red-600 font-medium mb-2">Analysis Failed</p>
-                                            <p className="text-gray-600 text-sm mb-4">{analysisError}</p>
-                                            <button 
+                                                <p className="text-red-600 font-medium mb-4">{analysisError}</p>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
                                                 onClick={() => startAnalysis()}
-                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                            >
-                                                Retry Analysis
-                                            </button>
-                                        </div>
+                                                    className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                                                >
+                                                    {t('retryAnalysis')}
+                                                </motion.button>
+                                            </div>
                                     </div>
                                 ) : analysis ? (
-                                    <div className="flex flex-col h-full">
-                                        {/* Summary Section - Scrollable */}
                                         <motion.div 
-                                            initial={{ opacity: 0, y: 10 }}
+                                            initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="flex-1 flex flex-col"
+                       className="space-y-3 sm:space-y-4"
                                         >
-                                            <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 flex-1 flex flex-col">
-                                                <h3 className="text-sm font-semibold text-blue-900 tracking-wide mb-3">SUMMARY</h3>
-                                                {(() => {
-                                                    // Console logging for analysis data
-                                                    console.log('=== ANALYSIS DATA IN SUMMARY SECTION ===');
-                                                    console.log('Full analysis object:', analysis);
-                                                    console.log('analysis.summary:', analysis.summary);
-                                                    console.log('analysis.Summary:', analysis.Summary);
-                                                    console.log('analysis.summary_text:', analysis.summary_text);
-                                                    console.log('Available keys:', Object.keys(analysis));
-                                                    
-                                                    // Try to find any field that might contain summary
-                                                    const possibleSummaryFields = ['summary', 'Summary', 'summary_text', 'summaryText', 'document_summary', 'analysis_summary', 'text', 'content', 'result', 'output'];
-                                                    for (const field of possibleSummaryFields) {
-                                                        if (analysis[field]) {
-                                                            console.log(`Found summary in field '${field}':`, analysis[field]);
-                                                        }
-                                                    }
-                                                    console.log('=====================================');
-                                                    return null;
-                                                })()}
-                                                
-                                                {/* Scrollable Summary Content */}
-                                                <div className="flex-1 overflow-y-auto mb-4 max-h-110">
-                                                    <p className="text-gray-900 text-sm leading-relaxed">
-                                                        {analysis.summary || 
-                                                         analysis.Summary || 
-                                                         analysis.summary_text || 
-                                                         analysis.summaryText ||
-                                                         analysis.document_summary ||
-                                                         analysis.analysis_summary ||
-                                                         analysis.text ||
-                                                         analysis.content ||
-                                                         analysis.result ||
-                                                         analysis.output ||
-                                                         (typeof analysis === 'string' ? analysis : 'No summary available')}
-                                                    </p>
-                                                </div>
-                                                
-                                                {/* Fixed Action Buttons */}
+                       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-100">
+                                                <h3 className="text-sm font-bold text-indigo-900 mb-3 uppercase tracking-wide">{t('summary')}</h3>
+                                                <p className="text-gray-800 text-sm leading-relaxed mb-4">{getSummaryText()}</p>
+
                                                 <div className="flex gap-2 flex-wrap">
-                                                    <button 
-                                                        onClick={() => {
-                                                            const summaryText = analysis.summary || 
-                                                                             analysis.Summary || 
-                                                                             analysis.summary_text || 
-                                                                             analysis.summaryText ||
-                                                                             analysis.document_summary ||
-                                                                             analysis.analysis_summary ||
-                                                                             analysis.text ||
-                                                                             analysis.content ||
-                                                                             analysis.result ||
-                                                                             analysis.output ||
-                                                                             (typeof analysis === 'string' ? analysis : '');
-                                                            navigator.clipboard.writeText(summaryText);
-                                                        }}
-                                                        className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-700 transition-colors"
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                             onClick={() => navigator.clipboard.writeText(getSummaryText())}
+                             className="px-3 sm:px-4 py-2 rounded-full bg-white text-indigo-600 text-xs font-medium shadow-sm hover:shadow-md transition-all"
                                                     >
-                                                        Copy
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => {
-                                                            const summaryText = analysis.summary || 
-                                                                             analysis.Summary || 
-                                                                             analysis.summary_text || 
-                                                                             analysis.summaryText ||
-                                                                             analysis.document_summary ||
-                                                                             analysis.analysis_summary ||
-                                                                             analysis.text ||
-                                                                             analysis.content ||
-                                                                             analysis.result ||
-                                                                             analysis.output ||
-                                                                             (typeof analysis === 'string' ? analysis : '');
-                                                            downloadText('summary.txt', summaryText);
-                                                        }}
-                                                        className="px-3 py-1.5 rounded-lg bg-gray-200 text-gray-800 text-xs hover:bg-gray-300 transition-colors"
+                                                        {t('copy')}
+                                                    </motion.button>
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                             onClick={() => downloadText('summary.txt', getSummaryText())}
+                             className="px-3 sm:px-4 py-2 rounded-full bg-white text-gray-700 text-xs font-medium shadow-sm hover:shadow-md transition-all"
                                                     >
-                                                        Download
-                                                    </button>
-                                                    {language !== 'English' && (
-                                                        <button 
-                                                            onClick={async () => {
-                                                                const translated = await translateText(analysis.summary || '', 'English');
-                                                                if (translated !== analysis.summary) {
-                                                                    navigator.clipboard.writeText(translated);
-                                                                }
-                                                            }}
-                                                            disabled={isTranslating}
-                                                            className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs hover:bg-green-700 disabled:opacity-50 transition-colors"
-                                                        >
-                                                            {isTranslating ? 'Translating...' : 'Translate to English'}
-                                                        </button>
-                                                    )}
+                                                        {t('download')}
+                                                    </motion.button>
                                                 </div>
                                             </div>
-                                        </motion.div>
 
-                                        {/* Language Info - Fixed at bottom */}
+                                            {previewText && (
                                         <motion.div 
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.2 }}
-                                            className="mt-4 p-3 rounded-lg bg-gray-50 border border-gray-200"
-                                        >
-                                            <div className="text-xs text-gray-600">
-                                                Language: <span className="font-medium text-gray-900">{analysis.language || language}</span>
-                                            </div>
+                           className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200"
+                                                >
+                                                    <h3 className="text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">{t('documentPreview')}</h3>
+                           <p className="text-gray-600 text-xs leading-relaxed line-clamp-6">{previewText}</p>
+                                                </motion.div>
+                                            )}
                                         </motion.div>
+                                    ) : null}
                                     </div>
-                                ) : (
-                                    <div className="text-center py-8 text-gray-500">
-                                        <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <p>Upload a document to see analysis results</p>
-                                    </div>
-                                )}
                             </div>
                         </motion.div>
-
                     </div>
-                </div>
+                )}
             </div>
 
-            <style jsx>{`
-                @media (max-width: 1024px) { .ml-\[280px\] { margin-left: 80px; } }
-                @media (max-width: 768px) { .ml-\[280px\] { margin-left: 70px; } }
-                @media (max-width: 640px) { .ml-\[280px\] { margin-left: 0; padding: 1rem; } }
-            `}</style>
-        </>
+            {/* Mobile language selector */}
+            <div className="sm:hidden fixed bottom-6 left-6 z-50">
+                <LanguageSelector />
+            </div>
+        </div>
     );
 }

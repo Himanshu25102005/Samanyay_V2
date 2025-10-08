@@ -3,11 +3,14 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Navbar from "../../../../components/Navbar.jsx";
+import useAppLanguage from "../../../../components/useAppLanguage.js";
+import { useI18n } from "../../../../components/I18nProvider.jsx";
 
 export default function AnalyseSpecificDocument() {
     const router = useRouter();
     const [health, setHealth] = useState('unknown');
-    const [language, setLanguage] = useState('English');
+    const { language, setLanguage } = useAppLanguage();
+    const { t } = useI18n();
 
     useEffect(() => {
         // Health check
@@ -45,7 +48,7 @@ export default function AnalyseSpecificDocument() {
             <p className="text-base text-gray-700 mt-2 leading-relaxed flex-1">{description}</p>
             <div className="mt-6">
                 <div className="w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors">
-                    <span>Start Analysis</span>
+                    <span>{t('start')}</span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -62,15 +65,16 @@ export default function AnalyseSpecificDocument() {
                     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
                         <div>
                             <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-blue-800 bg-clip-text text-transparent">
-                                Analyse Specific Document
+                                {t('analyseSpecificTitle')}
                             </h1>
-                            <p className="text-gray-600 mt-1 text-base">Select the document type and upload to continue.</p>
+                            <p className="text-gray-600 mt-1 text-base">{t('analyseSpecificSubtitle')}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            <label className="text-sm text-gray-600">Language</label>
+                            <label className="text-sm text-gray-600">{t('language')}</label>
                             <select value={language} onChange={(e)=>setLanguage(e.target.value)} className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option>English</option>
                                 <option>Hindi</option>
+                                <option>Marathi</option>
                                 <option>Gujarati</option>
                             </select>
                         </div>
@@ -79,29 +83,29 @@ export default function AnalyseSpecificDocument() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {card(
                             'chargesheet',
-                            'Chargesheet Analyser',
-                            'Upload a chargesheet to begin automated legal insights and drafting support.',
+                            t('chargesheetAnalyserTitle'),
+                            t('chargesheetAnalyserDesc'),
                             'from-white to-blue-50 border-blue-100',
                             <span>🧾</span>
                         )}
                         {card(
                             'contract',
-                            'Contract Analyser',
-                            'Upload a contract to analyze key clauses, risks, and obligations.',
+                            t('contractAnalyserTitle'),
+                            t('contractAnalyserDesc'),
                             'from-white to-indigo-50 border-indigo-100',
                             <span>📃</span>
                         )}
                         {card(
                             'case',
-                            'Case Analyser',
-                            'Upload case documents to summarize, extract issues and prepare notes.',
+                            t('caseAnalyserTitle'),
+                            t('caseAnalyserDesc'),
                             'from-white to-teal-50 border-teal-100',
                             <span>📂</span>
                         )}
                         {card(
                             'timeline',
-                            'Timeline Generator',
-                            'Upload legal documents to automatically generate chronological timelines and event sequences.',
+                            t('timelineGeneratorTitle'),
+                            t('timelineGeneratorDesc'),
                             'from-white to-purple-50 border-purple-100',
                             <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {/* Timeline line */}
@@ -132,12 +136,12 @@ export default function AnalyseSpecificDocument() {
                                 </div>
                                 <span className={`px-2.5 py-1 rounded text-xs ${health === 'healthy' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>{health}</span>
                             </div>
-                            <h2 className="text-2xl font-semibold text-gray-900">General Document</h2>
-                            <p className="text-base text-gray-700 mt-2 leading-relaxed flex-1">Provide a specific query and upload any document to get targeted insights.</p>
+                            <h2 className="text-2xl font-semibold text-gray-900">{t('generalDocumentTitle')}</h2>
+                            <p className="text-base text-gray-700 mt-2 leading-relaxed flex-1">{t('generalDocumentDesc')}</p>
 
                             <div className="mt-6">
                                 <div className="w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors">
-                                    <span>Start Analysis</span>
+                                    <span>{t('start')}</span>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>

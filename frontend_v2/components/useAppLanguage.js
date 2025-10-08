@@ -21,9 +21,12 @@ export function setStoredLanguage(lang) {
 }
 
 export default function useAppLanguage() {
-  const [language, setLanguage] = useState(getStoredLanguage());
+  const [language, setLanguage] = useState(DEFAULT_LANG);
 
   useEffect(() => {
+    // Initialize from storage after mount to avoid SSR hydration mismatch
+    setLanguage(getStoredLanguage());
+
     const handler = (e) => {
       const value = e?.detail || getStoredLanguage();
       setLanguage(value);
