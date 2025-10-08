@@ -1,11 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useI18n, getFontClass } from './I18nProvider.jsx';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
+    const { t, lang } = useI18n();
 
     const deriveActiveSection = (path) => {
         if (!path) return 'home';
@@ -47,7 +49,7 @@ export default function Navbar() {
     }, []);
 
     return (
-        <nav className={styles.navbar} role="navigation" aria-label="Main navigation">
+        <nav className={`${styles.navbar} ${getFontClass(lang)}`} role="navigation" aria-label="Main navigation">
             {/* Brand/Logo Area */}
             <div className={styles.brand}>
                 <div className={styles.logo}>
@@ -83,7 +85,7 @@ export default function Navbar() {
                             <path d="M9 22V12h6v10"/>
                             <path d="M21 22H3"/>
                         </svg>
-                        <span className={styles.navText}>Home</span>
+                        <span className={styles.navText}>{t('home')}</span>
                     </button>
                 </li>
                 <li role="none">
@@ -107,7 +109,7 @@ export default function Navbar() {
                             <circle cx="12" cy="8" r="4"/>
                             <path d="M6 20a6 6 0 0 1 12 0"/>
                         </svg>
-                        <span className={styles.navText}>Dashboard</span>
+                        <span className={styles.navText}>{t('dashboard')}</span>
                     </button>
                 </li>
                 
@@ -137,7 +139,7 @@ export default function Navbar() {
                             <circle cx="16" cy="6" r="2"/>
                             <path d="M14 8l2-2"/>
                         </svg>
-                        <span className={styles.navText}>Legal Research</span>
+                        <span className={styles.navText}>{t('legalResearch')}</span>
                     </button>
                 </li>
                 
@@ -154,7 +156,7 @@ export default function Navbar() {
                             src="https://static.thenounproject.com/png/565256-200.png" 
                             alt="Drafting Assistant Icon" 
                         />
-                        <span className={styles.navText}>Drafting Assistant</span>
+                        <span className={styles.navText}>{t('draftingAssistant')}</span>
                     </button>
                 </li>
                 
@@ -184,7 +186,7 @@ export default function Navbar() {
                             <circle cx="18" cy="15" r="3"/>
                             <path d="m21 18-1.5-1.5"/>
                         </svg>
-                        <span className={styles.navText}>Document Analysis</span>
+                        <span className={styles.navText}>{t('documentAnalysis')}</span>
                     </button>
                 </li>
             </ul>
@@ -211,7 +213,7 @@ export default function Navbar() {
                         <polyline points="16,17 21,12 16,7"/>
                         <line x1="21" y1="12" x2="9" y2="12"/>
                     </svg>
-                    <span className={styles.logoutText}>Logout</span>
+                    <span className={styles.logoutText}>{t('logout')}</span>
                 </button>
             </div>
         </nav>

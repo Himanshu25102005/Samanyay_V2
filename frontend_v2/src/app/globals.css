@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+/* Language-specific font support */
+.font-hindi {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+.font-marathi {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+.font-gujarati {
+  font-family: 'Noto Sans Gujarati', sans-serif;
+}
+
+.font-english {
+  font-family: inherit;
+}
+
 /* Reserve space for fixed sidebar navbar */
 body::-webkit-scrollbar {
   display: none;                /* Chrome, Safari, Opera */

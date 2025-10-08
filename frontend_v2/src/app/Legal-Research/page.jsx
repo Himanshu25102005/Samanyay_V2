@@ -103,10 +103,10 @@ export default function LegalResearch() {
     return (
         <>
             <Navbar />
-            <div className={`lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 ] min-h-screen ${dark?'bg-[#0b1220] text-slate-100':'bg-gradient-to-br from-white via-[#F9FAFB] to-blue-50 text-gray-900'} p-3 sm:p-4 lg:p-6`}>
-                <div className="w-full max-w-[1400px] mx-auto">
+            <div className={`lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 min-h-screen ${dark?'bg-[#0b1220] text-slate-100':'bg-gradient-to-br from-white via-[#F9FAFB] to-blue-50 text-gray-900'} p-2 sm:p-3 lg:p-4`}>
+                <div className="w-full max-w-[1600px] mx-auto">
                     {/* Header */}
-                    <div className="flex flex-col gap-3 mb-4 sm:mb-6">
+                    <div className="flex flex-col gap-2 sm:gap-3 mb-3 sm:mb-4">
                         <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                                 <button 
@@ -140,16 +140,16 @@ export default function LegalResearch() {
                     </div>
 
                 {/* Main grid */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
                     {/* Chat column */}
                         <motion.div 
                             initial={{opacity:0,y:8}} 
                             animate={{opacity:1,y:0}} 
-                            className={`rounded-xl sm:rounded-2xl ${dark?'bg-[#0f172a] border-slate-700':'bg-white/90'} border-2 ${dark?'border-slate-700':'border-blue-100'} shadow-lg p-3 sm:p-4 flex flex-col h-[60vh] sm:h-[65vh] lg:h-[70vh] backdrop-blur`}
+                            className={`rounded-lg sm:rounded-xl ${dark?'bg-[#0f172a] border-slate-700':'bg-white/90'} border-2 ${dark?'border-slate-700':'border-blue-100'} shadow-lg p-2 sm:p-3 lg:p-4 flex flex-col h-[55vh] sm:h-[60vh] lg:h-[65vh] xl:h-[70vh] backdrop-blur`}
                         >
                             <div 
                                 ref={scrollRef} 
-                                className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 p-1 sm:p-2 scrollbar-thin"
+                                className="flex-1 overflow-y-auto space-y-1.5 sm:space-y-2 lg:space-y-3 p-1 scrollbar-thin"
                             >
                             <AnimatePresence>
                                 {chat.map((m, i) => (
@@ -158,7 +158,7 @@ export default function LegalResearch() {
                                             initial={{opacity:0,y:8}} 
                                             animate={{opacity:1,y:0}} 
                                             exit={{opacity:0,y:-8}}
-                                            className={`group max-w-[85%] px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl shadow ${
+                                            className={`group max-w-[90%] sm:max-w-[85%] px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-3 rounded-lg sm:rounded-xl lg:rounded-2xl shadow ${
                                                 i%2? 
                                                 'bg-gradient-to-r from-blue-600 to-teal-500 text-white ml-auto':
                                                 'bg-white/90 border border-blue-100 text-slate-900 mr-auto'
@@ -188,14 +188,14 @@ export default function LegalResearch() {
                             {error && <div className="mt-2 px-2 text-xs sm:text-sm text-red-600">{error}</div>}
                             
                             {/* Input area */}
-                            <div className="mt-3 space-y-2">
+                            <div className="mt-2 sm:mt-3 space-y-1.5 sm:space-y-2">
                                 <textarea 
                                     value={question} 
                                     onChange={e=>setQuestion(e.target.value)} 
                                     onKeyDown={(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } }} 
                                     placeholder="Type your legal question…" 
                                     rows={2}
-                                    className={`w-full rounded-lg sm:rounded-xl border px-2 sm:px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${dark?'bg-slate-900 border-slate-700 text-slate-100':'bg-white border-blue-100 hover:border-blue-200'}`} 
+                                    className={`w-full rounded-md sm:rounded-lg border px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${dark?'bg-slate-900 border-slate-700 text-slate-100':'bg-white border-blue-100 hover:border-blue-200'}`} 
                                 />
                                 
                                 <div className="flex gap-2">
@@ -341,9 +341,9 @@ export default function LegalResearch() {
                         <motion.div 
                             initial={{opacity:0,y:8}} 
                             animate={{opacity:1,y:0}} 
-                            className={`rounded-xl sm:rounded-2xl ${dark?'bg-[#0f172a] border-slate-700 text-slate-100':'bg-white/90'} border-2 ${dark?'border-slate-700':'border-blue-100'} shadow-lg p-3 sm:p-4 h-fit backdrop-blur`}
+                            className={`rounded-lg sm:rounded-xl ${dark?'bg-[#0f172a] border-slate-700 text-slate-100':'bg-white/90'} border-2 ${dark?'border-slate-700':'border-blue-100'} shadow-lg p-2 sm:p-3 lg:p-4 h-fit backdrop-blur`}
                         >
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 border-b pb-1.5 sm:pb-2">
                                 <div className="text-sm sm:text-lg lg:text-xl font-bold tracking-tight" style={{wordBreak: 'break-word'}}>
                                     {panel.title || 'Answer'}
                                 </div>
@@ -364,21 +364,21 @@ export default function LegalResearch() {
                             </div>
                             
                             {panel.summary && (
-                                <div className={`mt-3 p-2 sm:p-3 rounded-lg sm:rounded-xl ${dark?'bg-slate-800 border-slate-700 text-slate-200':'bg-blue-50 border border-blue-100 text-blue-900'} text-xs sm:text-sm`} style={{wordBreak: 'break-word'}}>
+                                <div className={`mt-2 sm:mt-3 p-2 sm:p-3 rounded-md sm:rounded-lg ${dark?'bg-slate-800 border-slate-700 text-slate-200':'bg-blue-50 border border-blue-100 text-blue-900'} text-xs sm:text-sm`} style={{wordBreak: 'break-word'}}>
                                     {panel.summary}
                         </div>
                         )}
                             
                         {panel.text && showFullAnswer && (
-                                <div className={`mt-3 p-2 sm:p-3 rounded-lg sm:rounded-xl ${dark?'bg-slate-900 border-slate-700':'bg-gray-50 border'} text-xs sm:text-sm max-h-[30vh] sm:max-h-[35vh] lg:max-h-[40vh] overflow-y-auto whitespace-pre-wrap leading-relaxed scrollbar-thin`} style={{wordBreak: 'break-word'}}>
+                                <div className={`mt-2 sm:mt-3 p-2 sm:p-3 rounded-md sm:rounded-lg ${dark?'bg-slate-900 border-slate-700':'bg-gray-50 border'} text-xs sm:text-sm max-h-[25vh] sm:max-h-[30vh] lg:max-h-[35vh] xl:max-h-[40vh] overflow-y-auto whitespace-pre-wrap leading-relaxed scrollbar-thin`} style={{wordBreak: 'break-word'}}>
                                     {panel.text}
                                 </div>
                         )}
                             
                         {!!panel.references?.length && (
-                                <div className="mt-3 sm:mt-4">
+                                <div className="mt-2 sm:mt-3">
                                     <div className="text-xs sm:text-sm font-semibold mb-2">References</div>
-                                    <div className="space-y-1 sm:space-y-2 max-h-[25vh] sm:max-h-[30vh] overflow-y-auto scrollbar-thin">
+                                    <div className="space-y-1 max-h-[20vh] sm:max-h-[25vh] lg:max-h-[30vh] overflow-y-auto scrollbar-thin">
                                     {panel.references.map((r, idx) => (
                                             <details 
                                                 key={idx} 

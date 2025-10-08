@@ -62,7 +62,7 @@ export default function DraftingAssistant() {
                 
                 {/* Sticky header with responsive padding */}
                 <div className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b border-slate-200">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+                    <div className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-6 py-2 sm:py-3">
                         <div className="flex items-center justify-between gap-4">
                             {/* Mobile menu button (shows on small screens if navbar is collapsible) */}
                             <button 
@@ -91,7 +91,7 @@ export default function DraftingAssistant() {
                 </div>
 
                 {/* Main content with responsive padding and max-width */}
-                <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+                <main className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4">
                     {/* Search input */}
                     <div className="w-full">
                         <input
@@ -109,16 +109,16 @@ export default function DraftingAssistant() {
 
                     {/* Responsive grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 
-                                  gap-3 sm:gap-4 lg:gap-5">
+                                  gap-2 sm:gap-3 lg:gap-4">
                         {filtered.map((name) => (
                             <motion.div
                                 key={name}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ y: -2 }}
-                                className="group relative rounded-xl sm:rounded-2xl 
+                                className="group relative rounded-lg sm:rounded-xl 
                                          border border-slate-200 bg-white 
-                                         p-4 sm:p-5 
+                                         p-3 sm:p-4 
                                          shadow-sm hover:shadow-md 
                                          transition-all duration-200"
                             >
@@ -139,7 +139,7 @@ export default function DraftingAssistant() {
 
                                 {/* Action buttons */}
                                 {name === "General Purpose Draft" ? (
-                                    <div className="mt-3 sm:mt-4">
+                                    <div className="mt-2 sm:mt-3">
                                         <motion.button
                                             whileTap={{ scale: 0.98 }}
                                             onClick={handleGeneralPurposeUpload}
