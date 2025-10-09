@@ -244,7 +244,7 @@ export default function AnalysisPage() {
             </AnimatePresence>
 
             {/* Main Content */}
-            <div className={`max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 transition-all duration-300 ${showUploadPanel ? 'pt-28 sm:pt-32' : 'pt-4 sm:pt-6'}`}>
+            <div className={`max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 transition-all duration-300 ${showUploadPanel ? 'pt-36 sm:pt-40' : 'pt-6 sm:pt-8'}`}>
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -253,7 +253,7 @@ export default function AnalysisPage() {
                 >
                     <div className="flex items-center justify-between gap-4 flex-col sm:flex-row">
                         <div className="text-center sm:text-left">
-                            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent mb-2">
+                            <h1 className="text-4xl md:text-5xl font-bold leading-[1.25] pt-1 pb-3 bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent mb-2">
                                 {t('documentAnalysisTitle')}
                             </h1>
                             <p className="text-gray-600">{t('documentAnalysisSubtitle')}</p>
@@ -309,16 +309,20 @@ export default function AnalysisPage() {
                                             <h2 className="text-xl font-bold text-gray-900">{t('chatWithAnalyzer')}</h2>
                                             <p className="text-xs text-gray-500 mt-0.5">{t('askAnythingAboutDoc')}</p>
                                         </div>
-                                        <motion.button
-                                            whileHover={{ scale: 1.1 }}
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={() => setShowUploadPanel(!showUploadPanel)}
-                                            className="p-2 rounded-full hover:bg-white/50 transition-colors"
-                                        >
-                                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                            </svg>
-                                        </motion.button>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-gray-700">{t('uploadDocument')}</span>
+                                            <motion.button
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={() => setShowUploadPanel(!showUploadPanel)}
+                                                className="p-2 rounded-full hover:bg-white/50 transition-colors"
+                                                aria-label="Upload"
+                                            >
+                                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                            </motion.button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -417,16 +421,20 @@ export default function AnalysisPage() {
                                             <h2 className="text-xl font-bold text-gray-900">{t('analysisOfDocument')}</h2>
                                             <p className="text-xs text-gray-500 mt-0.5">{t('aiPoweredInsights')}</p>
                                         </div>
-                                        <motion.button
-                                            whileHover={{ scale: 1.1 }}
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={clearSession}
-                                            className="p-2 rounded-full hover:bg-white/50 transition-colors"
-                                        >
-                                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </motion.button>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-gray-700">{t('delete')}</span>
+                                            <motion.button
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={clearSession}
+                                                className="p-2 rounded-full hover:bg-white/50 transition-colors"
+                                                aria-label="Delete"
+                                            >
+                                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </motion.button>
+                                        </div>
                                     </div>
                                 </div>
 

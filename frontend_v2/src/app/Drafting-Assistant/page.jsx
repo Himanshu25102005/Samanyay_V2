@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import LanguageSelector from "../../../components/LanguageSelector.jsx";
 import Navbar from "../../../components/Navbar.jsx";
 import { useI18n } from "../../../components/I18nProvider.jsx";
@@ -17,7 +17,104 @@ const DOC_TYPE_KEYS = [
     "replyRejoinder",
 ];
 
-// Custom improve button text for each document type
+// SVG Icons
+const DocumentIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+);
+
+const LightningIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+);
+
+const PlusIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+    </svg>
+);
+
+const EditIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+);
+
+// New distinct icons per document type (lighter style-friendly)
+const ContractIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7V3H8v4m8 0H8m8 0l2 2m-10-2L6 9m0 0v10a2 2 0 002 2h8a2 2 0 002-2V9m-12 0h12" />
+    </svg>
+);
+const NoticeIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M4 6h16M6 6v12a2 2 0 002 2h8a2 2 0 002-2V6" />
+    </svg>
+);
+const ShieldIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3l7 4v5c0 5-3.5 9-7 9s-7-4-7-9V7l7-4z" />
+    </svg>
+);
+const BalanceIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m6-11l4 7H14l4-7zm-10 0l4 7H2l4-7z" />
+    </svg>
+);
+const HandshakeIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 11l4-3 4 3m0 0l3-2 3 2-3 2m-3-2v8a2 2 0 01-2 2H7l-2-2m3-8L5 9 2 11l3 2" />
+    </svg>
+);
+const PenPaperIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9M16.5 3.5a2.121 2.121 0 113 3L8 18l-4 1 1-4 11.5-11.5z" />
+    </svg>
+);
+const ReplyIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10l7-7v4c6 0 10 3 11 9-2-3-5-4-11-4v4L3 10z" />
+    </svg>
+);
+
+function getIconForKey(key) {
+    switch (key) {
+        case "bailApplication":
+            return <ShieldIcon />;
+        case "contract":
+            return <ContractIcon />;
+        case "dischargeApplication":
+            return <BalanceIcon />;
+        case "legalNotice":
+            return <NoticeIcon />;
+        case "mou":
+            return <HandshakeIcon />;
+        case "nda":
+            return <ShieldIcon />;
+        case "plaintComplaintPetition":
+            return <PenPaperIcon />;
+        case "replyRejoinder":
+            return <ReplyIcon />;
+        default:
+            return <DocumentIcon />;
+    }
+}
+
+const SearchIcon = () => (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="11" cy="11" r="8" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" />
+    </svg>
+);
+
+const MenuIcon = () => (
+    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+);
+
 const getImproveButtonText = (docType) => {
     const improveTexts = {
         "Draft a Bail/Anticipatory Bail Application": "Improve Application",
@@ -60,157 +157,224 @@ export default function DraftingAssistant() {
     return (
         <>
             <Navbar />
-            {/* Main container with responsive margins */}
-            <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900 
-                            lg:ml-[250px] md:ml-[100px] sm:ml-20 ml-20 
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-sky-50 
+                            lg:ml-[250px] md:ml-[100px] sm:ml-20 ml-21 
                             transition-all duration-300">
                 
-                {/* Sticky header with responsive padding */}
-                <div className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b border-slate-200">
-                    <div className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-6 py-2 sm:py-3">
-                        <div className="flex items-center justify-between gap-4">
-                            {/* Mobile menu button (shows on small screens if navbar is collapsible) */}
-                            <button 
-                                className="lg:hidden md:hidden sm:block block p-2 rounded-lg hover:bg-slate-100"
-                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                aria-label="Toggle menu"
-                            >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                          d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            </button>
+                {/* Header Section */}
+                <div className="sticky top-0 z-20 backdrop-blur-md bg-white/80 border-b border-slate-200/70 shadow-sm">
+                    <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-3.5 sm:py-4.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 tracking-tight">
+                                        {t('draftingAssistant')}
+                                    </h1>
+                                </div>
+                                <button 
+                                    className="sm:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                    aria-label="Toggle menu"
+                                >
+                                    <MenuIcon />
+                                </button>
+                            </div>
                             
-                            {/* Title with responsive text size */}
-                            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-sky-800 
-                                         flex-1 lg:flex-none">
-                                {t('draftingAssistant')}
-                            </h1>
-                            
-                            {/* Language selector */}
-                            <div className="flex-shrink-0">
+                            <div className="flex items-center gap-3">
                                 <LanguageSelector />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Main content with responsive padding and max-width */}
-                <main className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4">
-                    {/* Search input */}
-                    <div className="w-full">
-                        <input
-                            type="text"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder={t('searchDocumentTypes')}
-                            className="w-full rounded-xl border border-slate-300 bg-white 
-                                     px-3 sm:px-4 py-2.5 sm:py-3 
-                                     text-sm sm:text-base
-                                     shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500
-                                     transition-all duration-200"
-                        />
-                    </div>
+                {/* Main Content */}
+                <main className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+                    
+                    {/* Hero Section */}
+                    {/*  */}
 
-                    {/* Responsive grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 
-                                  gap-2 sm:gap-3 lg:gap-4">
-                        {filtered.map((item) => (
-                            <motion.div
-                                key={item.key}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                whileHover={{ y: -2 }}
-                                className="group relative rounded-lg sm:rounded-xl 
-                                         border border-slate-200 bg-white 
-                                         p-3 sm:p-4 
-                                         shadow-sm hover:shadow-md 
-                                         transition-all duration-200"
-                            >
-                                {/* Card header */}
-                                <div className="flex items-start gap-3">
-                                    <div className="h-8 w-8 sm:h-10 sm:w-10 
-                                                  rounded-full bg-sky-50 text-sky-700 
-                                                  flex items-center justify-center flex-shrink-0
-                                                  text-sm sm:text-base">
-                                        {item.key === "general" ? "⚡" : "📄"}
-                                    </div>
-                                    <div className="font-medium text-slate-800 
-                                                  text-sm sm:text-base 
-                                                  break-words flex-1">
-                                        {item.label}
-                                    </div>
-                                </div>
+                    {/* Search Bar */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="mb-6 sm:mb-8"
+                    >
+                        <div className="relative max-w-2xl mx-auto">
+                            <div className="absolute  inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                <SearchIcon />
+                            </div>
+                            <input
+                                type="text"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder={t('searchDocumentTypes') || 'Search document types...'}
+                                className="w-full rounded-xl sm:rounded-2xl border-2 border-slate-200 bg-white/90 
+                                         pl-12 pr-4 py-3 sm:py-4 
+                                         text-sm sm:text-base lg:text-lg
+                                         shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent
+                                         transition-all duration-200 placeholder:text-slate-400"
+                            />
+                        </div>
+                    </motion.div>
 
-                                {/* Action buttons */}
-                                {item.key === "general" ? (
-                                    <div className="mt-2 sm:mt-3">
-                                        <motion.button
-                                            whileTap={{ scale: 0.98 }}
-                                            onClick={handleGeneralPurposeUpload}
-                                            className="w-full inline-flex items-center justify-center 
-                                                     rounded-lg bg-sky-600 text-white 
-                                                     px-3 py-2 
-                                                     text-sm sm:text-base
-                                                     hover:bg-sky-700 transition-colors"
-                                        >
-                                            {t('generalPurposeDraft')}
-                                        </motion.button>
-                                        {documentId && (
-                                            <div className="mt-2 text-xs text-slate-500 break-all">
-                                                document_id: <span className="font-mono">{documentId}</span>
-                                            </div>
-                                        )}
+                    {/* Document Type Grid */}
+                    <AnimatePresence mode="wait">
+                        <motion.div 
+                            key={query}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6"
+                        >
+                            {filtered.map((item, index) => (
+                                <motion.div
+                                    key={item.key}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                                    whileHover={{ y: -4, scale: 1.01 }}
+                                    className="group relative rounded-xl sm:rounded-2xl 
+                                             border-2 border-sky-100 bg-white/90 
+                                             p-5 sm:p-6 
+                                             shadow hover:shadow-lg hover:border-sky-200
+                                             transition-all duration-300"
+                                >
+                                    {/* Icon and Title */}
+                                    <div className="flex items-start gap-4 mb-4 sm:mb-5">
+                                        <div className="flex-shrink-0 h-11 w-11 sm:h-12 sm:w-12 
+                                                      rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50 
+                                                      text-sky-700 flex items-center justify-center
+                                                      group-hover:from-sky-100 group-hover:to-indigo-100
+                                                      group-hover:text-sky-800
+                                                      transition-all duration-300 shadow-sm">
+                                            {item.key === "general" ? <LightningIcon /> : getIconForKey(item.key)}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-semibold text-slate-900 
+                                                         text-base sm:text-lg 
+                                                         leading-tight break-words">
+                                                {item.label}
+                                            </h3>
+                                        </div>
                                     </div>
-                                ) : (
-                                    <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3 
-                                                  opacity-100 lg:opacity-0 lg:group-hover:opacity-100 
-                                                  transition-opacity duration-200">
-                                        <Link 
-                                            href={{ 
-                                                pathname: "/Drafting-Assistant/New-Draft", 
-                                                query: { type: item.label, did: documentId || "" }
-                                            }} 
-                                            className="flex-1"
-                                        >
-                                            <motion.span
+
+                                    {/* Action Buttons */}
+                                    {item.key === "general" ? (
+                                        <div className="space-y-3">
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}
-                                                className="inline-flex w-full items-center justify-center 
-                                                         rounded-lg border border-sky-600 text-sky-700 
-                                                         px-3 py-2 
-                                                         hover:bg-sky-50 
-                                                         min-h-[36px] sm:min-h-[40px] 
-                                                         text-xs sm:text-sm
-                                                         transition-colors duration-200"
+                                                onClick={handleGeneralPurposeUpload}
+                                                className="w-full inline-flex items-center justify-center gap-2
+                                                         rounded-lg sm:rounded-xl bg-sky-600 
+                                                         text-white font-medium
+                                                         px-4 py-2.5 sm:py-3
+                                                         text-sm sm:text-base
+                                                         hover:bg-sky-700
+                                                         shadow-md hover:shadow-lg
+                                                         transition-all duration-200"
                                             >
-                                                {t('makeNewDraft')}
-                                            </motion.span>
-                                        </Link>
-                                        <Link 
-                                            href={{ 
-                                                pathname: "/Drafting-Assistant/Improve-Draft", 
-                                                query: { type: item.label, did: documentId || "" }
-                                            }} 
-                                            className="flex-1"
-                                        >
-                                            <motion.span
-                                                whileTap={{ scale: 0.98 }}
-                                                className="inline-flex w-full items-center justify-center 
-                                                         rounded-lg bg-sky-600 text-white 
-                                                         px-3 py-2 
-                                                         hover:bg-sky-700 
-                                                         min-h-[36px] sm:min-h-[40px] 
-                                                         text-xs sm:text-sm
-                                                         transition-colors duration-200"
+                                                <div className="w-4 h-4 sm:w-5 sm:h-5">
+                                                    <LightningIcon />
+                                                </div>
+                                                <span>{t('generalPurposeDraft')}</span>
+                                            </motion.button>
+                                            {documentId && (
+                                                <motion.div 
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: "auto" }}
+                                                    className="p-3 bg-slate-50 rounded-lg border border-slate-200"
+                                                >
+                                                    <p className="text-xs text-slate-600 mb-1 font-medium">
+                                                        {t('documentId') || 'Document ID'}:
+                                                    </p>
+                                                    <p className="text-xs font-mono text-slate-800 break-all">
+                                                        {documentId}
+                                                    </p>
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col gap-2.5 sm:gap-3">
+                                            <Link 
+                                                href={{ 
+                                                    pathname: "/Drafting-Assistant/New-Draft", 
+                                                    query: { type: item.label, did: documentId || "" }
+                                                }} 
+                                                className="w-full"
                                             >
-                                                {getImproveButtonText(item.label)}
-                                            </motion.span>
-                                        </Link>
-                                    </div>
-                                )}
-                            </motion.div>
-                        ))}
-                    </div>
+                                                <motion.span
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="inline-flex w-full items-center justify-center gap-2
+                                                             rounded-lg sm:rounded-xl 
+                                                             border-2 border-sky-400 bg-white text-sky-700 
+                                                             font-medium
+                                                             px-4 py-2.5 sm:py-3
+                                                             text-sm sm:text-base
+                                                             hover:bg-sky-50 hover:border-sky-500
+                                                             shadow-sm hover:shadow
+                                                             transition-all duration-200"
+                                                >
+                                                    <div className="w-4 h-4 sm:w-5 sm:h-5">
+                                                        <PlusIcon />
+                                                    </div>
+                                                    <span>{t('makeNewDraft') || 'Create New'}</span>
+                                                </motion.span>
+                                            </Link>
+                                            <Link 
+                                                href={{ 
+                                                    pathname: "/Drafting-Assistant/Improve-Draft", 
+                                                    query: { type: item.label, did: documentId || "" }
+                                                }} 
+                                                className="w-full"
+                                            >
+                                                <motion.span
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="inline-flex w-full items-center justify-center gap-2
+                                                             rounded-lg sm:rounded-xl 
+                                                             bg-sky-600 
+                                                             text-white font-medium
+                                                             px-4 py-2.5 sm:py-3
+                                                             text-sm sm:text-base
+                                                             hover:bg-sky-700
+                                                             shadow-md hover:shadow-lg
+                                                             transition-all duration-200"
+                                                >
+                                                    <div className="w-4 h-4 sm:w-5 sm:h-5">
+                                                        <EditIcon />
+                                                    </div>
+                                                    <span>{getImproveButtonText(item.label)}</span>
+                                                </motion.span>
+                                            </Link>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* No Results Message */}
+                    {filtered.length === 0 && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center py-12 sm:py-16"
+                        >
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 text-slate-300">
+                                <DocumentIcon />
+                            </div>
+                            <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-2">
+                                {t('noResultsFound') || 'No Results Found'}
+                            </h3>
+                            <p className="text-sm sm:text-base text-slate-600">
+                                {t('tryDifferentSearch') || 'Try adjusting your search terms'}
+                            </p>
+                        </motion.div>
+                    )}
                 </main>
             </div>
         </>
