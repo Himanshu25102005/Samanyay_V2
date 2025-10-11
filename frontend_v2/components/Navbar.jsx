@@ -2,12 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useI18n, getFontClass } from './I18nProvider.jsx';
+import { useNavbar } from './NavbarContext.jsx';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
     const { t, lang } = useI18n();
+    const { isCollapsed, isMobileMenuOpen, isLargeScreen, setIsCollapsed, setIsMobileMenuOpen } = useNavbar();
 
     const deriveActiveSection = (path) => {
         if (!path) return 'home';
@@ -25,6 +27,8 @@ export default function Navbar() {
     // Handle navigation clicks
     const handleNavigation = (section) => {
         setActiveSection(section);
+        // Close mobile menu on navigation
+        setIsMobileMenuOpen(false);
         // Route to proper pages
         if (section === 'home') router.push('/');
         else if (section === 'dashboard') router.push('/profile');
@@ -37,6 +41,17 @@ export default function Navbar() {
     const handleLogout = () => {
         // Add logout logic here
         console.log('Logout clicked');
+        setIsMobileMenuOpen(false);
+    };
+
+    // Toggle mobile menu
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    // Toggle collapse for desktop
+    const toggleCollapse = () => {
+        setIsCollapsed(!isCollapsed);
     };
 
     // Set active based on current pathname
@@ -48,18 +63,70 @@ export default function Navbar() {
         setIsMounted(true);
     }, []);
 
+    // Close mobile menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isMobileMenuOpen && !event.target.closest(`.${styles.navbar}`) && !event.target.closest(`.${styles.mobileToggle}`)) {
+                setIsMobileMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isMobileMenuOpen]);
+
     return (
-        <nav className={`${styles.navbar} ${getFontClass(lang)}`} role="navigation" aria-label="Main navigation">
-            {/* Brand/Logo Area */}
-            <div className={styles.brand}>
-                <div className={styles.logo}>
-                    {/* Logo placeholder - add your logo here */}
-                    <div className={styles.logoPlaceholder}>
-                        <img src="https://cdn-icons-png.flaticon.com/512/1/1430.png" alt="" />
+        <>
+            {/* Mobile Toggle Button */}
+            <button
+                className={`${styles.mobileToggle} ${isMobileMenuOpen ? styles.mobileToggleOpen : ''}`}
+                onClick={toggleMobileMenu}
+                aria-label="Toggle navigation menu"
+                aria-expanded={isMobileMenuOpen}
+            >
+                <span className={styles.hamburgerLine}></span>
+                <span className={styles.hamburgerLine}></span>
+                <span className={styles.hamburgerLine}></span>
+            </button>
+
+            {/* Mobile Overlay */}
+            {isMobileMenuOpen && (
+                <div 
+                    className={styles.mobileOverlay}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                ></div>
+            )}
+
+            <nav className={`${styles.navbar} ${getFontClass(lang)} ${isCollapsed ? styles.collapsed : ''} ${isMobileMenuOpen ? styles.mobileOpen : ''}`} role="navigation" aria-label="Main navigation">
+                {/* Brand/Logo Area */}
+                <div className={styles.brand}>
+                    <div className={styles.logo}>
+                        {/* Logo placeholder - add your logo here */}
+                        <div className={styles.logoPlaceholder}>
+                            <img src="https://cdn-icons-png.flaticon.com/512/1/1430.png" alt="" />
+                        </div>
+                        <span className={styles.logoText}>Samanyay AI</span>
                     </div>
-                    <span>Samanyay AI</span>
+                    
+                    {/* Desktop Collapse Toggle */}
+                    <button
+                        className={styles.collapseToggle}
+                        onClick={toggleCollapse}
+                        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
+                        <svg 
+                            className={`${styles.collapseIcon} ${isCollapsed ? styles.collapsed : ''}`}
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                        >
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                    </button>
                 </div>
-            </div>
 
             {/* Navigation Menu */}
             <ul className={styles.navList} role="menubar">
@@ -191,31 +258,32 @@ export default function Navbar() {
                 </li>
             </ul>
 
-            {/* Footer Section with Logout */}
-            <div className={styles.footer}>
-                <button
-                    className={styles.logoutButton}
-                    onClick={handleLogout}
-                    aria-label="Logout from application"
-                    tabIndex="0"
-                >
-                    <svg 
-                        className={styles.logoutIcon} 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                        aria-hidden="true"
+                {/* Footer Section with Logout */}
+                <div className={styles.footer}>
+                    <button
+                        className={styles.logoutButton}
+                        onClick={handleLogout}
+                        aria-label="Logout from application"
+                        tabIndex="0"
                     >
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16,17 21,12 16,7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    <span className={styles.logoutText}>{t('logout')}</span>
-                </button>
-            </div>
-        </nav>
+                        <svg 
+                            className={styles.logoutIcon} 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16,17 21,12 16,7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span className={styles.logoutText}>{t('logout')}</span>
+                    </button>
+                </div>
+            </nav>
+        </>
     );
 }

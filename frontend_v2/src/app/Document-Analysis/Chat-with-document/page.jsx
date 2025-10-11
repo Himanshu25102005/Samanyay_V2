@@ -30,7 +30,7 @@ export default function ChatWithDocument() {
         if (typeof crypto !== 'undefined' && crypto.randomUUID) {
             return crypto.randomUUID();
         }
-        return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 15)}`;
     }
 
     useEffect(() => {
@@ -205,9 +205,8 @@ export default function ChatWithDocument() {
 
     return (
         <>
-            <Navbar />
-            <div className={`lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-2 sm:p-4 lg:p-6 ${getFontClass(lang)}`}>
-                <div className="max-w-7xl mx-auto w-full">
+            <div className={`min-h-screen bg-gradient-to-br  from-slate-100 to-slate-200 p-2 sm:p-4 lg:p-6 flex flex-col ${getFontClass(lang)}`}>
+                <div className="flex-1 mt-9 w-full max-w-7xl mx-auto">
                     {/* Chat Section */}
                     <motion.div 
                         initial={{opacity:0,y:12}} 
@@ -239,7 +238,7 @@ export default function ChatWithDocument() {
                                     </motion.div>
                                 )}
                                 {chat.map((m, idx) => (
-                                    <motion.div key={m.id || `${m.ts ? new Date(m.ts).getTime() : idx}-${idx}`}
+                                    <motion.div key={m.id || `message-${idx}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`}
                                         initial={{opacity:0,y:12,scale:0.95}} 
                                         animate={{opacity:1,y:0,scale:1}} 
                                         exit={{opacity:0,y:-12,scale:0.95}} 
@@ -250,13 +249,13 @@ export default function ChatWithDocument() {
                                     </motion.div>
                                 ))}
                                 {isSending && (
-                                    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="w-max px-2 sm:px-3 py-1 sm:py-1.5 text-xs rounded-full bg-gray-200 text-gray-700">{t('thinking')}</motion.div>
+                                    <motion.div key="thinking-status" initial={{opacity:0}} animate={{opacity:1}} className="w-max px-2 sm:px-3 py-1 sm:py-1.5 text-xs rounded-full bg-gray-200 text-gray-700">{t('thinking')}</motion.div>
                                 )}
                                 {typing && (
-                                    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="w-max px-2 sm:px-3 py-1 sm:py-1.5 text-xs rounded-full bg-sky-100 text-sky-800">{t('typing')}</motion.div>
+                                    <motion.div key="typing-status" initial={{opacity:0}} animate={{opacity:1}} className="w-max px-2 sm:px-3 py-1 sm:py-1.5 text-xs rounded-full bg-sky-100 text-sky-800">{t('typing')}</motion.div>
                                 )}
                                 {isRecording && (
-                                    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="w-max px-2 sm:px-3 py-1 sm:py-1.5 text-xs rounded-full bg-red-100 text-red-800 flex items-center gap-1 sm:gap-2">
+                                    <motion.div key="recording-status" initial={{opacity:0}} animate={{opacity:1}} className="w-max px-2 sm:px-3 py-1 sm:py-1.5 text-xs rounded-full bg-red-100 text-red-800 flex items-center gap-1 sm:gap-2">
                                         <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full animate-pulse"></div>
                                         <span className="hidden sm:inline">{t('recording')} </span>
                                         <span>{Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}</span>

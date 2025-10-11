@@ -159,10 +159,9 @@ function ImproveDraftContent({ type, initialDid }) {
 
   return (
     <>
-      <Navbar />
-      <div className="lg:ml-[280px] md:ml-[100px] sm:ml-20 ml-20 ] min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900">
+      <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900 flex flex-col">
         <div className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b border-slate-200">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3 flex items-center justify-between">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-sky-800">{t('draftingAssistant')}</h1>
             <div className="flex items-center gap-3">
               <motion.button 
@@ -177,7 +176,7 @@ function ImproveDraftContent({ type, initialDid }) {
           </div>
         </div>
 
-        <main className="mx-auto max-w-7xl px-4 sm:px-6 py-4 sm:py-6">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="mb-4">
             <div className="text-sm text-slate-600">{t('selectedType')}</div>
             <div className="text-lg font-medium text-slate-800">{type}</div>
@@ -306,7 +305,7 @@ function ImproveDraftContent({ type, initialDid }) {
                                   <motion.button 
                                     whileTap={{ scale: 0.95 }}
                                     onClick={()=>triggerDownload(result.filename)} 
-                                    className="text-xs sm:text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                                    className="text-xs sm:text-sm bg-[#0818A8] text-white px-4 py-2 rounded-lg hover:bg-[#0A1BB8] transition-colors"
                                   >
                                     Download Improved Draft
                                   </motion.button>
@@ -367,7 +366,7 @@ function ImproveDraftContent({ type, initialDid }) {
                         whileTap={{ scale: 0.95 }} 
                         onClick={onChooseFile} 
                         disabled={uploading}
-                        className="rounded-lg bg-slate-600 text-white px-3 py-2 hover:bg-slate-700 disabled:opacity-50 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors"
+                        className="rounded-lg bg-[#0818A8] text-white px-3 py-2 hover:bg-[#0A1BB8] disabled:opacity-50 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors"
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -381,7 +380,7 @@ function ImproveDraftContent({ type, initialDid }) {
                         whileTap={{ scale: 0.95 }} 
                         disabled={!documentId || submitting || !prompt.trim()} 
                         onClick={generateImprovedDraft} 
-                        className="rounded-lg bg-sky-600 text-white px-4 py-2 hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors"
+                        className="rounded-lg bg-[#0818A8] text-white px-4 py-2 hover:bg-[#0A1BB8] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors"
                       >
                         {submitting ? (
                           <>
@@ -456,5 +455,3 @@ export default function ImproveDraftPage() {
     </>
   );
 }
-
-

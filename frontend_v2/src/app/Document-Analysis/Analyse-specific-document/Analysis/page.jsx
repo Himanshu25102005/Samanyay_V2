@@ -181,79 +181,19 @@ export default function AnalysisPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 from-slate-50 via-blue-50 to-indigo-50">
-            {/* Floating Upload Panel */}
-            <AnimatePresence>
-                {showUploadPanel && (
-                    <motion.div
-                        initial={{ y: -100, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -100, opacity: 0 }}
-                        className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200"
-                    >
-                        <div className="max-w-7xl  mx-auto px-4 py-4">
-                            <div className="flex items-center justify-between gap-4">
-                                <div className="flex-1">
-                                    <h2 className="text-lg font-semibold text-gray-900 mb-1">{t('uploadDocument')}</h2>
-                                    <p className="text-xs text-gray-500">{t('fileTypesHint')}</p>
-                                </div>
-
-                                <div className="flex gap-3">
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept=".pdf,.doc,.docx,.txt"
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) handleFileUpload(file);
-                                        }}
-                                        className="hidden"
-                                    />
-
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => fileInputRef.current?.click()}
-                                        disabled={isUploading}
-                                        className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                                    >
-                                        {isUploading ? (
-                                            <span className="flex items-center gap-2">
-                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                {t('uploading')}
-                                            </span>
-                                        ) : (
-                                            t('chooseDocument')
-                                        )}
-                                    </motion.button>
-                                </div>
-                            </div>
-
-                            {uploadError && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600"
-                                >
-                                    {uploadError}
-                                </motion.div>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
             {/* Main Content */}
-            <div className={`max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 transition-all duration-300 ${showUploadPanel ? 'pt-36 sm:pt-40' : 'pt-6 sm:pt-8'}`}>
+            <div className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-8"
+                    className="mb-6"
                 >
                     <div className="flex items-center justify-between gap-4 flex-col sm:flex-row">
                         <div className="text-center sm:text-left">
-                            <h1 className="text-4xl md:text-5xl font-bold leading-[1.25] pt-1 pb-3 bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent mb-2">
+                            <h1 className="text-3xl md:text-4xl pb-2 pt-2 
+                            font-bold leading-tight bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent mb-2">
                                 {t('documentAnalysisTitle')}
                             </h1>
                             <p className="text-gray-600">{t('documentAnalysisSubtitle')}</p>
@@ -264,259 +204,320 @@ export default function AnalysisPage() {
                     </div>
                 </motion.div>
 
-                {!documentId ? (
-                    /* Empty State */
+                {/* Two Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-[calc(100vh-180px)] min-h-[600px]">
+                    {/* Left Panel - Analysis (Expanded) */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex items-center justify-center min-h-[60vh]"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="lg:col-span-2 flex flex-col"
                     >
-                        <div className="text-center">
-                            <motion.div
-                                animate={{ y: [0, -10, 0] }}
-                                transition={{ repeat: Infinity, duration: 3 }}
-                                className="mb-6"
-                            >
-                                <svg className="w-32 h-32 mx-auto text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                            </motion.div>
-                            <h3 className="text-2xl font-semibold text-gray-800 mb-2">{t('readyToAnalyze')}</h3>
-                            <p className="text-gray-500 mb-6">{t('uploadToGetStarted')}</p>
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => fileInputRef.current?.click()}
-                                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium shadow-xl hover:shadow-2xl transition-all"
-                            >
-                                {t('chooseDocument')}
-                            </motion.button>
-                        </div>
-                    </motion.div>
-                ) : (
-                    /* Main Layout */
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 justify-center">
-                        {/* Chat Section */}
+                        {/* Analysis Section */}
                         <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="flex flex-col min-h-[60vh] md:h-[calc(100vh-200px)]"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="bg-white rounded-2xl shadow-lg border border-gray-200 flex flex-col flex-1 min-h-0"
                         >
-                            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-xl border border-gray-200 flex flex-col h-full overflow-hidden min-h-0">
-                                <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h2 className="text-xl font-bold text-gray-900">{t('chatWithAnalyzer')}</h2>
-                                            <p className="text-xs text-gray-500 mt-0.5">{t('askAnythingAboutDoc')}</p>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-medium text-gray-700">{t('uploadDocument')}</span>
-                                            <motion.button
-                                                whileHover={{ scale: 1.1 }}
-                                                whileTap={{ scale: 0.9 }}
-                                                onClick={() => setShowUploadPanel(!showUploadPanel)}
-                                                className="p-2 rounded-full hover:bg-white/50 transition-colors"
-                                                aria-label="Upload"
-                                            >
-                                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                                </svg>
-                                            </motion.button>
-                                        </div>
+                            <div className="px-4 sm:px-6 py-3 border-b border-gray-100 bg-gradient-to-r from-[#0818A8]/5 to-blue-50">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900">{t('analysisOfDocument')}</h3>
+                                        <p className="text-sm text-gray-500">{t('aiPoweredInsights')}</p>
                                     </div>
-                                </div>
-
-                                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 min-h-0">
-                                    {chat.length === 0 ? (
-                                        <div className="flex items-center justify-center h-full text-gray-400">
-                                            <div className="text-center">
-                                                <svg className="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                </svg>
-                                                <p className="text-sm">{t('startConversationHint')}</p>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {chat.map((message, idx) => (
-                                                <motion.div
-                                                    key={idx}
-                                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                                                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                                                >
-                                                    <div className={`max-w-[80%] ${message.role === 'user'
-                                                        ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-3xl rounded-br-md'
-                                                        : 'bg-gray-100 text-gray-900 rounded-3xl rounded-bl-md'
-                                                        } px-5 py-3 shadow-md`}>
-                                                        <p className="text-sm leading-relaxed">{message.content}</p>
-                                                        <span className={`text-xs mt-1 block ${message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
-                                                            }`}>
-                                                            {message.timestamp ? new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                                                        </span>
-                                                    </div>
-                                                </motion.div>
-                                            ))}
-                                            {loadingChat && (
-                                                <motion.div
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    className="flex justify-start"
-                                                >
-                                                    <div className="bg-gray-100 rounded-3xl rounded-bl-md px-5 py-3 shadow-md">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="flex gap-1">
-                                                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
-                                                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
-                                                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
-                                                            </div>
-                                                            <span className="text-xs text-gray-500">{t('analyzerThinking')}</span>
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                            <div ref={chatEndRef} />
-                                        </>
-                                    )}
-                                </div>
-
-                                <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50">
-                                    <div className="flex gap-2 sm:gap-3">
-                                        <input
-                                            value={question}
-                                            onChange={(e) => setQuestion(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                                            placeholder={t('askPlaceholder')}
-                                            className="flex-1 rounded-full border-2 border-gray-200 px-4 sm:px-5 py-2.5 sm:py-3 text-sm focus:outline-none focus:border-blue-400 transition-colors bg-white"
-                                            disabled={loadingChat}
-                                        />
+                                    {analysis && (
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
-                                            onClick={sendMessage}
-                                            disabled={!question.trim() || loadingChat}
-                                            className="px-5 sm:px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                            onClick={clearSession}
+                                            className="p-2 rounded-full hover:bg-red-50 transition-colors"
+                                            aria-label="Clear"
                                         >
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                            <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </motion.button>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
-                        </motion.div>
 
-                        {/* Analysis Section */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="flex flex-col min-h-[60vh] md:h-[calc(100vh-200px)]"
-                        >
-                            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-xl border border-gray-200 flex flex-col h-full overflow-hidden min-h-0">
-                                <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h2 className="text-xl font-bold text-gray-900">{t('analysisOfDocument')}</h2>
-                                            <p className="text-xs text-gray-500 mt-0.5">{t('aiPoweredInsights')}</p>
+                            {/* Analysis Content */}
+                            <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0 max-h-[calc(100vh-300px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                {loadingAnalysis ? (
+                                    <div className="flex items-center justify-center h-full">
+                                        <div className="text-center">
+                                            <motion.div
+                                                animate={{ rotate: 360 }}
+                                                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                                                className="w-12 h-12 border-4 border-[#0818A8]/20 border-t-[#0818A8] rounded-full mx-auto mb-4"
+                                            ></motion.div>
+                                            <p className="text-gray-600">{t('analyzingDocument')}</p>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-medium text-gray-700">{t('delete')}</span>
-                                            <motion.button
-                                                whileHover={{ scale: 1.1 }}
-                                                whileTap={{ scale: 0.9 }}
-                                                onClick={clearSession}
-                                                className="p-2 rounded-full hover:bg-white/50 transition-colors"
-                                                aria-label="Delete"
-                                            >
-                                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </div>
+                                ) : analysisError ? (
+                                    <div className="flex items-center justify-center h-full">
+                                        <div className="text-center">
+                                            <div className="w-12 h-12 mx-auto mb-4 text-red-400">
+                                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                                 </svg>
+                                            </div>
+                                            <p className="text-red-600 font-medium mb-4">{analysisError}</p>
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => startAnalysis()}
+                                                className="px-4 py-2 bg-[#0818A8] text-white rounded-full hover:bg-[#0A1BB8] transition-colors"
+                                            >
+                                                {t('retryAnalysis')}
                                             </motion.button>
                                         </div>
                                     </div>
-                                </div>
+                                ) : analysis ? (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="bg-gradient-to-br from-[#0818A8]/5 to-blue-50 rounded-xl p-4 border border-[#0818A8]/20">
+                                            <h3 className="text-sm font-bold text-[#0818A8] mb-3 uppercase tracking-wide">{t('summary')}</h3>
+                                            <p className="text-gray-800 text-sm leading-relaxed mb-4">{getSummaryText()}</p>
 
-                                <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0">
-                                    {loadingAnalysis ? (
-                                        <div className="flex items-center justify-center h-full">
-                                            <div className="text-center">
-                                                <motion.div
-                                                    animate={{ rotate: 360 }}
-                                                    transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                                                    className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-4"
-                                                ></motion.div>
-                                                <p className="text-gray-600">{t('analyzingDocument')}</p>
-                                            </div>
-                                        </div>
-                                    ) : analysisError ? (
-                                        <div className="flex items-center justify-center h-full">
-                                            <div className="text-center">
-                                                <div className="w-16 h-16 mx-auto mb-4 text-red-400">
-                                                    <svg fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                    </svg>
-                                                </div>
-                                                <p className="text-red-600 font-medium mb-4">{analysisError}</p>
+                                            <div className="flex gap-2 flex-wrap">
                                                 <motion.button
                                                     whileHover={{ scale: 1.05 }}
                                                     whileTap={{ scale: 0.95 }}
-                                                    onClick={() => startAnalysis()}
-                                                    className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                                                    onClick={() => navigator.clipboard.writeText(getSummaryText())}
+                                                    className="px-3 py-2 rounded-full bg-white text-[#0818A8] text-xs font-medium shadow-sm hover:shadow-md transition-all border border-[#0818A8]/20"
                                                 >
-                                                    {t('retryAnalysis')}
+                                                    {t('copy')}
+                                                </motion.button>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => downloadText('summary.txt', getSummaryText())}
+                                                    className="px-3 py-2 rounded-full bg-[#0818A8] text-white text-xs font-medium shadow-sm hover:shadow-md transition-all"
+                                                >
+                                                    {t('download')}
                                                 </motion.button>
                                             </div>
                                         </div>
-                                    ) : analysis ? (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="space-y-3 sm:space-y-4"
-                                        >
-                                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-100">
-                                                <h3 className="text-sm font-bold text-indigo-900 mb-3 uppercase tracking-wide">{t('summary')}</h3>
-                                                <p className="text-gray-800 text-sm leading-relaxed mb-4">{getSummaryText()}</p>
 
-                                                <div className="flex gap-2 flex-wrap">
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                        onClick={() => navigator.clipboard.writeText(getSummaryText())}
-                                                        className="px-3 sm:px-4 py-2 rounded-full bg-white text-indigo-600 text-xs font-medium shadow-sm hover:shadow-md transition-all"
-                                                    >
-                                                        {t('copy')}
-                                                    </motion.button>
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                        onClick={() => downloadText('summary.txt', getSummaryText())}
-                                                        className="px-3 sm:px-4 py-2 rounded-full bg-white text-gray-700 text-xs font-medium shadow-sm hover:shadow-md transition-all"
-                                                    >
-                                                        {t('download')}
-                                                    </motion.button>
+                                        {previewText && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="bg-gray-50 rounded-xl p-4 border border-gray-200"
+                                            >
+                                                <h3 className="text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">{t('documentPreview')}</h3>
+                                                <p className="text-gray-600 text-xs leading-relaxed line-clamp-6">{previewText}</p>
+                                            </motion.div>
+                                        )}
+                                    </motion.div>
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-400">
+                                        <div className="text-center">
+                                            <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <p className="text-sm">{t('uploadDocumentToAnalyze')}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+
+                    {/* Right Panel - Chat & Upload */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="flex flex-col space-y-4"
+                    >
+                        {/* Chat Section */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="bg-white rounded-2xl shadow-lg border border-gray-200 flex flex-col flex-1 min-h-0"
+                        >
+                            <div className="px-4 sm:px-6 py-3 border-b border-gray-100 bg-gradient-to-r from-[#0818A8]/5 to-blue-50">
+                                <h3 className="text-lg font-semibold text-gray-900">{t('chatWithAnalyzer')}</h3>
+                                <p className="text-sm text-gray-500">{t('askAnythingAboutDoc')}</p>
+                            </div>
+
+                            {/* Chat Messages Area */}
+                            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3 min-h-0 max-h-[calc(100vh-400px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                {chat.length === 0 ? (
+                                    <div className="flex items-center justify-center h-full text-gray-400">
+                                        <div className="text-center">
+                                            <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                            </svg>
+                                            <p className="text-sm">{t('startConversationHint')}</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {chat.map((message, idx) => (
+                                            <motion.div
+                                                key={idx}
+                                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                            >
+                                                <div className={`max-w-[80%] ${message.role === 'user'
+                                                    ? 'bg-[#0818A8] text-white rounded-2xl rounded-br-md'
+                                                    : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
+                                                    } px-4 py-3 shadow-sm`}>
+                                                    <p className="text-sm leading-relaxed">{message.content}</p>
+                                                    <span className={`text-xs mt-1 block ${message.role === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
+                                                        {message.timestamp ? new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                                    </span>
                                                 </div>
-                                            </div>
+                                            </motion.div>
+                                        ))}
+                                        {loadingChat && (
+                                            <motion.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className="flex justify-start"
+                                            >
+                                                <div className="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex gap-1">
+                                                            <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
+                                                            <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
+                                                            <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-gray-400 rounded-full"></motion.div>
+                                                        </div>
+                                                        <span className="text-xs text-gray-500">{t('analyzerThinking')}</span>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                        <div ref={chatEndRef} />
+                                    </>
+                                )}
+                            </div>
 
-                                            {previewText && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: 0.2 }}
-                                                    className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200"
-                                                >
-                                                    <h3 className="text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">{t('documentPreview')}</h3>
-                                                    <p className="text-gray-600 text-xs leading-relaxed line-clamp-6">{previewText}</p>
-                                                </motion.div>
-                                            )}
-                                        </motion.div>
-                                    ) : null}
+                            {/* Chat Input */}
+                            <div className="px-4 sm:px-6 py-3 border-t border-gray-100 bg-gray-50">
+                                <div className="flex gap-2">
+                                    <input
+                                        value={question}
+                                        onChange={(e) => setQuestion(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                                        placeholder={t('askPlaceholder')}
+                                        className="flex-1 rounded-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#0818A8] transition-colors bg-white"
+                                        disabled={loadingChat || !documentId}
+                                    />
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={sendMessage}
+                                        disabled={!question.trim() || loadingChat || !documentId}
+                                        className="px-4 bg-[#0818A8] text-white rounded-full hover:bg-[#0A1BB8] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                    </motion.button>
                                 </div>
                             </div>
                         </motion.div>
-                    </div>
-                )}
+
+                        {/* Upload Section */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="bg-white rounded-lg shadow-md border border-gray-200 p-3"
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-900">{t('uploadDocument')}</h3>
+                                    <p className="text-xs text-gray-500">{t('fileTypesHint')}</p>
+                                </div>
+                                {docInfo && (
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={clearSession}
+                                        className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
+                                    >
+                                        {t('clear')}
+                                    </motion.button>
+                                )}
+                            </div>
+
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".pdf,.doc,.docx,.txt"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleFileUpload(file);
+                                }}
+                                className="hidden"
+                            />
+
+                            {!documentId ? (
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isUploading}
+                                    className="w-full bg-[#0818A8] hover:bg-[#0A1BB8] disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg px-4 py-3 flex items-center justify-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+                                >
+                                    {isUploading ? (
+                                        <>
+                                            <motion.div
+                                                animate={{ rotate: 360 }}
+                                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                                className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                                            />
+                                            <span className="text-sm font-medium">{t('uploading')}</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span className="text-sm font-medium">{t('chooseDocument')}</span>
+                                        </>
+                                    )}
+                                </motion.button>
+                            ) : (
+                                <div className="bg-green-50 border border-green-200 rounded-md p-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                                            <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-green-800">{t('documentUploaded')}</p>
+                                            <p className="text-xs text-green-600 truncate">{docInfo?.name || 'Document'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {uploadError && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600"
+                                >
+                                    {uploadError}
+                                </motion.div>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                </div>
             </div>
 
             {/* Mobile language selector */}

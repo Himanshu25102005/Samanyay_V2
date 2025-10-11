@@ -47,7 +47,7 @@ export default function AnalyseSpecificDocument() {
             <h2 className="text-2xl font-semibold text-gray-900">{title}</h2>
             <p className="text-base text-gray-700 mt-2 leading-relaxed flex-1">{description}</p>
             <div className="mt-6">
-                <div className="w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors">
+                <div className="w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl bg-[#0818A8] text-white shadow hover:bg-[#0A1BB8] transition-colors">
                     <span>{t('start')}</span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -60,18 +60,18 @@ export default function AnalyseSpecificDocument() {
     return (
         <>
             <Navbar />
-            <div className="lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 ] min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center">
+            <div className="lg:ml-[0px] md:ml-[100px] sm:ml-20 ml-20 ]  min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center">
                 <div className="max-w-6xl mx-auto w-full">
                     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
                         <div>
-                            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-blue-800 bg-clip-text text-transparent">
+                            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r pt-3 pb-2     from-gray-900 to-blue-800 bg-clip-text text-transparent">
                                 {t('analyseSpecificTitle')}
                             </h1>
                             <p className="text-gray-600 mt-1 text-base">{t('analyseSpecificSubtitle')}</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <label className="text-sm text-gray-600">{t('language')}</label>
-                            <select value={language} onChange={(e)=>setLanguage(e.target.value)} className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <select value={language} onChange={(e)=>setLanguage(e.target.value)} className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-[#0818A8]">
                                 <option>English</option>
                                 <option>Hindi</option>
                                 <option>Marathi</option>
@@ -140,7 +140,7 @@ export default function AnalyseSpecificDocument() {
                             <p className="text-base text-gray-700 mt-2 leading-relaxed flex-1">{t('generalDocumentDesc')}</p>
 
                             <div className="mt-6">
-                                <div className="w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors">
+                                <div className="w-full justify-center inline-flex items-center gap-2 px-5 py-3 text-base font-medium rounded-xl bg-[#0818A8] text-white shadow hover:bg-[#0A1BB8] transition-colors">
                                     <span>{t('start')}</span>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

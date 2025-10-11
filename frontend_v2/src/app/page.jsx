@@ -426,7 +426,7 @@ export default function Home() {
                 className="relative rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur p-4 shadow-[0_10px_40px_rgba(26,44,78,0.08)]"
               >
                 <div className="aspect-[16/10] w-full overflow-hidden rounded-2xl">
-                  <Image src="/window2.png" alt="AI legal assistant" fill priority className="object-cover rounded-2xl" />
+                  <Image src="/window12.jpg" alt="AI legal assistant" fill priority className="object-cover rounded-2xl" />
                 </div>
               </motion.div>
             </div>

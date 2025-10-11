@@ -5,9 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSelector from "../../../components/LanguageSelector.jsx";
 import { useI18n } from "../../../components/I18nProvider.jsx";
+import { useNavbar } from "../../../components/NavbarContext.jsx";
 
 export default function LegalResearch() {
     const { t, lang } = useI18n();
+    const { isCollapsed, isLargeScreen } = useNavbar();
     const [answerType, setAnswerType] = useState('detailed');
     const [question, setQuestion] = useState('');
     const [chat, setChat] = useState([]); // {role, content, ts}
@@ -19,7 +21,16 @@ export default function LegalResearch() {
     const [dark, setDark] = useState(false);
     const [showAnswerTypeDropdown, setShowAnswerTypeDropdown] = useState(false);
     const [isVoiceActive, setIsVoiceActive] = useState(false);
+    const [hasStarted, setHasStarted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef(null);
+
+    // Sample questions with translations
+    const sampleQuestions = [
+        "Is a domestic incident report mandatory for filing a case under the Domestic Violence Act?",
+        "The opposing client is not accepting summons; what can I do?",
+        "Can a missing person be declared dead by the court? What are the legal provisions?"
+    ];
 
     useEffect(() => {
         fetch('/api/legal-research/health-check')
@@ -42,13 +53,21 @@ export default function LegalResearch() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showAnswerTypeDropdown]);
 
-    async function send() {
-        const q = question.trim();
+    async function send(questionText = null) {
+        const q = questionText || question.trim();
         if (!q) return;
+        
+        // Start the conversation
+        if (!hasStarted) {
+            setHasStarted(true);
+            setIsLoading(true);
+        }
+        
         setQuestion('');
         setChat(prev => [...prev, { role: 'user', content: q, ts: new Date() }]);
         setIsSending(true);
         setError('');
+        
         try {
             const res = await fetch('/api/legal-research/process/', {
                 method: 'POST',
@@ -65,7 +84,14 @@ export default function LegalResearch() {
         } catch (e) {
             setError('Service unavailable. Please try again.');
             setChat(prev => [...prev, { role: 'assistant', content: 'Service unavailable. Please try again.', ts: new Date() }]);
-        } finally { setIsSending(false); }
+        } finally { 
+            setIsSending(false);
+            setIsLoading(false);
+        }
+    }
+
+    function handleSampleQuestion(question) {
+        send(question);
     }
 
     function exportChat() {
@@ -103,53 +129,167 @@ export default function LegalResearch() {
     return (
         <>
             <Navbar />
-            <div className={`lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 min-h-screen ${dark?'bg-[#0b1220] text-slate-100':'bg-gradient-to-br from-white via-[#F9FAFB] to-blue-50 text-gray-900'} p-2 sm:p-3 lg:p-4`}>
-                <div className="w-full max-w-[1600px] mx-auto">
+            <div 
+                className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-blue-50 text-slate-900 transition-all duration-300"
+                style={{
+                    marginLeft: isLargeScreen ? (isCollapsed ? '0px' : '0px') : '0px'
+                }}
+            >
+                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
                     {/* Header */}
-                    <div className="flex flex-col gap-2 sm:gap-3 mb-3 sm:mb-4">
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                                <button 
-                                    onClick={()=>history.back()} 
-                                    className={`flex-shrink-0 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border ${dark?'bg-slate-800 border-slate-700 hover:bg-slate-700':'bg-white hover:bg-gray-50'} shadow-sm text-xs sm:text-sm`}
-                                >
-                                    <span className="hidden sm:inline">← Back</span>
-                                    <span className="sm:hidden">←</span>
-                                </button>
-                                <div className="relative flex-1 min-w-0">
-                                    <h1 className={`text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight ${dark?'text-slate-100':'text-slate-900'}`}>
-                                        <span className="hidden sm:inline">Legal Research</span>
-                                        <span className="sm:hidden">Legal</span>
+                    <motion.div 
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        className="sticky top-0 z-10 backdrop-blur-md bg-white/90 border-b border-slate-200/70 shadow-sm -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 mb-6 sm:mb-8"
+                    >
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
+                                Legal Research
                                     </h1>
-                                    <span className="absolute left-0 -bottom-1 h-0.5 sm:h-1 w-3/4 bg-gradient-to-r from-blue-600 to-teal-500 rounded-full"></span>
-                                </div>
+                            <div className="flex items-center gap-3">
+                                <span className={`text-xs px-2 py-1 rounded-full ${health==='running'?'bg-green-100 text-green-700':'bg-slate-100 text-slate-600'}`}>
+                                    {health}
+                                </span>
+                                <LanguageSelector />
                             </div>
-                            <span className={`flex-shrink-0 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${health==='running'?(dark?'bg-green-900 text-green-200':'bg-green-100 text-green-700'):(dark?'bg-slate-800 text-slate-300':'bg-gray-100 text-gray-600')}`}>
-                                {health}
-                            </span>
                         </div>
-                        <div className="flex items-center gap-2 justify-between sm:justify-end">
-                            <button 
-                                onClick={()=>setDark(d=>!d)} 
-                                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border shadow-sm text-xs sm:text-sm ${dark?'bg-slate-900 border-slate-700':'bg-white'}`}
+                    </motion.div>
+
+                    {/* Main Content */}
+                    <AnimatePresence mode="wait">
+                        {!hasStarted ? (
+                            // Landing Page
+                            <motion.div
+                                key="landing"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                                className="flex flex-col items-center justify-center min-h-[60vh] text-center"
                             >
-                                {dark?'🌙':'☀️'}
-                            </button>
-                            <LanguageSelector />
+                                {/* Main Heading */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.8, delay: 0.2 }}
+                                    className="mb-8"
+                                >
+                                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-4">
+                                        Your Legal Research Assistant
+                                    </h2>
+                                    <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
+                                        Get instant answers to your legal questions with AI-powered research
+                                    </p>
+                                </motion.div>
+
+                                {/* Search Bar */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.4 }}
+                                    className="w-full max-w-2xl mb-8"
+                                >
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={question}
+                                            onChange={(e) => setQuestion(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    send();
+                                                }
+                                            }}
+                                            placeholder="Type your legal query here"
+                                            className="w-full rounded-2xl border-2 border-slate-200 bg-white/90 backdrop-blur-sm px-6 py-4 text-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 transition-all duration-200 placeholder:text-slate-400"
+                                        />
+                            <button 
+                                            onClick={() => send()}
+                                            disabled={!question.trim() || isSending}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+                                        >
+                                            {isSending ? (
+                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                                </svg>
+                                            )}
+                                        </button>
+                                    </div>
+                                </motion.div>
+
+                                {/* Sample Questions */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.6 }}
+                                    className="w-full max-w-3xl"
+                                >
+                                    <h3 className="text-lg font-semibold text-slate-700 mb-4">
+                                        Sample Questions:
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {sampleQuestions.map((q, index) => (
+                                            <motion.button
+                                                key={index}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
+                                                onClick={() => handleSampleQuestion(q)}
+                                                className="w-full text-left p-4 rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm hover:bg-sky-50 hover:border-sky-200 transition-all duration-200 shadow-sm hover:shadow-md group"
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <div className="w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
+                                                        {index + 1}
+                                                    </div>
+                                                    <p className="text-slate-700 group-hover:text-sky-800 transition-colors">
+                                                        {q}
+                                                    </p>
+                                                </div>
+                                            </motion.button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        ) : (
+                            // Chat Interface
+                            <motion.div
+                                key="chat"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                                className="grid grid-cols-1 lg:grid-cols-4 gap-6"
+                            >
+                                {/* Chat Area */}
+                                <div className="lg:col-span-3">
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.6, delay: 0.2 }}
+                                        className="rounded-xl border border-slate-200/60 bg-white/95 backdrop-blur-sm flex flex-col shadow-lg h-[70vh]"
+                                    >
+                                        {/* Chat Header */}
+                                        <div className="p-4 sm:p-5 border-b border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-white/50 flex-shrink-0">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
+                                                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                                                        <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+                                                    </svg>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="font-bold text-slate-800 text-lg">Legal Research Chat</div>
+                                                    <div className="text-sm text-slate-500">Ask your legal questions</div>
+                                                </div>
                         </div>
                     </div>
 
-                {/* Main grid */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
-                    {/* Chat column */}
-                        <motion.div 
-                            initial={{opacity:0,y:8}} 
-                            animate={{opacity:1,y:0}} 
-                            className={`rounded-lg sm:rounded-xl ${dark?'bg-[#0f172a] border-slate-700':'bg-white/90'} border-2 ${dark?'border-slate-700':'border-blue-100'} shadow-lg p-2 sm:p-3 lg:p-4 flex flex-col h-[55vh] sm:h-[60vh] lg:h-[65vh] xl:h-[70vh] backdrop-blur`}
-                        >
+                                        {/* Chat Messages */}
                             <div 
                                 ref={scrollRef} 
-                                className="flex-1 overflow-y-auto space-y-1.5 sm:space-y-2 lg:space-y-3 p-1 scrollbar-thin"
+                                            className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 min-h-0"
                             >
                             <AnimatePresence>
                                 {chat.map((m, i) => (
@@ -158,18 +298,32 @@ export default function LegalResearch() {
                                             initial={{opacity:0,y:8}} 
                                             animate={{opacity:1,y:0}} 
                                             exit={{opacity:0,y:-8}}
-                                            className={`group max-w-[90%] sm:max-w-[85%] px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-3 rounded-lg sm:rounded-xl lg:rounded-2xl shadow ${
-                                                i%2? 
-                                                'bg-gradient-to-r from-blue-600 to-teal-500 text-white ml-auto':
-                                                'bg-white/90 border border-blue-100 text-slate-900 mr-auto'
-                                            }`}
-                                            style={{wordBreak: 'break-word'}}
-                                        >
-                                            <div className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                                                        className={`flex items-start gap-3 ${i%2 ? 'flex-row-reverse' : ''}`}
+                                                    >
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                                            i%2 ? 'bg-gradient-to-br from-sky-500 to-blue-600' : 'bg-slate-100'
+                                                        }`}>
+                                                            {i%2 ? (
+                                                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                                                                </svg>
+                                                            ) : (
+                                                                <svg className="w-4 h-4 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                                                                </svg>
+                                                            )}
+                                                        </div>
+                                                        <div className={`max-w-[80%] rounded-xl p-4 ${
+                                                            i%2 ? 
+                                                            'text-white' :
+                                                            'bg-slate-100 text-slate-800'
+                                                        }`} style={i%2 ? {backgroundColor: '#0818A8'} : {}}>
+                                                            <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                                                 {m.content}
                                             </div>
-                                            <div className={`opacity-0 group-hover:opacity-100 transition text-[9px] sm:text-[10px] mt-1 ${i%2?'text-white/80':'text-blue-700/70'}`}>
+                                                            <div className={`text-xs mt-2 opacity-70 ${i%2 ? 'text-white/80' : 'text-slate-500'}`}>
                                                 {m.ts ? new Date(m.ts).toLocaleTimeString() : ''}
+                                                            </div>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -177,231 +331,145 @@ export default function LegalResearch() {
                                         <motion.div 
                                             initial={{opacity:0}} 
                                             animate={{opacity:1}} 
-                                            className="w-max px-2 sm:px-3 py-1 sm:py-1.5 text-xs rounded-full bg-gray-200 text-gray-700"
-                                        >
-                                            Processing…
+                                                        className="flex items-center gap-3"
+                                                    >
+                                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                                                            <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                                                        </div>
+                                                        <div className="bg-slate-100 rounded-xl p-4">
+                                                            <div className="text-sm text-slate-600">Processing your query...</div>
+                                                        </div>
                                         </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>
                             
-                            {error && <div className="mt-2 px-2 text-xs sm:text-sm text-red-600">{error}</div>}
-                            
-                            {/* Input area */}
-                            <div className="mt-2 sm:mt-3 space-y-1.5 sm:space-y-2">
-                                <textarea 
-                                    value={question} 
-                                    onChange={e=>setQuestion(e.target.value)} 
-                                    onKeyDown={(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } }} 
-                                    placeholder="Type your legal question…" 
-                                    rows={2}
-                                    className={`w-full rounded-md sm:rounded-lg border px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${dark?'bg-slate-900 border-slate-700 text-slate-100':'bg-white border-blue-100 hover:border-blue-200'}`} 
-                                />
-                                
-                                <div className="flex gap-2">
-                                    {/* Mobile: Dropdown */}
-                                    <div className="sm:hidden relative flex-1 answer-type-dropdown">
-                                        <button 
-                                            onClick={() => setShowAnswerTypeDropdown(!showAnswerTypeDropdown)}
-                                            className={`w-full h-8 flex items-center justify-between px-2 rounded-lg border ${dark?'bg-slate-900 border-slate-700 text-slate-100':'bg-white border-blue-100 hover:border-blue-200'} text-xs`}
-                                        >
-                                            <span className="capitalize">{answerType}</span>
-                                            <svg className={`w-3 h-3 transition-transform ${showAnswerTypeDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                        {showAnswerTypeDropdown && (
-                                            <div className={`absolute bottom-full left-0 right-0 mb-1 rounded-lg border shadow-lg z-10 ${dark?'bg-slate-800 border-slate-700':'bg-white border-gray-200'}`}>
-                                                {['detailed','short'].map(v => (
-                                                    <button 
-                                                        key={v} 
-                                                        onClick={() => {
-                                                            setAnswerType(v);
-                                                            setShowAnswerTypeDropdown(false);
-                                                        }}
-                                                        className={`w-full px-2 py-1.5 text-left text-xs ${answerType===v?(dark?'bg-teal-600 text-white':'bg-blue-600 text-white'):(dark?'text-slate-200 hover:bg-slate-800':'text-gray-700 hover:bg-gray-50')} first:rounded-t-lg last:rounded-b-lg`}
-                                                    >
-                                                        {v==='detailed'?'Detailed':'Short'}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Desktop: Toggle buttons */}
+                                        {/* Chat Input */}
+                                        <div className="p-4 sm:p-5 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/80 to-white/80 backdrop-blur-sm flex-shrink-0">
+                                            {error && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="rounded-lg border border-rose-200 bg-rose-50 text-rose-700 px-3 py-2 text-sm mb-3"
+                                                >
+                                                    {error}
+                                                </motion.div>
+                                            )}
+                                            <div className="space-y-3">
+                                                <div className="flex gap-2">
                                     <div className="hidden sm:flex gap-1 flex-1">
                                     {['detailed','short'].map(v => (
                                             <button 
                                                 key={v} 
                                                 onClick={()=>setAnswerType(v)} 
-                                                className={`px-3 py-1.5 text-sm rounded-lg transition-all ${answerType===v?(dark?'bg-teal-600 text-white shadow':'bg-blue-600 text-white shadow'):(dark?'text-slate-200 bg-slate-800 hover:bg-slate-700':'text-gray-700 bg-gray-100 hover:bg-gray-200')}`}
+                                                                className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+                                                                    answerType===v
+                                                                        ?'bg-sky-600 text-white shadow'
+                                                                        :'text-slate-600 bg-slate-100 hover:bg-slate-200'
+                                                                }`}
                                             >
                                                 {v==='detailed'?'Detailed':'Short'}
                                             </button>
                                         ))}
                                     </div>
-                                    
-                                    {/* Voice Chat Button */}
                                     <button 
                                         onClick={toggleVoiceChat}
-                                        className={`px-2 sm:px-3 h-8 sm:h-9 rounded-lg border transition-all duration-200 ${
+                                                        className={`px-3 h-9 rounded-lg border transition-all duration-200 ${
                                             isVoiceActive 
-                                                ? (dark ? 'bg-red-600 border-red-500 hover:bg-red-700' : 'bg-red-500 border-red-400 hover:bg-red-600')
-                                                : (dark ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-white border-blue-100 hover:border-blue-200')
+                                                                ? 'bg-red-500 border-red-400 hover:bg-red-600 text-white'
+                                                                : 'bg-white border-slate-300 hover:border-slate-400 text-slate-600'
                                         } shadow-sm`}
-                                        title={isVoiceActive ? 'Stop Voice Chat' : 'Start Voice Chat'}
-                                    >
-                                        <svg 
-                                            width="16" 
-                                            height="16" 
-                                            viewBox="0 0 24 24" 
-                                            fill="none" 
-                                            className={`transition-colors duration-200 ${
-                                                isVoiceActive ? 'text-white' : (dark ? 'text-slate-300' : 'text-gray-600')
-                                            }`}
-                                        >
-                                            {/* Microphone Icon */}
-                                            <path 
-                                                d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" 
-                                                fill="currentColor"
-                                            />
-                                            <path 
-                                                d="M19 10V12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12V10" 
-                                                stroke="currentColor" 
-                                                strokeWidth="2" 
-                                                strokeLinecap="round" 
-                                                strokeLinejoin="round"
-                                            />
-                                            <path 
-                                                d="M12 19V23" 
-                                                stroke="currentColor" 
-                                                strokeWidth="2" 
-                                                strokeLinecap="round" 
-                                                strokeLinejoin="round"
-                                            />
-                                            <path 
-                                                d="M8 23H16" 
-                                                stroke="currentColor" 
-                                                strokeWidth="2" 
-                                                strokeLinecap="round" 
-                                                strokeLinejoin="round"
-                                            />
-                                            {/* Sound waves animation when active */}
-                                            {isVoiceActive && (
-                                                <>
-                                                    <path 
-                                                        d="M20 8L22 10L20 12" 
-                                                        stroke="currentColor" 
-                                                        strokeWidth="1.5" 
-                                                        strokeLinecap="round" 
-                                                        strokeLinejoin="round"
-                                                        className="animate-pulse"
+                                                    >
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
+                                                            <path d="M19 10V12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12V10"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <textarea 
+                                                        value={question} 
+                                                        onChange={e=>setQuestion(e.target.value)} 
+                                                        onKeyDown={(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } }} 
+                                                        placeholder="Type your legal question…" 
+                                                        rows={2}
+                                                        className="flex-1 rounded-xl border border-slate-300/60 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 resize-none transition-all duration-200 placeholder:text-slate-400" 
                                                     />
-                                                    <path 
-                                                        d="M18 6L20 8L18 10" 
-                                                        stroke="currentColor" 
-                                                        strokeWidth="1.5" 
-                                                        strokeLinecap="round" 
-                                                        strokeLinejoin="round"
-                                                        className="animate-pulse"
-                                                        style={{animationDelay: '0.1s'}}
-                                                    />
-                                                </>
-                                            )}
-                                        </svg>
-                                    </button>
-                                    
                                     <button 
                                         onClick={send} 
-                                        disabled={isSending}
-                                        className={`px-3 sm:px-4 h-8 sm:h-9 rounded-lg ${dark?'bg-teal-600 hover:bg-teal-700':'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#1e4ed8] hover:to-[#2563eb]'} text-white font-semibold shadow-md text-xs sm:text-sm disabled:opacity-50`}
-                                    >
-                                        Send
+                                                        disabled={isSending || !question.trim()}
+                                                        className="px-4 h-12 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200"
+                                                    >
+                                                        {isSending ? (
+                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                                            </svg>
+                                                        )}
+                                                        <span className="hidden sm:inline">Send</span>
                                     </button>
                                 </div>
-                                
                                 <div className="flex justify-end gap-2">
                                     <button 
                                         onClick={clearChat} 
-                                        className={`px-2 sm:px-3 py-1 rounded-lg border ${dark?'bg-slate-900 border-slate-700':'bg-white'} shadow-sm hover:opacity-90 text-xs sm:text-sm`}
+                                                        className="px-3 py-1.5 rounded-lg border bg-white border-slate-300 hover:bg-slate-50 text-slate-600 text-sm transition-all duration-200"
                                     >
                                         Clear
                                     </button>
                                     <button 
                                         onClick={exportChat} 
-                                        className={`px-2 sm:px-3 py-1 rounded-lg border ${dark?'bg-slate-900 border-slate-700':'bg-white'} shadow-sm hover:opacity-90 text-xs sm:text-sm`}
+                                                        className="px-3 py-1.5 rounded-lg border bg-white border-slate-300 hover:bg-slate-50 text-slate-600 text-sm transition-all duration-200"
                                     >
                                         Download
                                     </button>
+                                                </div>
                                 </div>
                         </div>
                     </motion.div>
-
-                    {/* Answer panel */}
-                        <motion.div 
-                            initial={{opacity:0,y:8}} 
-                            animate={{opacity:1,y:0}} 
-                            className={`rounded-lg sm:rounded-xl ${dark?'bg-[#0f172a] border-slate-700 text-slate-100':'bg-white/90'} border-2 ${dark?'border-slate-700':'border-blue-100'} shadow-lg p-2 sm:p-3 lg:p-4 h-fit backdrop-blur`}
-                        >
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 border-b pb-1.5 sm:pb-2">
-                                <div className="text-sm sm:text-lg lg:text-xl font-bold tracking-tight" style={{wordBreak: 'break-word'}}>
-                                    {panel.title || 'Answer'}
-                                </div>
-                                <div className="flex items-center gap-1 sm:gap-2">
-                                    <button 
-                                        onClick={()=>setShowFullAnswer(s=>!s)} 
-                                        className={`px-2 sm:px-3 py-1 rounded-full border ${dark?'bg-slate-900 border-slate-700':'bg-white'} text-[10px] sm:text-xs shadow-sm`}
-                                    >
-                                        {showFullAnswer?'Summary':'Full'}
-                                    </button>
-                                    <button 
-                                        onClick={exportNote} 
-                                        className={`px-2 sm:px-3 py-1 rounded-full border ${dark?'bg-slate-900 border-slate-700':'bg-white'} text-[10px] sm:text-xs shadow-sm`}
-                                    >
-                                        Download
-                                    </button>
-                                </div>
                             </div>
                             
-                            {panel.summary && (
-                                <div className={`mt-2 sm:mt-3 p-2 sm:p-3 rounded-md sm:rounded-lg ${dark?'bg-slate-800 border-slate-700 text-slate-200':'bg-blue-50 border border-blue-100 text-blue-900'} text-xs sm:text-sm`} style={{wordBreak: 'break-word'}}>
-                                    {panel.summary}
-                        </div>
-                        )}
-                            
-                        {panel.text && showFullAnswer && (
-                                <div className={`mt-2 sm:mt-3 p-2 sm:p-3 rounded-md sm:rounded-lg ${dark?'bg-slate-900 border-slate-700':'bg-gray-50 border'} text-xs sm:text-sm max-h-[25vh] sm:max-h-[30vh] lg:max-h-[35vh] xl:max-h-[40vh] overflow-y-auto whitespace-pre-wrap leading-relaxed scrollbar-thin`} style={{wordBreak: 'break-word'}}>
-                                    {panel.text}
-                                </div>
-                        )}
-                            
-                        {!!panel.references?.length && (
-                                <div className="mt-2 sm:mt-3">
-                                    <div className="text-xs sm:text-sm font-semibold mb-2">References</div>
-                                    <div className="space-y-1 max-h-[20vh] sm:max-h-[25vh] lg:max-h-[30vh] overflow-y-auto scrollbar-thin">
-                                    {panel.references.map((r, idx) => (
-                                            <details 
-                                                key={idx} 
-                                                className={`rounded-lg sm:rounded-xl border p-2 sm:p-3 ${dark?'bg-slate-900 border-slate-700 hover:bg-slate-800':'bg-white hover:bg-gray-50'} transition-colors`}
-                                            >
-                                                <summary className={`cursor-pointer font-medium text-xs sm:text-sm ${dark?'text-teal-300':'text-blue-700'}`} style={{wordBreak: 'break-word'}}>
-                                                    <span>{r.case || 'Case'}</span>
-                                                    {r.citation && (
-                                                        <span className="text-gray-500 text-[10px] sm:text-xs ml-1">
-                                                            ({r.citation})
-                                                        </span>
-                                                    )}
-                                                </summary>
-                                                <div className={`mt-2 text-xs sm:text-sm ${dark?'text-slate-200':'text-gray-700'}`} style={{wordBreak: 'break-word'}}>
-                                                    {r.relevance || ''}
+                                {/* Sample Questions Sidebar */}
+                                <motion.div 
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.4 }}
+                                    className="lg:col-span-1"
+                                >
+                                    <div className="lg:sticky lg:top-24">
+                                        <section className="rounded-xl border border-slate-200/60 bg-white/90 backdrop-blur-sm p-4 shadow-sm">
+                                            <div className="font-semibold text-slate-800 mb-3 text-sm flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center">
+                                                    <svg className="w-3 h-3 text-sky-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                                    </svg>
                                                 </div>
-                                        </details>
+                                                Sample Questions
+                                            </div>
+                                            <div className="space-y-2">
+                                                {sampleQuestions.map((q, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => handleSampleQuestion(q)}
+                                                        className="w-full text-left p-3 rounded-lg border border-slate-200 bg-white/60 hover:bg-sky-50 hover:border-sky-200 transition-all duration-200 text-xs group"
+                                                    >
+                                                        <div className="flex items-start gap-2">
+                                                            <div className="w-4 h-4 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-xs font-semibold flex-shrink-0 mt-0.5">
+                                                                {index + 1}
+                                                            </div>
+                                                            <p className="text-slate-600 group-hover:text-sky-700 transition-colors leading-relaxed">
+                                                                {q}
+                                                            </p>
+                                                        </div>
+                                                    </button>
                                     ))}
                                 </div>
+                                        </section>
                             </div>
+                                </motion.div>
+                            </motion.div>
                         )}
-                    </motion.div>
-                </div>
+                    </AnimatePresence>
                 </div>
             </div>
         </>

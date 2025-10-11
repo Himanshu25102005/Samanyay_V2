@@ -104,6 +104,8 @@ const DICT = {
     type_nda: 'Draft a Non-Disclosure Agreement',
     type_plaintComplaintPetition: 'Draft a Plaint/Complaint/Petition',
     type_replyRejoinder: 'Draft a Reply/Rejoinder',
+    type_writPetition: 'Writ Petition',
+    type_rtiApplication: 'RTI Application/Appeal',
     
     // Common
     language: 'Language',
@@ -265,6 +267,8 @@ const DICT = {
     type_nda: 'गोपनीयता समझौता (NDA) का मसौदा',
     type_plaintComplaintPetition: 'वाद/शिकायत/याचिका का मसौदा',
     type_replyRejoinder: 'उत्तर/प्रत्युत्तर का मसौदा',
+    type_writPetition: 'रिट याचिका',
+    type_rtiApplication: 'आरटीआई आवेदन/अपील',
     
     // Common
     language: 'भाषा',
@@ -426,6 +430,8 @@ const DICT = {
     type_nda: 'गोपनीयता करार (NDA) चा मसुदा',
     type_plaintComplaintPetition: 'दावा/तक्रार/याचिका यांचा मसुदा',
     type_replyRejoinder: 'उत्तर/प्रतिसाद यांचा मसुदा',
+    type_writPetition: 'रिट याचिका',
+    type_rtiApplication: 'आरटीआय अर्ज/अपील',
     
     // Common
     language: 'भाषा',
@@ -587,6 +593,8 @@ const DICT = {
     type_nda: 'ગોપનીયતા કરાર (NDA) નો ડ્રાફ્ટ',
     type_plaintComplaintPetition: 'પ્લેન્ટ/ફરિયાદ/અરજીનો ડ્રાફ્ટ',
     type_replyRejoinder: 'જવાબ/રીજોઈન્ડરનો ડ્રાફ્ટ',
+    type_writPetition: 'રિટ અરજી',
+    type_rtiApplication: 'આરટીઆઈ અરજી/અપીલ',
     
     // Common
     language: 'ભાષા',

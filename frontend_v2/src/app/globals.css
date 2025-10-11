@@ -54,4 +54,31 @@ main, .contentWithSidebar {
   overflow-x: hidden;
 }
 
+/* Remove any default margins/padding that could cause gaps */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure no gap between navbar and content */
+.navbar + div {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Ensure main content areas are properly centered */
+main, .main-content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove any default margins from page containers */
+.page-container {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
 

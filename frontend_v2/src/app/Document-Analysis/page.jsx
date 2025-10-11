@@ -38,11 +38,10 @@ export default function DocumentAnalysisPage() {
 
     return (
         <>
-            <Navbar />
-            {/* Main Page Wrapper with left margin for navbar (centered content) */}
-            <div className="lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 ] min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center">
+            {/* Main Page Wrapper - content will be centered by SidebarLayout */}
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 flex items-center justify-center">
                 <motion.div
-                    className="max-w-6xl mx-auto w-full"
+                    className="w-full max-w-6xl mx-auto"
                     initial="hidden"
                     animate="show"
                     variants={containerVariants}
@@ -50,7 +49,7 @@ export default function DocumentAnalysisPage() {
                     {/* Page Heading + Language */}
                     <motion.div variants={cardVariants} className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-gray-900 to-blue-800 bg-clip-text text-transparent">
+                            <h1 className="text-3xl sm:text-4xl pb-2 pt-3 font-extrabold tracking-tight bg-gradient-to-r from-gray-900 to-blue-800 bg-clip-text text-transparent">
                                 {t('documentAnalysis')}
                             </h1>
                             <p className="mt-2 text-gray-600">{t('chooseFeature')}</p>
@@ -67,9 +66,9 @@ export default function DocumentAnalysisPage() {
                             whileHover={{ scale: 1.035, boxShadow: '0 12px 30px rgba(30,58,138,0.18)' }}
                             whileTap={{ scale: 0.99 }}
                             onClick={() => router.push('/Document-Analysis/Analyse-specific-document')}
-                            className="text-left rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-6 group"
+                            className="text-left rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-[#0818A8] bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-6 group"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md mb-4 group-hover:from-blue-700 group-hover:to-blue-800 transition-colors">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0818A8] to-[#0A1BB8] flex items-center justify-center shadow-md mb-4 group-hover:from-[#0A1BB8] group-hover:to-[#0C1EC8] transition-colors">
                                 {/* Document icon (inline SVG) */}
                                 <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -81,7 +80,7 @@ export default function DocumentAnalysisPage() {
                             <h2 className="text-xl font-semibold text-gray-900">{t('analyseSpecific')}</h2>
                             <p className="mt-2 text-sm text-gray-600">{t('chooseFeature')}</p>
                             <div className="mt-6">
-                                <span className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white shadow-sm group-hover:shadow-md">
+                                <span className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-[#0818A8] text-white shadow-sm group-hover:shadow-md">
                                     {t('start')}
                                     <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -98,9 +97,9 @@ export default function DocumentAnalysisPage() {
                             whileHover={{ scale: 1.035, boxShadow: '0 12px 30px rgba(55,48,163,0.18)' }}
                             whileTap={{ scale: 0.99 }}
                             onClick={() => router.push('/Document-Analysis/Chat-with-document')}
-                            className="text-left rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-6 group"
+                            className="text-left rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-[#0818A8] bg-gradient-to-br from-white to-blue-50 border border-blue-100 p-6 group"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center shadow-md mb-4 group-hover:from-indigo-700 group-hover:to-indigo-800 transition-colors">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0818A8] to-[#0A1BB8] flex items-center justify-center shadow-md mb-4 group-hover:from-[#0A1BB8] group-hover:to-[#0C1EC8] transition-colors">
                                 {/* Chat icon (inline SVG) */}
                                 <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                     <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
@@ -111,7 +110,7 @@ export default function DocumentAnalysisPage() {
                             <h2 className="text-xl font-semibold text-gray-900">{t('chatWithDoc')}</h2>
                             <p className="mt-2 text-sm text-gray-600">{t('chooseFeature')}</p>
                             <div className="mt-6">
-                                <span className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-sm group-hover:shadow-md">
+                                <span className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-[#0818A8] text-white shadow-sm group-hover:shadow-md">
                                     {t('start')}
                                     <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -123,19 +122,6 @@ export default function DocumentAnalysisPage() {
                     </div>
                 </motion.div>
             </div>
-
-            {/* Responsive adjustments for smaller screens (align with navbar) */}
-            <style jsx>{`
-                @media (max-width: 1024px) {
-                    .ml-\[280px\] { margin-left: 80px; }
-                }
-                @media (max-width: 768px) {
-                    .ml-\[280px\] { margin-left: 70px; }
-                }
-                @media (max-width: 640px) {
-                    .ml-\[280px\] { margin-left: 0; padding: 1rem; }
-                }
-            `}</style>
         </>
     );
 }

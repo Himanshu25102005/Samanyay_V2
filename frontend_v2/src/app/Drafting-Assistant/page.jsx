@@ -15,6 +15,8 @@ const DOC_TYPE_KEYS = [
     "nda",
     "plaintComplaintPetition",
     "replyRejoinder",
+    "writPetition",
+    "rtiApplication",
 ];
 
 // SVG Icons
@@ -79,6 +81,18 @@ const ReplyIcon = () => (
     </svg>
 );
 
+const WritPetitionIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+    </svg>
+);
+
+const RTIIcon = () => (
+    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
 function getIconForKey(key) {
     switch (key) {
         case "bailApplication":
@@ -97,6 +111,10 @@ function getIconForKey(key) {
             return <PenPaperIcon />;
         case "replyRejoinder":
             return <ReplyIcon />;
+        case "writPetition":
+            return <WritPetitionIcon />;
+        case "rtiApplication":
+            return <RTIIcon />;
         default:
             return <DocumentIcon />;
     }
@@ -124,7 +142,9 @@ const getImproveButtonText = (docType) => {
         "Draft a Memorandum of Understanding": "Improve MoU Draft",
         "Draft a Non-Disclosure Agreement": "Improve NDA",
         "Draft a Plaint/Complaint/Petition": "Improve Plaint/Complaint",
-        "Draft a Reply/Rejoinder": "Improve Reply/Rejoinder"
+        "Draft a Reply/Rejoinder": "Improve Reply/Rejoinder",
+        "Writ Petition": "Improve Writ Petition",
+        "RTI Application/Appeal": "Improve RTI Application"
     };
     return improveTexts[docType] || "Improve Document";
 };
@@ -132,11 +152,13 @@ const getImproveButtonText = (docType) => {
 export default function DraftingAssistant() {
     const { t } = useI18n();
     const [query, setQuery] = useState("");
-    const [documentId, setDocumentId] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const localizedTypes = useMemo(() => {
-        const base = DOC_TYPE_KEYS.map((key) => ({ key, label: t(`type_${key}`) }));
+        const base = DOC_TYPE_KEYS.map((key) => ({ 
+            key, 
+            label: t(`type_${key}`) 
+        }));
         return [...base, { key: "general", label: t('generalPurposeDraft') }];
     }, [t]);
 
@@ -146,24 +168,14 @@ export default function DraftingAssistant() {
         return localizedTypes.filter((d) => d.label.toLowerCase().includes(q));
     }, [query, localizedTypes]);
 
-    async function handleGeneralPurposeUpload() {
-        const fd = new FormData();
-        fd.append("file", new Blob(["dummy"], { type: "text/plain" }), "dummy.txt");
-        const res = await fetch("/Drafting-Assistant/api/drafting/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        if (data?.data?.document_id) setDocumentId(data.data.document_id);
-    }
 
     return (
         <>
-            <Navbar />
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-sky-50 
-                            lg:ml-[250px] md:ml-[100px] sm:ml-20 ml-21 
-                            transition-all duration-300">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-sky-50 flex flex-col">
                 
                 {/* Header Section */}
                 <div className="sticky top-0 z-20 backdrop-blur-md bg-white/80 border-b border-slate-200/70 shadow-sm">
-                    <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-3.5 sm:py-4.5">
+                    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-4.5">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -188,7 +200,7 @@ export default function DraftingAssistant() {
                 </div>
 
                 {/* Main Content */}
-                <main className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+                <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
                     
                     {/* Hero Section */}
                     {/*  */}
@@ -262,46 +274,11 @@ export default function DraftingAssistant() {
 
                                     {/* Action Buttons */}
                                     {item.key === "general" ? (
-                                        <div className="space-y-3">
-                                            <motion.button
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                onClick={handleGeneralPurposeUpload}
-                                                className="w-full inline-flex items-center justify-center gap-2
-                                                         rounded-lg sm:rounded-xl bg-sky-600 
-                                                         text-white font-medium
-                                                         px-4 py-2.5 sm:py-3
-                                                         text-sm sm:text-base
-                                                         hover:bg-sky-700
-                                                         shadow-md hover:shadow-lg
-                                                         transition-all duration-200"
-                                            >
-                                                <div className="w-4 h-4 sm:w-5 sm:h-5">
-                                                    <LightningIcon />
-                                                </div>
-                                                <span>{t('generalPurposeDraft')}</span>
-                                            </motion.button>
-                                            {documentId && (
-                                                <motion.div 
-                                                    initial={{ opacity: 0, height: 0 }}
-                                                    animate={{ opacity: 1, height: "auto" }}
-                                                    className="p-3 bg-slate-50 rounded-lg border border-slate-200"
-                                                >
-                                                    <p className="text-xs text-slate-600 mb-1 font-medium">
-                                                        {t('documentId') || 'Document ID'}:
-                                                    </p>
-                                                    <p className="text-xs font-mono text-slate-800 break-all">
-                                                        {documentId}
-                                                    </p>
-                                                </motion.div>
-                                            )}
-                                        </div>
-                                    ) : (
                                         <div className="flex flex-col gap-2.5 sm:gap-3">
                                             <Link 
                                                 href={{ 
                                                     pathname: "/Drafting-Assistant/New-Draft", 
-                                                    query: { type: item.label, did: documentId || "" }
+                                                    query: { type: item.label, did: "" }
                                                 }} 
                                                 className="w-full"
                                             >
@@ -310,11 +287,11 @@ export default function DraftingAssistant() {
                                                     whileTap={{ scale: 0.98 }}
                                                     className="inline-flex w-full items-center justify-center gap-2
                                                              rounded-lg sm:rounded-xl 
-                                                             border-2 border-sky-400 bg-white text-sky-700 
+                                                             border-2 border-[#0818A8] bg-white text-[#0818A8] 
                                                              font-medium
                                                              px-4 py-2.5 sm:py-3
                                                              text-sm sm:text-base
-                                                             hover:bg-sky-50 hover:border-sky-500
+                                                             hover:bg-[#0818A8]/5 hover:border-[#0A1BB8]
                                                              shadow-sm hover:shadow
                                                              transition-all duration-200"
                                                 >
@@ -327,7 +304,7 @@ export default function DraftingAssistant() {
                                             <Link 
                                                 href={{ 
                                                     pathname: "/Drafting-Assistant/Improve-Draft", 
-                                                    query: { type: item.label, did: documentId || "" }
+                                                    query: { type: item.label, did: "" }
                                                 }} 
                                                 className="w-full"
                                             >
@@ -336,11 +313,66 @@ export default function DraftingAssistant() {
                                                     whileTap={{ scale: 0.98 }}
                                                     className="inline-flex w-full items-center justify-center gap-2
                                                              rounded-lg sm:rounded-xl 
-                                                             bg-sky-600 
+                                                             bg-[#0818A8] 
                                                              text-white font-medium
                                                              px-4 py-2.5 sm:py-3
                                                              text-sm sm:text-base
-                                                             hover:bg-sky-700
+                                                             hover:bg-[#0A1BB8]
+                                                             shadow-md hover:shadow-lg
+                                                             transition-all duration-200"
+                                                >
+                                                    <div className="w-4 h-4 sm:w-5 sm:h-5">
+                                                        <EditIcon />
+                                                    </div>
+                                                    <span>Improve General Draft</span>
+                                                </motion.span>
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col gap-2.5 sm:gap-3">
+                                            <Link 
+                                                href={{ 
+                                                    pathname: "/Drafting-Assistant/New-Draft", 
+                                                    query: { type: item.label, did: "" }
+                                                }} 
+                                                className="w-full"
+                                            >
+                                                <motion.span
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="inline-flex w-full items-center justify-center gap-2
+                                                             rounded-lg sm:rounded-xl 
+                                                             border-2 border-[#0818A8] bg-white text-[#0818A8] 
+                                                             font-medium
+                                                             px-4 py-2.5 sm:py-3
+                                                             text-sm sm:text-base
+                                                             hover:bg-[#0818A8]/5 hover:border-[#0A1BB8]
+                                                             shadow-sm hover:shadow
+                                                             transition-all duration-200"
+                                                >
+                                                    <div className="w-4 h-4 sm:w-5 sm:h-5">
+                                                        <PlusIcon />
+                                                    </div>
+                                                    <span>{t('makeNewDraft') || 'Create New'}</span>
+                                                </motion.span>
+                                            </Link>
+                                            <Link 
+                                                href={{ 
+                                                    pathname: "/Drafting-Assistant/Improve-Draft", 
+                                                    query: { type: item.label, did: "" }
+                                                }} 
+                                                className="w-full"
+                                            >
+                                                <motion.span
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="inline-flex w-full items-center justify-center gap-2
+                                                             rounded-lg sm:rounded-xl 
+                                                             bg-[#0818A8] 
+                                                             text-white font-medium
+                                                             px-4 py-2.5 sm:py-3
+                                                             text-sm sm:text-base
+                                                             hover:bg-[#0A1BB8]
                                                              shadow-md hover:shadow-lg
                                                              transition-all duration-200"
                                                 >
