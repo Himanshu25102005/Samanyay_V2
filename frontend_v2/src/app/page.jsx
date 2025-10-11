@@ -29,9 +29,39 @@ export default function Home() {
   const [dropdownPosition, setDropdownPosition] = useState({ left: '0', right: 'auto', top: '100%' });
   const [mounted, setMounted] = useState(false);
   const buttonRef = useRef(null);
+  const dropdownRef = useRef(null);
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Close dropdown on scroll or click outside
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isFeaturesOpen) {
+        setIsFeaturesOpen(false);
+      }
+    };
+
+    const handleClickOutside = (event) => {
+      if (isFeaturesOpen && 
+          buttonRef.current && 
+          !buttonRef.current.contains(event.target) &&
+          dropdownRef.current && 
+          !dropdownRef.current.contains(event.target)) {
+        setIsFeaturesOpen(false);
+      }
+    };
+
+    if (isFeaturesOpen) {
+      document.addEventListener('scroll', handleScroll, true);
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('scroll', handleScroll, true);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isFeaturesOpen]);
 
   useEffect(() => {
     const id = setInterval(() => setActiveIdx((i) => (i + 1) % testimonials.length), 4500);
@@ -150,6 +180,7 @@ export default function Home() {
         exit={{ opacity: 0, scale: 0.98, y: 6 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
         role="menu"
+        ref={dropdownRef}
         className="fixed z-[9999] w-64 overflow-hidden rounded-xl border border-slate-200/70 bg-white/90 backdrop-blur shadow-[0_20px_50px_rgba(26,44,78,0.15)]"
         style={{
           top: `${top}px`,
@@ -162,9 +193,9 @@ export default function Home() {
         onMouseLeave={() => setIsFeaturesOpen(false)}
       >
         <a href="/Legal-Research" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-blue-200">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="M3 5h18M6 8h12M8 11h8M10 14h4" stroke="#2EA27E" strokeWidth="1.6" />
+              <path d="M3 5h18M6 8h12M8 11h8M10 14h4" stroke="#0818A8" strokeWidth="1.6" />
               <circle cx="12" cy="18" r="3" stroke="#1A2C4E" strokeWidth="1.6" />
             </svg>
           </span>
@@ -174,9 +205,9 @@ export default function Home() {
           </div>
         </a>
         <a href="/Drafting-Assistant" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-blue-200">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#2EA27E" strokeWidth="1.6" strokeLinejoin="round" />
+              <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#0818A8" strokeWidth="1.6" strokeLinejoin="round" />
             </svg>
           </span>
           <div>
@@ -185,10 +216,10 @@ export default function Home() {
           </div>
         </a>
         <a href="/Document-Analysis" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 ring-1 ring-emerald-200">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-blue-200">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" stroke="#1A2C4E" strokeWidth="1.6" />
-              <path d="M12 10h4M12 14h4M8 10h2M8 14h2" stroke="#2EA27E" strokeWidth="1.6" />
+              <path d="M12 10h4M12 14h4M8 10h2M8 14h2" stroke="#0818A8" strokeWidth="1.6" />
             </svg>
           </span>
           <div>
@@ -210,9 +241,9 @@ export default function Home() {
             <div className="relative h-8 w-8">
               <Image src="/logo.png" alt="Samanyay" fill className="object-contain" />
             </div>
-            <span className="font-semibold text-[#1A2C4E]">Samanyay</span>
+            <span className="font-semibold text-xl text-[#1A2C4E]">Samanyay</span>
           </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-slate-700">
+          <nav className="hidden md:flex items-center gap-6 text-md text-slate-700">
             {[{ id: "#features", label: "Features" }, { id: "#how-it-works", label: "How it works" }, { id: "#benefits", label: "Why Samanyay" }, { id: "#trust", label: "Security" }, { id: "#contact", label: "Contact" }].map((link) => (
               <motion.a
                 key={link.id}
@@ -228,7 +259,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-3">
             <motion.a
               href="/login"
-              whileHover={{ y: -2, boxShadow: "0 10px 24px rgba(46,162,126,0.22)" }}
+              whileHover={{ y: -2, boxShadow: "0 10px 24px rgba(8,24,168,0.22)" }}
               whileTap={{ scale: 0.97 }}
               className="inline-flex items-center justify-center rounded-lg border border-slate-300/80 bg-white/60 backdrop-blur px-4 py-2 text-sm text-[#1A2C4E] hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300"
             >
@@ -236,9 +267,9 @@ export default function Home() {
             </motion.a>
             <motion.a
               href="/login"
-              whileHover={{ y: -2, boxShadow: "0 12px 28px rgba(46,162,126,0.28)", filter: "brightness(1.05)" }}
+              whileHover={{ y: -2, boxShadow: "0 12px 28px rgba(8,24,168,0.28)", filter: "brightness(1.05)" }}
               whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center justify-center rounded-lg bg-[#2EA27E] px-4 py-2 text-sm text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2EA27E]"
+              className="inline-flex items-center justify-center rounded-lg bg-[#0818A8] px-4 py-2 text-sm text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0818A8]"
             >
               Sign Up
             </motion.a>
@@ -290,10 +321,10 @@ export default function Home() {
               >
                 <motion.a
                   href="/login"
-                  className="relative inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 shadow-[0_10px_24px_rgba(46,162,126,0.35)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                  className="relative inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-[#0818A8] via-[#0A1BB8] to-[#0C1EC8] shadow-[0_10px_24px_rgba(8,24,168,0.35)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0818A8]"
                   animate={{ y: [0, -2, 0] }}
                   transition={{ duration: 3, ease: "easeInOut", repeat: Infinity, repeatType: "loop" }}
-                  whileHover={{ scale: 1.03, boxShadow: "0 16px 40px rgba(46,162,126,0.45)" }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 16px 40px rgba(8,24,168,0.45)" }}
                   whileTap={{ scale: 0.98 }}
                 >
                   <span className="relative z-10">Get Started</span>
@@ -385,7 +416,7 @@ export default function Home() {
               <motion.div
                 style={{ y: heroParallax }}
                 aria-hidden
-                className="absolute -top-10 -left-10 right-0 h-80 rounded-3xl bg-gradient-to-br from-[#1A2C4E]/10 via-[#2EA27E]/10 to-transparent blur-2xl"
+                className="absolute -top-10 -left-10 right-0 h-80 rounded-3xl bg-gradient-to-br from-[#1A2C4E]/10 via-[#0818A8]/10 to-transparent blur-2xl"
               />
               {/* Visual */}
               <motion.div
@@ -418,9 +449,12 @@ export default function Home() {
           <p className="mt-3 text-slate-600 max-w-2xl">A modern toolkit balancing legal rigor with AI efficiency.</p>
 
           <div className="mt-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Features with Explore option - First row */}
+            <div className="md:col-span-2 xl:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {[
               {
                 title: "Document Analysis & Summarization",
+                name: "Document Analyser",
                 desc: "Understand lengthy documents in seconds.",
                 href: "/Document-Analysis",
                 points: [
@@ -431,12 +465,13 @@ export default function Home() {
                 svg: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" stroke="#1A2C4E" strokeWidth="1.6" />
-                    <path d="M12 10h4M12 14h4M8 10h2M8 14h2" stroke="#2EA27E" strokeWidth="1.6" />
+                    <path d="M12 10h4M12 14h4M8 10h2M8 14h2" stroke="#0818A8" strokeWidth="1.6" />
                   </svg>
                 )
               },
               {
                 title: "AI-Driven Legal Research",
+                name: "Legal Research",
                 desc: "Search jurisprudence and insights intelligently.",
                 href: "/Legal-Research",
                 points: [
@@ -447,18 +482,13 @@ export default function Home() {
                 svg: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <circle cx="11" cy="11" r="7" stroke="#1A2C4E" strokeWidth="1.6" />
-                    <path d="M21 21l-4.3-4.3" stroke="#2EA27E" strokeWidth="1.6" strokeLinecap="round" />
+                    <path d="M21 21l-4.3-4.3" stroke="#0818A8" strokeWidth="1.6" strokeLinecap="round" />
                   </svg>
                 )
               },
-              { title: "Multilingual Support", desc: "Work across languages with ease.", points: ["Translate drafts", "Localize clauses"], svg: (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M4 5h16M6 9h12M8 13h8M10 17h4" stroke="#1A2C4E" strokeWidth="1.6" />
-                  <path d="M18 5l2 2-2 2" stroke="#2EA27E" strokeWidth="1.6" />
-                </svg>
-              ) },
               {
                 title: "Custom Document Generation",
+                name: "Drafting Assistant",
                 desc: "Draft contracts, notices, and more.",
                 href: "/Drafting-Assistant",
                 points: [
@@ -472,13 +502,6 @@ export default function Home() {
                   </svg>
                 )
               },
-              { title: "Secure & Private Assistance", desc: "Your data stays confidential.", points: ["Encrypted in transit & at rest", "No data selling"], svg: (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M7 10V7a5 5 0 0 1 10 0v3" stroke="#1A2C4E" strokeWidth="1.6" />
-                  <rect x="4" y="10" width="16" height="10" rx="2" stroke="#2EA27E" strokeWidth="1.6" />
-                  <circle cx="12" cy="15" r="2" stroke="#1A2C4E" strokeWidth="1.6" />
-                </svg>
-              ) },
             ].map((f, i) => {
               const Card = (
                 <motion.div
@@ -488,26 +511,33 @@ export default function Home() {
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ duration: 0.5, delay: i * 0.05 }}
                   whileHover={{ y: -4, boxShadow: "0 24px 60px rgba(26,44,78,0.14)" }}
-                  className={`group h-full rounded-3xl border border-slate-200/70 bg-white/80 backdrop-blur p-7 md:p-8 shadow-[0_10px_40px_rgba(26,44,78,0.08)] transition will-change-transform ${f.href ? "ring-1 ring-transparent hover:ring-emerald-200 cursor-pointer" : ""}`}
+                  className={`group h-full rounded-3xl border border-slate-200/70 bg-gradient-to-br from-indigo-50/40 to-purple-50/30 backdrop-blur p-7 md:p-8 shadow-[0_10px_40px_rgba(26,44,78,0.08)] transition-all duration-300 will-change-transform ${f.href ? "ring-1 ring-transparent hover:ring-[#0818A8]/30 cursor-pointer hover:shadow-[0_20px_60px_rgba(8,24,168,0.15)]" : ""}`}
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1A2C4E]/10 to-[#2EA27E]/10 flex items-center justify-center ring-1 ring-slate-200">
-                    {f.svg}
+                  <div className="flex items-center gap-6 mb-6">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1A2C4E]/10 to-[#0818A8]/10 flex items-center justify-center ring-1 ring-slate-200 group-hover:scale-110 transition-transform duration-300">
+                      {f.svg}
+                    </div>
+                    {f.name && (
+                      <div className="text-base font-bold text-[#0818A8] group-hover:text-[#0A1BB8] transition-colors duration-300">
+                        {f.name.toUpperCase()}
+                      </div>
+                    )}
                   </div>
-                  <div className="mt-4 text-lg md:text-xl font-semibold text-[#1A2C4E]">{f.title}</div>
-                  <div className="text-sm md:text-base text-slate-600 mt-1">{f.desc}</div>
+                  <div className="text-lg md:text-xl font-semibold text-[#1A2C4E] group-hover:text-[#0818A8] transition-colors duration-300">{f.title}</div>
+                  <div className="text-sm md:text-base text-slate-600 mt-2">{f.desc}</div>
                   {Array.isArray(f.points) && (
                     <ul className="mt-4 space-y-2 text-sm text-slate-700">
-                      {f.points.map((p) => (
-                        <li key={p} className="flex items-start gap-2">
-                          <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full border border-emerald-300/70 bg-emerald-50 text-emerald-700">✓</span>
-                          <span>{p}</span>
+                      {f.points.map((p, pointIndex) => (
+                        <li key={p} className="flex items-start gap-2 group-hover:translate-x-1 transition-transform duration-300" style={{ transitionDelay: `${pointIndex * 50}ms` }}>
+                          <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#0818A8]/30 bg-[#0818A8]/10 text-[#0818A8] group-hover:scale-110 transition-transform duration-300">✓</span>
+                          <span className="group-hover:text-slate-800 transition-colors duration-300">{p}</span>
                         </li>
                       ))}
                     </ul>
                   )}
                   {f.href && (
                     <div className="mt-6">
-                      <span className="inline-flex items-center gap-2 rounded-xl bg-[#2EA27E] px-4 py-2 text-sm text-white group-hover:brightness-110">Explore
+                      <span className="inline-flex items-center gap-2 rounded-xl bg-[#0818A8] px-4 py-2 text-sm text-white group-hover:bg-[#0A1BB8] group-hover:scale-105 transition-all duration-300">Explore
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                           <path d="M5 12h14M13 5l7 7-7 7" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
@@ -524,6 +554,64 @@ export default function Home() {
                 <div key={f.title} className="h-full">{Card}</div>
               );
             })}
+            </div>
+            
+            {/* Features without Explore option - Second row */}
+            <div className="md:col-span-2 xl:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-6">
+            {[
+              { 
+                title: "Multilingual Support", 
+                desc: "Work across languages with ease.", 
+                points: ["Translate drafts", "Localize clauses"], 
+                svg: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <text x="12" y="18" textAnchor="middle" fontSize="16" fontFamily="serif" fill="#0818A8" fontWeight="bold">अ</text>
+                  </svg>
+                ) 
+              },
+              { 
+                title: "Secure & Private Assistance", 
+                desc: "Your data stays confidential.", 
+                points: ["Encrypted in transit & at rest", "No data selling"], 
+                svg: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path d="M7 10V7a5 5 0 0 1 10 0v3" stroke="#1A2C4E" strokeWidth="1.6" />
+                    <rect x="4" y="10" width="16" height="10" rx="2" stroke="#0818A8" strokeWidth="1.6" />
+                    <circle cx="12" cy="15" r="2" stroke="#1A2C4E" strokeWidth="1.6" />
+                  </svg>
+                ) 
+              },
+            ].map((f, i) => {
+              const Card = (
+                <motion.div
+                  key={f.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.5, delay: i * 0.05 }}
+                  whileHover={{ y: -4, boxShadow: "0 24px 60px rgba(26,44,78,0.14)" }}
+                  className="group h-full rounded-3xl border border-slate-200/70 bg-gradient-to-br from-indigo-50/40 to-purple-50/30 backdrop-blur p-7 md:p-8 shadow-[0_10px_40px_rgba(26,44,78,0.08)] transition-all duration-300 will-change-transform hover:shadow-[0_20px_60px_rgba(8,24,168,0.15)]"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1A2C4E]/10 to-[#0818A8]/10 flex items-center justify-center ring-1 ring-slate-200 group-hover:scale-110 transition-transform duration-300">
+                    {f.svg}
+                  </div>
+                  <div className="mt-4 text-lg md:text-xl font-semibold text-[#1A2C4E] group-hover:text-[#0818A8] transition-colors duration-300">{f.title}</div>
+                  <div className="text-sm md:text-base text-slate-600 mt-2">{f.desc}</div>
+                  {Array.isArray(f.points) && (
+                    <ul className="mt-4 space-y-2 text-sm text-slate-700">
+                      {f.points.map((p, pointIndex) => (
+                        <li key={p} className="flex items-start gap-2 group-hover:translate-x-1 transition-transform duration-300" style={{ transitionDelay: `${pointIndex * 50}ms` }}>
+                          <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#0818A8]/30 bg-[#0818A8]/10 text-[#0818A8] group-hover:scale-110 transition-transform duration-300">✓</span>
+                          <span className="group-hover:text-slate-800 transition-colors duration-300">{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </motion.div>
+              );
+              return <div key={f.title} className="h-full">{Card}</div>;
+            })}
+            </div>
           </div>
         </div>
       </section>
@@ -583,8 +671,8 @@ export default function Home() {
             <ul className="mt-6 space-y-3">
               {["Accessible legal help anytime, anywhere", "Save time and reduce legal costs", "AI-powered insights trusted by professionals"].map(
                 (b) => (
-                  <li key={b} className="flex items-start gap-3">
-                    <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-50 text-emerald-700">✓</span>
+                    <li key={b} className="flex items-start gap-3">
+                    <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-blue-500/40 bg-blue-50 text-blue-700">✓</span>
                     <span className="text-slate-700">{b}</span>
                   </li>
                 )
@@ -663,7 +751,7 @@ export default function Home() {
             >
               Your Privacy, Our Priority
             </motion.h2>
-            <div className="absolute left-0 -bottom-1 h-[2px] w-40 bg-gradient-to-r from-[#2EA27E] to-transparent" />
+            <div className="absolute left-0 -bottom-1 h-[2px] w-40 bg-gradient-to-r from-[#0818A8] to-transparent" />
     </div>
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -671,7 +759,7 @@ export default function Home() {
                 title: "End-to-End Document Encryption", desc: "Your files are protected in transit and at rest.", svg: (
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="M7 10V7a5 5 0 0 1 10 0v3" stroke="#1A2C4E" strokeWidth="1.6" />
-                    <rect x="4" y="10" width="16" height="10" rx="2" stroke="#2EA27E" strokeWidth="1.6" />
+                    <rect x="4" y="10" width="16" height="10" rx="2" stroke="#0818A8" strokeWidth="1.6" />
                     <circle cx="12" cy="15" r="2" stroke="#1A2C4E" strokeWidth="1.6" />
                   </svg>
                 )
@@ -680,7 +768,7 @@ export default function Home() {
                 title: "Strict Confidentiality Policies", desc: "We never sell or share your data.", svg: (
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z" stroke="#1A2C4E" strokeWidth="1.6" />
-                    <path d="M9 12l2 2 4-4" stroke="#2EA27E" strokeWidth="1.6" />
+                    <path d="M9 12l2 2 4-4" stroke="#0818A8" strokeWidth="1.6" />
                   </svg>
                 )
               },
@@ -701,7 +789,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.05 }}
                 className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur p-6 shadow-sm"
               >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1A2C4E]/10 to-[#2EA27E]/10 mb-3 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1A2C4E]/10 to-[#0818A8]/10 mb-3 flex items-center justify-center">
                   {c.svg}
                 </div>
                 <div className="font-medium text-[#1A2C4E]">{c.title}</div>
@@ -713,7 +801,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#1A2C4E] text-white">
+      <footer className="bg-[#051066] text-white">
         <div className="mx-auto max-w-[1280px] px-6 md:px-10 lg:px-14 py-12">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-3">
@@ -723,44 +811,110 @@ export default function Home() {
               <span className="text-lg font-semibold">Samanyay</span>
             </div>
             <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-100/90">
-              <a className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#1A2C4E] rounded" href="#about">About</a>
-              <a className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#1A2C4E] rounded" href="#features">Features</a>
-              <a className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#1A2C4E] rounded" href="#privacy">Privacy Policy</a>
-              <a className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#1A2C4E] rounded" href="#contact">Contact</a>
-              <a className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#1A2C4E] rounded" href="#terms">Terms of Service</a>
+              <motion.a 
+                className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
+                href="#about"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => onNavClick(e, "#about")}
+              >About</motion.a>
+              <motion.a 
+                className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
+                href="#features"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => onNavClick(e, "#features")}
+              >Features</motion.a>
+              <motion.a 
+                className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
+                href="#privacy"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => onNavClick(e, "#privacy")}
+              >Privacy Policy</motion.a>
+              <motion.a 
+                className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
+                href="#contact"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => onNavClick(e, "#contact")}
+              >Contact</motion.a>
+              <motion.a 
+                className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
+                href="#terms"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => onNavClick(e, "#terms")}
+              >Terms of Service</motion.a>
             </nav>
             <div className="flex items-center gap-3">
-              <a aria-label="Twitter" href="https://twitter.com/" target="_blank" rel="noreferrer" className="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#1A2C4E]">
+              <motion.a 
+                aria-label="Twitter" 
+                href="https://twitter.com/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] transition-all duration-300"
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-white" aria-hidden>
                   <path d="M22 5.8c-.7.3-1.5.6-2.3.7.8-.5 1.4-1.2 1.7-2-.8.5-1.7.9-2.6 1.1A4.1 4.1 0 0 0 12 8.9c0 .3 0 .6.1.9-3.3-.2-6.3-1.7-8.3-4-.3.6-.5 1.2-.5 1.9 0 1.4.7 2.7 1.9 3.4-.6 0-1.2-.2-1.7-.5 0 2 1.4 3.7 3.3 4-.3.1-.7.2-1 .2-.3 0-.5 0-.8-.1.6 1.7 2.2 2.9 4.1 3a8.3 8.3 0 0 1-5.1 1.7H3a11.7 11.7 0 0 0 6.3 1.8c7.6 0 11.8-6.3 11.8-11.8v-.5c.8-.6 1.4-1.2 1.9-2z" />
                 </svg>
-              </a>
-              <a aria-label="Instagram" href="https://instagram.com/" target="_blank" rel="noreferrer" className="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#1A2C4E]">
+              </motion.a>
+              <motion.a 
+                aria-label="Instagram" 
+                href="https://instagram.com/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] transition-all duration-300"
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-white" aria-hidden>
                   <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zm0 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm5.8-2.2a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z" />
                 </svg>
-              </a>
-              <a aria-label="LinkedIn" href="https://www.linkedin.com/" target="_blank" rel="noreferrer" className="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#1A2C4E]">
+              </motion.a>
+              <motion.a 
+                aria-label="LinkedIn" 
+                href="https://www.linkedin.com/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] transition-all duration-300"
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-white" aria-hidden>
                   <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0 8h5v16H0V8zm7.5 0h4.8v2.2h.1c.7-1.3 2.4-2.7 4.9-2.7 5.2 0 6.1 3.4 6.1 7.8V24h-5V16.4c0-1.8 0-4.1-2.5-4.1-2.6 0-3 2-3 4v7.7h-5V8z" />
                 </svg>
-              </a>
+              </motion.a>
             </div>
           </div>
           {/* Contact in footer */}
           <div id="contact" className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <motion.div 
+              className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-all duration-300"
+              whileHover={{ y: -4, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               <div className="text-sm text-slate-100/90">Email</div>
-              <a href="mailto:aditya@samanyay.com" className="mt-1 block text-white font-medium hover:underline">aditya@samanyay.com</a>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+              <a href="mailto:aditya@samanyay.com" className="mt-1 block text-white font-medium hover:underline transition-colors duration-300">aditya@samanyay.com</a>
+            </motion.div>
+            <motion.div 
+              className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-all duration-300"
+              whileHover={{ y: -4, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               <div className="text-sm text-slate-100/90">Phone</div>
-              <a href="tel:+919665170418" className="mt-1 block text-white font-medium hover:underline">+91-9665170418</a>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+              <a href="tel:+919665170418" className="mt-1 block text-white font-medium hover:underline transition-colors duration-300">+91-9665170418</a>
+            </motion.div>
+            <motion.div 
+              className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-all duration-300"
+              whileHover={{ y: -4, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               <div className="text-sm text-slate-100/90">Location</div>
               <div className="mt-1 text-white font-medium">Pune, Maharashtra</div>
-            </div>
+            </motion.div>
           </div>
           <div className="mt-8 text-xs text-slate-200/80">© {new Date().getFullYear()} Samanyay. All rights reserved.</div>
         </div>

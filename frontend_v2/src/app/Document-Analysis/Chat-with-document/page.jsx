@@ -206,28 +206,17 @@ export default function ChatWithDocument() {
     return (
         <>
             <Navbar />
-            <div className={`lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4 lg:p-6 ${getFontClass(lang)}`}>
-                <div className="max-w-7xl mx-auto w-full grid grid-cols-1 gap-3 sm:gap-4 lg:gap-6">
-                    {/* Upload Section */}
-                    <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} className={`rounded-xl border border-dashed ${dragOver?'border-sky-500 bg-sky-50/50':'border-gray-300 bg-white/90'} p-3 sm:p-4 lg:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4`} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrag}>
-                        <div className="flex items-center gap-3 sm:gap-4">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-sky-700 text-white flex items-center justify-center shadow">📄</div>
-                            <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-gray-900 text-sm sm:text-base">{t('uploadToStart')}</div>
-                                <div className="text-xs sm:text-sm text-gray-600">{t('dragDropHint')}</div>
-                                {fileInfo && (
-                                    <div className="text-xs text-gray-700 mt-1 truncate">{t('selected')}: {fileInfo.name} • {fileInfo.type || t('file')} • {fileInfo.size} {t('bytes')}</div>
-                                )}
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={(e)=>onFileChosen(e.target.files?.[0])} />
-                            <button onClick={()=>fileInputRef.current?.click()} disabled={isUploading} className={`px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl text-white text-sm sm:text-base ${isUploading?'bg-sky-400':'bg-sky-700 hover:bg-sky-800'} transition-colors`}>{isUploading?t('uploading'):t('chooseFile')}</button>
-                        </div>
-                    </motion.div>
-
+            <div className={`lg:ml-[270px] md:ml-[100px] sm:ml-20 ml-20 min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-2 sm:p-4 lg:p-6 ${getFontClass(lang)}`}>
+                <div className="max-w-7xl mx-auto w-full">
                     {/* Chat Section */}
-                    <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} className="rounded-2xl sm:rounded-3xl bg-white/90 backdrop-blur border border-gray-200 p-3 sm:p-4 lg:p-6 shadow flex flex-col min-h-0 h-[calc(100vh-220px)]">
+                    <motion.div 
+                        initial={{opacity:0,y:12}} 
+                        animate={{opacity:1,y:0}} 
+                        className={`rounded-2xl sm:rounded-3xl bg-white/90 backdrop-blur border ${dragOver ? 'border-sky-500 bg-sky-50/50' : 'border-gray-200'} p-3 sm:p-4 lg:p-6 shadow flex flex-col min-h-0 h-[calc(100vh-120px)]`}
+                        onDragOver={handleDrag} 
+                        onDragLeave={handleDrag} 
+                        onDrop={handleDrag}
+                    >
                         <div className="flex items-center justify-between mb-3 sm:mb-4">
                             <div className="text-base sm:text-lg font-semibold text-gray-900">{t('chatWithDoc')}</div>
                             <LanguageSelector />
@@ -235,9 +224,27 @@ export default function ChatWithDocument() {
 
                         <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto rounded-xl sm:rounded-2xl bg-sky-50 border border-gray-200 p-2 sm:p-3 lg:p-4 space-y-2 sm:space-y-3 lg:space-y-4">
                             <AnimatePresence>
+                                {!documentId && chat.length === 0 && (
+                                    <motion.div 
+                                        initial={{opacity:0,y:8}} 
+                                        animate={{opacity:1,y:0}} 
+                                        className="flex flex-col items-center justify-center h-full min-h-[400px] text-center"
+                                    >
+                                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-6 shadow-sm">
+                                            <span className="text-3xl sm:text-4xl">📄</span>
+                                        </div>
+                                        <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3">{t('uploadToStart')}</h3>
+                                        <p className="text-base sm:text-lg text-gray-600 mb-6 max-w-lg leading-relaxed">{t('dragDropHint')}</p>
+                                        
+                                    </motion.div>
+                                )}
                                 {chat.map((m, idx) => (
                                     <motion.div key={m.id || `${m.ts ? new Date(m.ts).getTime() : idx}-${idx}`}
-                                        initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} transition={{duration:0.2}}
+                                        initial={{opacity:0,y:12,scale:0.95}} 
+                                        animate={{opacity:1,y:0,scale:1}} 
+                                        exit={{opacity:0,y:-12,scale:0.95}} 
+                                        transition={{duration:0.3,ease:"easeOut"}}
+                                        whileHover={{scale:1.02}}
                                         className={`max-w-full sm:max-w-3xl px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-sm leading-relaxed shadow-sm ${m.role==='user'?'bg-sky-700 text-white ml-auto':'bg-white border border-gray-200 text-gray-800 mr-auto'}`}>
                                         {m.content}
                                     </motion.div>
@@ -258,28 +265,122 @@ export default function ChatWithDocument() {
                             </AnimatePresence>
                         </div>
 
+                        {/* Upload Status */}
+                        {fileInfo && (
+                            <div className="mb-3 p-3 bg-sky-50 border border-sky-200 rounded-lg">
+                                <div className="text-sm text-sky-800">
+                                    <span className="font-medium">{t('selected')}:</span> {fileInfo.name} • {fileInfo.type || t('file')} • {fileInfo.size} {t('bytes')}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3">
-                            <textarea value={question} onChange={e=>{setQuestion(e.target.value); setTyping(true); setTimeout(()=>setTyping(false), 800);}} onKeyDown={handleKeyDown} placeholder={t('askPlaceholder')} rows={1} className="sm:col-span-9 rounded-lg sm:rounded-xl border border-gray-300 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-sky-500 resize-y min-h-[44px] sm:min-h-[48px]" />
+                            <div className="sm:col-span-9 flex items-center gap-2">
+                                <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={(e)=>onFileChosen(e.target.files?.[0])} />
+                                <button 
+                                    onClick={()=>fileInputRef.current?.click()} 
+                                    disabled={isUploading}
+                                    className={`p-2 sm:p-3 rounded-lg sm:rounded-xl text-white transition-all duration-300 hover:scale-105 active:scale-95 ${
+                                        isUploading ? 'bg-[#0818A8]/60' : 'bg-[#0818A8] hover:bg-[#0A1BB8]'
+                                    }`}
+                                    title={isUploading ? t('uploading') : t('uploadDocument')}
+                                >
+                                    {isUploading ? (
+                                        <motion.span 
+                                            animate={{ rotate: 360 }} 
+                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                        >
+                                            ⏳
+                                        </motion.span>
+                                    ) : (
+                                        <motion.span
+                                            whileHover={{ scale: 1.1 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            ➕
+                                        </motion.span>
+                                    )}
+                                </button>
+                                <textarea 
+                                    value={question} 
+                                    onChange={e=>{setQuestion(e.target.value); setTyping(true); setTimeout(()=>setTyping(false), 800);}} 
+                                    onKeyDown={handleKeyDown} 
+                                    placeholder={t('askPlaceholder')} 
+                                    rows={1} 
+                                    className="flex-1 rounded-lg sm:rounded-xl border border-gray-300 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-sky-500 resize-y min-h-[44px] sm:min-h-[48px]" 
+                                />
+                            </div>
                             <div className="sm:col-span-3 flex items-center gap-2 sm:gap-3">
-                                <button onClick={sendQuestion} disabled={!documentId || isSending || isRecording} className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white text-sm sm:text-base ${isSending || isRecording ?'bg-sky-400':'bg-sky-700 hover:bg-sky-800'} transition-colors`}>{t('send')}</button>
+                                <motion.button 
+                                    onClick={sendQuestion} 
+                                    disabled={!documentId || isSending || isRecording} 
+                                    className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white text-sm sm:text-base ${isSending || isRecording ?'bg-[#0818A8]/60':'bg-[#0818A8] hover:bg-[#0A1BB8]'} transition-all duration-300`}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    animate={isSending ? { scale: [1, 1.02, 1] } : {}}
+                                    transition={isSending ? { duration: 1.5, repeat: Infinity } : {}}
+                                >
+                                    {isSending ? (
+                                        <motion.span
+                                            animate={{ opacity: [1, 0.5, 1] }}
+                                            transition={{ duration: 1, repeat: Infinity }}
+                                        >
+                                            {t('send')}
+                                        </motion.span>
+                                    ) : (
+                                        t('send')
+                                    )}
+                                </motion.button>
                                 <input ref={audioInputRef} type="file" accept="audio/*" className="hidden" />
                                 <div className="flex flex-col items-center gap-1">
-                                    <button 
+                                    <motion.button 
                                         onClick={isRecording ? stopRecording : startRecording} 
                                         disabled={!documentId || isSending}
                                         title={isRecording ? t('stopRecording') : t('startVoiceRecording')}
-                                        className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white transition-all duration-200 text-sm sm:text-base ${
+                                        className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white transition-all duration-300 text-sm sm:text-base ${
                                             isRecording 
-                                                ? 'bg-red-600 hover:bg-red-700 animate-pulse' 
-                                                : 'bg-sky-700 hover:bg-sky-800'
+                                                ? 'bg-red-600 hover:bg-red-700' 
+                                                : 'bg-[#0818A8] hover:bg-[#0A1BB8]'
                                         } ${isSending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        animate={isRecording ? { scale: [1, 1.05, 1] } : {}}
+                                        transition={isRecording ? { duration: 1, repeat: Infinity } : {}}
                                     >
-                                        {isRecording ? '⏹️' : '🎙️'}
-                                    </button>
+                                        {isRecording ? (
+                                            <motion.span
+                                                animate={{ rotate: [0, 5, -5, 0] }}
+                                                transition={{ duration: 0.5, repeat: Infinity }}
+                                            >
+                                                ⏹️
+                                            </motion.span>
+                                        ) : (
+                                            <motion.span
+                                                whileHover={{ scale: 1.1 }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white">
+                                                    <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
+                                                    <path d="M19 10V12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                                    <path d="M12 19V23" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                                    <path d="M8 23H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                                </svg>
+                                            </motion.span>
+                                        )}
+                                    </motion.button>
                                     {isRecording && (
-                                        <div className="text-xs text-red-600 font-medium">
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: -5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="text-xs text-red-600 font-medium flex items-center gap-1"
+                                        >
+                                            <motion.div
+                                                animate={{ scale: [1, 1.2, 1] }}
+                                                transition={{ duration: 0.8, repeat: Infinity }}
+                                                className="w-1.5 h-1.5 bg-red-500 rounded-full"
+                                            />
                                             {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
-                                        </div>
+                                        </motion.div>
                                     )}
                                 </div>
                             </div>
