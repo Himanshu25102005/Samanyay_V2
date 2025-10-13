@@ -22,6 +22,129 @@ function SearchParamsHandler({ onParamsLoaded }) {
 
 function ImproveDraftContent({ type, initialDid }) {
   const { t } = useI18n();
+  // Per-document type general guidance (same mapping as New Draft)
+  const GUIDANCE_BY_TYPE = {
+    "Bail / Anticipatory Bail Application": {
+      desc: "Used to request release from custody or prevent arrest.",
+      items: [
+        "Accused's Information: Full name, address, and occupation.",
+        "Case & FIR Details: Provide the FIR number, police station, and the sections of law mentioned (e.g., 420 IPC).",
+        "Summary of Allegations: Briefly explain the accusations against the person as per the FIR.",
+        "Key Grounds for Bail: Reasons for granting bail (innocence, cooperation, medical condition, community ties).",
+        "Prior Criminal Record: Mention any past cases or state clean record."
+      ]
+    },
+    "Contract": {
+      desc: "A legally binding agreement between parties.",
+      items: [
+        "Party Details: Full legal names and addresses.",
+        "Core Purpose: Objective of the contract (e.g., software development, sale of property).",
+        "Commercials: Payment amount, schedule, start and end dates.",
+        "Key Obligations: Responsibilities and deliverables for each party.",
+        "Crucial Clauses: Dispute Resolution, Termination, Confidentiality, Governing Law."
+      ]
+    },
+    "Discharge Application": {
+      desc: "Filed to argue there is no evidence to proceed to trial.",
+      items: [
+        "Case Information: Court name, case number, FIR number.",
+        "Applicant's Name: Person seeking discharge.",
+        "Grounds for Discharge: Key weaknesses (no direct evidence, contradictions).",
+        "Supporting Evidence: Cite specific parts of the chargesheet supporting discharge."
+      ]
+    },
+    "Legal Notice": {
+      desc: "A formal warning before taking legal action.",
+      items: [
+        "Sender & Recipient: Full names and addresses.",
+        "Background of Dispute: Brief chronological summary (what, where, when).",
+        "Specific Demand (Relief): Exact action required (e.g., pay dues, cease trademark use).",
+        "Compliance Deadline: Set clear timeframe (e.g., within 15 days)."
+      ]
+    },
+    "Memorandum of Understanding (MoU)": {
+      desc: "A non-binding document outlining a future partnership.",
+      items: [
+        "Party Details: Names and addresses.",
+        "Objective of Collaboration: Shared goal or project.",
+        "Roles & Contributions: Expected responsibilities of each party.",
+        "Key Terms: Duration, confidentiality, intent to execute a binding contract later."
+      ]
+    },
+    "Non-Disclosure Agreement (NDA)": {
+      desc: "A contract to protect sensitive information.",
+      items: [
+        "Parties: Disclosing Party and Receiving Party.",
+        "Confidential Information: Define clearly (e.g., financials, source code, customer lists).",
+        "Purpose of Disclosure: Reason for sharing (e.g., evaluate merger).",
+        "Confidentiality Period: Duration (e.g., 3 years from today's date)."
+      ]
+    },
+    "Plaint / Complaint": {
+      desc: "Initiates a civil action or records a complaint.",
+      items: [
+        "Plaintiff & Defendant Details: Names and addresses.",
+        "Detailed Factual Narrative: Step-by-step account of the dispute.",
+        "Cause of Action: When and where the main issue occurred.",
+        "Relief Sought: Precise remedies requested from court."
+      ]
+    },
+    "Written Statement / Reply / Rejoinder": {
+      desc: "Responds to the opponent's claims or documents.",
+      items: [
+        "Case Identification: Court, case number, party names.",
+        "Para-wise Response: Admit/Deny/Clarify each paragraph.",
+        "Your Version of the Facts: Clear narrative of your stance.",
+        "Preliminary Objections: Legal flaws (jurisdiction, limitation, etc.)."
+      ]
+    },
+    "Right to Information (RTI) Application": {
+      desc: "Used to formally request information from a public authority.",
+      items: [
+        "Applicant Details: Full name and postal address.",
+        "Public Authority Details: Department/office name and address.",
+        "Specific Information Required: Point-wise list of exact info sought.",
+        "Period of Information: Define timeframe (e.g., FY 2023-24).",
+        "BPL Status: Declare if BPL to claim fee exemption."
+      ]
+    },
+    "General Purpose Draft": {
+      desc: "For affidavits, applications, formal letters, etc.",
+      items: [
+        "Document Type & Purpose: Define and state the goal.",
+        "Intended Audience: Judge, govt body, opposing lawyer, etc.",
+        "Key Facts to Include: Names, dates, reference numbers.",
+        "Specific Request (Prayer): Action you want the reader to take."
+      ]
+    }
+  };
+
+  function resolveGuidance(typeLabel){
+    const v = (typeLabel || '').toLowerCase();
+    if (v.includes('bail')) return GUIDANCE_BY_TYPE["Bail / Anticipatory Bail Application"];
+    if (v.includes('contract')) return GUIDANCE_BY_TYPE["Contract"];
+    if (v.includes('discharge')) return GUIDANCE_BY_TYPE["Discharge Application"];
+    if (v.includes('legal notice') || v.includes('notice')) return GUIDANCE_BY_TYPE["Legal Notice"];
+    if (v.includes('memorandum') || v.includes('mou')) return GUIDANCE_BY_TYPE["Memorandum of Understanding (MoU)"];
+    if (v.includes('non-disclosure') || v.includes('nda')) return GUIDANCE_BY_TYPE["Non-Disclosure Agreement (NDA)"];
+    if (v.includes('plaint') || v.includes('complaint') || v.includes('petition')) return GUIDANCE_BY_TYPE["Plaint / Complaint"];
+    if (v.includes('rejoinder') || v.includes('reply') || v.includes('written statement')) return GUIDANCE_BY_TYPE["Written Statement / Reply / Rejoinder"];
+    if (v.includes('rti')) return GUIDANCE_BY_TYPE["Right to Information (RTI) Application"];
+    if (v.includes('general')) return GUIDANCE_BY_TYPE["General Purpose Draft"];
+    return null;
+  }
+
+  const activeGuidance = resolveGuidance(type) || {
+    desc: "Include purpose, parties, timelines, terms, and signatures.",
+    items: [
+      "Be precise, unambiguous, and consistent in definitions.",
+      "Add governing law, dispute resolution, and termination clauses.",
+      "Consider confidentiality and non-disclosure requirements.",
+      "Specify payment terms and conditions clearly.",
+      "Include force majeure clauses and ensure legal compliance."
+    ]
+  };
+
 
   const [documentId, setDocumentId] = useState(initialDid || null);
   const [prompt, setPrompt] = useState("");
@@ -164,25 +287,25 @@ function ImproveDraftContent({ type, initialDid }) {
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-sky-800">{t('draftingAssistant')}</h1>
             <div className="flex items-center gap-3">
-              <motion.button 
+              {/* <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={checkBackendHealth}
                 className="px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 border"
               >
                 Check Backend
-              </motion.button>
+              </motion.button> */}
               <LanguageSelector />
             </div>
           </div>
         </div>
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-          <div className="mb-4">
+          <div className="mb-4 ml-6 mt-2">
             <div className="text-sm text-slate-600">{t('selectedType')}</div>
             <div className="text-lg font-medium text-slate-800">{type}</div>
           </div>
 
-          {/* Backend Status Display */}
+          {/* Backend Status Display
           {backendStatus && (
             <div className="mb-4">
               <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -220,12 +343,12 @@ function ImproveDraftContent({ type, initialDid }) {
                 </div>
               </section>
             </div>
-          )}
+          )} */}
 
           {/* Two Column Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
           {/* Left Side - General Guidance */}
-            <div className="lg:col-span-3 order-2 lg:order-1">
+            <div className="lg:col-span-3 ml-5 order-2 lg:order-1">
               <div className="lg:sticky lg:top-24">
                 <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="font-semibold text-slate-800 mb-3 text-base flex items-center gap-2">
@@ -234,23 +357,23 @@ function ImproveDraftContent({ type, initialDid }) {
                     </svg>
                     General Guidance
                   </div>
-                  <ul className="list-disc pl-5 space-y-2 text-slate-700 text-sm leading-relaxed">
-                    <li>Include purpose, involved parties, timelines, terms, signatures.</li>
-                    <li>Be precise, unambiguous, and consistent in definitions.</li>
-                    <li>Add governing law, dispute resolution, and termination clauses.</li>
-                    <li>Consider confidentiality and non-disclosure requirements.</li>
-                    <li>Specify payment terms and conditions clearly.</li>
-                    <li>Include force majeure and termination clauses.</li>
-                    <li>Define dispute resolution mechanisms.</li>
-                    <li>Ensure compliance with applicable laws.</li>
-                  </ul>
+                {activeGuidance.desc && (
+                  <div className="text-slate-700 text-sm mb-2">
+                    {activeGuidance.desc}
+                  </div>
+                )}
+                <ul className="list-disc pl-5 space-y-2 text-slate-700 text-sm leading-relaxed">
+                  {activeGuidance.items.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
                 </section>
               </div>
             </div>
 
           {/* Right Side - Chat Interface */}
             <div className="lg:col-span-9 order-1 lg:order-2">
-              <section className="rounded-xl border border-slate-200 bg-white flex flex-col shadow-sm" style={{ height: 'calc(100vh - 220px)', minHeight: '500px' }}>
+              <section className="rounded-xl border mt-6 mr-7 border-slate-200 bg-white flex flex-col shadow-sm" style={{ height: 'calc(100vh - 150px)', minHeight: '500px' }}>
                 {/* Chat Header */}
                 <div className="p-4 sm:p-5 border-b border-slate-200 flex-shrink-0">
                   <div className="flex items-center gap-3">

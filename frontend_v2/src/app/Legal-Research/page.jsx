@@ -135,18 +135,19 @@ export default function LegalResearch() {
                     marginLeft: isLargeScreen ? (isCollapsed ? '0px' : '0px') : '0px'
                 }}
             >
-                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-                    {/* Header */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                        className="sticky top-0 z-10 backdrop-blur-md bg-white/90 border-b border-slate-200/70 shadow-sm -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 mb-6 sm:mb-8"
-                    >
+                {/* Header - full width and seamless */}
+                <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="sticky top-0 z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-5 mb-6 sm:mb-8"
+                    style={{ background: 'transparent' }}
+                >
+                    <div className="max-w-7xl mx-auto">
                         <div className="flex items-center justify-between">
                             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
                                 Legal Research
-                                    </h1>
+                            </h1>
                             <div className="flex items-center gap-3">
                                 <span className={`text-xs px-2 py-1 rounded-full ${health==='running'?'bg-green-100 text-green-700':'bg-slate-100 text-slate-600'}`}>
                                     {health}
@@ -154,7 +155,10 @@ export default function LegalResearch() {
                                 <LanguageSelector />
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
+                </motion.div>
+
+                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
                     {/* Main Content */}
                     <AnimatePresence mode="wait">
@@ -204,10 +208,11 @@ export default function LegalResearch() {
                                             placeholder="Type your legal query here"
                                             className="w-full rounded-2xl border-2 border-slate-200 bg-white/90 backdrop-blur-sm px-6 py-4 text-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 transition-all duration-200 placeholder:text-slate-400"
                                         />
-                            <button 
+                                        <button 
                                             onClick={() => send()}
                                             disabled={!question.trim() || isSending}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+                                            style={{ backgroundColor: '#0818A8' }}
                                         >
                                             {isSending ? (
                                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -358,15 +363,16 @@ export default function LegalResearch() {
                                             <div className="space-y-3">
                                                 <div className="flex gap-2">
                                     <div className="hidden sm:flex gap-1 flex-1">
-                                    {['detailed','short'].map(v => (
+                                                    {['detailed','short'].map(v => (
                                             <button 
                                                 key={v} 
                                                 onClick={()=>setAnswerType(v)} 
                                                                 className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
                                                                     answerType===v
-                                                                        ?'bg-sky-600 text-white shadow'
+                                                                        ?'text-white shadow'
                                                                         :'text-slate-600 bg-slate-100 hover:bg-slate-200'
                                                                 }`}
+                                                                style={answerType===v ? { backgroundColor: '#0818A8' } : {}}
                                             >
                                                 {v==='detailed'?'Detailed':'Short'}
                                             </button>
@@ -375,10 +381,11 @@ export default function LegalResearch() {
                                     <button 
                                         onClick={toggleVoiceChat}
                                                         className={`px-3 h-9 rounded-lg border transition-all duration-200 ${
-                                            isVoiceActive 
-                                                                ? 'bg-red-500 border-red-400 hover:bg-red-600 text-white'
+                                                            isVoiceActive 
+                                                                ? 'text-white'
                                                                 : 'bg-white border-slate-300 hover:border-slate-400 text-slate-600'
-                                        } shadow-sm`}
+                                                        } shadow-sm`}
+                                                        style={isVoiceActive ? { backgroundColor: '#0818A8', borderColor: '#0818A8' } : {}}
                                                     >
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                             <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
@@ -398,7 +405,8 @@ export default function LegalResearch() {
                                     <button 
                                         onClick={send} 
                                                         disabled={isSending || !question.trim()}
-                                                        className="px-4 h-12 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200"
+                                                        className="px-4 h-12 rounded-xl text-white font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200"
+                                                        style={{ backgroundColor: '#0818A8' }}
                                                     >
                                                         {isSending ? (
                                                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

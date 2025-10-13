@@ -25,6 +25,129 @@ function NewDraftContent({ type, initialDid }) {
   const { t } = useI18n();
   const { isCollapsed, isLargeScreen } = useNavbar();
 
+  // Per-document type general guidance
+  const GUIDANCE_BY_TYPE = {
+    "Bail / Anticipatory Bail Application": {
+      desc: "Used to request release from custody or prevent arrest.",
+      items: [
+        "Accused's Information: Full name, address, and occupation.",
+        "Case & FIR Details: Provide the FIR number, police station, and the sections of law mentioned (e.g., 420 IPC).",
+        "Summary of Allegations: Briefly explain the accusations against the person as per the FIR.",
+        "Key Grounds for Bail: State the main reasons for granting bail (e.g., accused is innocent, has strong community ties, will cooperate with the investigation, medical condition).",
+        "Prior Criminal Record: Mention if the accused has any past criminal cases. If not, state they have a clean record."
+      ]
+    },
+    "Contract": {
+      desc: "A legally binding agreement between parties.",
+      items: [
+        "Party Details: Full legal names and addresses for all individuals or companies involved.",
+        "Core Purpose: What is the main objective of this contract? (e.g., software development, sale of property).",
+        "Commercials: Specify the payment amount, payment schedule (e.g., milestones, monthly), and the contract's start and end dates.",
+        "Key Obligations: Clearly list the primary responsibilities and deliverables for each party.",
+        "Crucial Clauses: Note any specific requirements for Dispute Resolution (Arbitration/Court), Termination, Confidentiality, or Governing Law."
+      ]
+    },
+    "Discharge Application": {
+      desc: "Filed to argue there is no evidence to proceed to trial.",
+      items: [
+        "Case Information: The court name, case number, and FIR number.",
+        "Applicant's Name: The person seeking the discharge.",
+        "Grounds for Discharge: Explain why the case should be dropped. Focus on key weaknesses (e.g., 'There is no direct evidence linking me to the crime,' 'The complainant's statements are contradictory').",
+        "Supporting Evidence: Refer to any specific part of the police report (chargesheet) that supports your claim."
+      ]
+    },
+    "Legal Notice": {
+      desc: "A formal warning before taking legal action.",
+      items: [
+        "Sender & Recipient: Your full name and address, and the full name and address of the party you are sending the notice to.",
+        "Background of Dispute: Provide a brief, chronological summary of the events. What happened, where, and when?",
+        "Specific Demand (The Relief): Clearly state what you want the other party to do (e.g., 'Pay the outstanding amount of Rs. 1,00,000,' 'Cease using my trademark').",
+        "Compliance Deadline: Set a clear timeframe for them to respond (e.g., 'within 15 days of receiving this notice')."
+      ]
+    },
+    "Memorandum of Understanding (MoU)": {
+      desc: "A non-binding document outlining a future partnership.",
+      items: [
+        "Party Details: Names and addresses of all parties intending to collaborate.",
+        "Objective of Collaboration: What is the shared goal or project you plan to work on?",
+        "Roles & Contributions: Briefly outline the expected responsibilities and contributions of each party.",
+        "Key Terms: Mention the proposed duration, confidentiality requirements, and confirm that this MoU will be followed by a formal, binding contract."
+      ]
+    },
+    "Non-Disclosure Agreement (NDA)": {
+      desc: "A contract to protect sensitive information.",
+      items: [
+        "Party Identification: Name the 'Disclosing Party' and the 'Receiving Party'.",
+        "Definition of 'Confidential Information': Be specific about what is being protected (e.g., financial data, source code, customer lists).",
+        "Purpose of Disclosure: Explain why the information is being shared (e.g., 'to evaluate a potential merger').",
+        "Confidentiality Period: State how long the information must be kept secret (e.g., 3 years from today's date)."
+      ]
+    },
+    "Plaint / Complaint": {
+      desc: "Initiates a civil action or records a complaint.",
+      items: [
+        "Plaintiff & Defendant Details: Your full name and address, and the opponent's full name and address.",
+        "Detailed Factual Narrative: Provide a step-by-step account of the entire dispute from beginning to end.",
+        "Cause of Action: When and where did the main issue occur?",
+        "Relief Sought from Court: List exactly what you are asking the court to grant."
+      ]
+    },
+    "Written Statement / Reply / Rejoinder": {
+      desc: "Responds to the opponent's claims or documents.",
+      items: [
+        "Case Identification: Provide the court name, case number, and names of the parties.",
+        "Para-wise Response: Respond to each paragraph of the opponent's document (Admit/Deny/Clarify).",
+        "Your Version of the Facts: Present your side of the story in a clear, narrative format.",
+        "Preliminary Objections: Any initial legal reasons the case is flawed (e.g., lack of jurisdiction, limitation)."
+      ]
+    },
+    "Right to Information (RTI) Application": {
+      desc: "Used to formally request information from a public authority.",
+      items: [
+        "Your Details (Applicant): Full name and complete postal address.",
+        "Public Authority Details: Name of the department/office and its address.",
+        "Specific Information Required: List exact information needed in a clear, point-by-point format.",
+        "Period of Information: Specify the timeframe (e.g., 'For the Financial Year 2023-24').",
+        "Below Poverty Line (BPL) Status: State if you belong to BPL to claim fee exemption."
+      ]
+    },
+    "General Purpose Draft": {
+      desc: "For any other document like an affidavit, application, or letter.",
+      items: [
+        "Document Type & Purpose: What is this document and its main goal?",
+        "Intended Audience: Who will be reading this?",
+        "Key Facts to Include: Essential points, names, dates, and any reference numbers.",
+        "Specific Request (Prayer): Clearly state the action you want the reader to take."
+      ]
+    }
+  };
+
+  function resolveGuidance(typeLabel){
+    const v = (typeLabel || '').toLowerCase();
+    if (v.includes('bail')) return GUIDANCE_BY_TYPE["Bail / Anticipatory Bail Application"];
+    if (v.includes('contract')) return GUIDANCE_BY_TYPE["Contract"];
+    if (v.includes('discharge')) return GUIDANCE_BY_TYPE["Discharge Application"];
+    if (v.includes('legal notice') || v.includes('notice')) return GUIDANCE_BY_TYPE["Legal Notice"];
+    if (v.includes('memorandum') || v.includes('mou')) return GUIDANCE_BY_TYPE["Memorandum of Understanding (MoU)"];
+    if (v.includes('non-disclosure') || v.includes('nda')) return GUIDANCE_BY_TYPE["Non-Disclosure Agreement (NDA)"];
+    if (v.includes('plaint') || v.includes('complaint') || v.includes('petition')) return GUIDANCE_BY_TYPE["Plaint / Complaint"];
+    if (v.includes('rejoinder') || v.includes('reply') || v.includes('written statement')) return GUIDANCE_BY_TYPE["Written Statement / Reply / Rejoinder"];
+    if (v.includes('rti')) return GUIDANCE_BY_TYPE["Right to Information (RTI) Application"];
+    if (v.includes('general')) return GUIDANCE_BY_TYPE["General Purpose Draft"];
+    return null;
+  }
+
+  const activeGuidance = resolveGuidance(type) || {
+    desc: "Include purpose, parties, timelines, terms, and signatures.",
+    items: [
+      "Be precise, unambiguous, and consistent in definitions.",
+      "Add governing law, dispute resolution, and termination clauses.",
+      "Consider confidentiality and non-disclosure requirements.",
+      "Specify payment terms and conditions clearly.",
+      "Include force majeure clauses and ensure legal compliance."
+    ]
+  };
+
   const [documentId, setDocumentId] = useState(initialDid || null);
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState(null);
@@ -299,7 +422,7 @@ function NewDraftContent({ type, initialDid }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-4 mt-2"
+            className="mb-4 ml-6 mt-2"
           >
             <div className="text-sm ml-2 text-slate-500 font-medium">{t('selectedType')}</div>
             <div className="text-xl ml-2 font-semibold text-slate-800 mt-1">{type}</div>
@@ -307,7 +430,8 @@ function NewDraftContent({ type, initialDid }) {
 
           {/* Two Column Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            {/* Left Side - General Guidance */}
+            {/* Left Side - General Guidance */
+            }
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -324,17 +448,13 @@ function NewDraftContent({ type, initialDid }) {
                     </div>
                     General Guidance
                   </div>
+                  {activeGuidance.desc && (
+                    <div className="text-slate-700 text-sm mb-3">
+                      {activeGuidance.desc}
+                    </div>
+                  )}
                   <ul className="space-y-3 text-slate-600 text-sm leading-relaxed">
-                    {[
-                      "Include purpose, involved parties, timelines, terms, and signatures.",
-                      "Be precise, unambiguous, and consistent in definitions.",
-                      "Add governing law, dispute resolution, and termination clauses.",
-                      "Consider confidentiality and non-disclosure requirements.",
-                      "Specify payment terms and conditions clearly.",
-                      "Include force majeure clauses for unforeseen events.",
-                      "Define dispute resolution mechanisms.",
-                      "Ensure compliance with applicable laws."
-                    ].map((item, index) => (
+                    {activeGuidance.items.map((item, index) => (
                       <motion.li 
                         key={index}
                         initial={{ opacity: 0, x: -10 }}
