@@ -7,51 +7,78 @@ export default function StructuredText({ text }) {
 
     const rawText = text.trim();
 
-    // Detect sections like "HEADING:" (all caps, may include spaces, /, &, -)
-    const sectionRegex = /(\n|^)([A-Z][A-Z\s/&\-]{3,}?):\s*/g;
+    // Build sections by scanning lines and detecting headings
+    const lines = rawText.split(/\n/);
     const sections = [];
-    let lastIndex = 0;
-    let match;
+    let current = { title: null, bodyLines: [] };
 
-    while ((match = sectionRegex.exec(rawText)) !== null) {
-        const headingStart = match.index + match[1].length;
-        const heading = match[2].trim();
-        if (sections.length === 0 && headingStart > 0) {
-            const preface = rawText.slice(0, match.index).trim();
-            if (preface) sections.push({ title: null, body: preface });
+    // Helper: is a visual separator line
+    const isSeparator = (l) => /^(=|-|_){3,}\s*$/.test(l);
+    // Helper: is an ALL CAPS heading line without trailing punctuation
+    const isAllCapsHeading = (l) => {
+        const s = l.trim();
+        if (!s) return false;
+        if (/[:.;]$/.test(s)) return false; // those are handled elsewhere
+        if (s.length < 6 || s.length > 100) return false;
+        // Consider words in caps, digits and allowed symbols
+        if (!/^[A-Z0-9\s/&\-]+$/.test(s)) return false;
+        // Require at least one alpha
+        if (!/[A-Z]/.test(s)) return false;
+        return true;
+    };
+    // Helper: lines that are explicit colon headings (e.g., HEADING: content starts next lines)
+    const colonHeadingMatch = (l) => {
+        const m = l.match(/^([A-Z][A-Z\s/&\-]{3,}?):\s*$/);
+        return m ? m[1].trim() : null;
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (isSeparator(line)) {
+            continue; // skip separators entirely
         }
-        if (lastIndex !== 0) {
-            const prev = rawText.slice(lastIndex, match.index).trim();
-            if (prev) sections[sections.length - 1].body += `\n${prev}`;
+        const colonHead = colonHeadingMatch(line);
+        if (colonHead) {
+            // flush previous section
+            if (current.title !== null || current.bodyLines.length) {
+                sections.push({ title: current.title, body: current.bodyLines.join('\n').trim() });
+            }
+            current = { title: colonHead, bodyLines: [] };
+            continue;
         }
-        sections.push({ title: heading, body: '' });
-        lastIndex = sectionRegex.lastIndex;
+        if (isAllCapsHeading(line)) {
+            // Lookahead: if next line is a separator, treat this as heading
+            const next = lines[i + 1] || '';
+            if (isSeparator(next) || (current.bodyLines.length === 0 && (current.title !== null || sections.length > 0))) {
+                if (current.title !== null || current.bodyLines.length) {
+                    sections.push({ title: current.title, body: current.bodyLines.join('\n').trim() });
+                }
+                current = { title: line.trim(), bodyLines: [] };
+                continue;
+            }
+        }
+        current.bodyLines.push(line);
     }
-
-    if (sections.length === 0) {
-        sections.push({ title: null, body: rawText });
-    } else {
-        const tail = rawText.slice(lastIndex).trim();
-        if (tail) sections[sections.length - 1].body += (sections[sections.length - 1].body ? '\n' : '') + tail;
+    if (current.title !== null || current.bodyLines.length) {
+        sections.push({ title: current.title, body: current.bodyLines.join('\n').trim() });
     }
 
     const splitBodyIntoBlocks = (body) => {
         if (!body) return [];
-        // Prefer list split on " - " if there are multiple bullets
-        const dashParts = body.split(/\s-\s+/).filter(Boolean);
-        if (dashParts.length >= 4) {
-            return [{ type: 'list', items: dashParts.map(s => s.replace(/^[\-\u2022]+\s*/, '').trim()).filter(Boolean) }];
+        // Very conservative list detection: only treat as list if clear bullet markers at line starts
+        const lines = body.split(/\n+/).map(l => l.trim()).filter(Boolean);
+        const bulletLines = lines.filter(l => /^([\u2022\-\*]|\d+\.)\s+/.test(l));
+        if (bulletLines.length >= 5 && bulletLines.length >= Math.ceil(lines.length * 0.7)) {
+            const items = lines
+                .map(s => s.replace(/^([\u2022\-\*]|\d+\.)\s+/, '').trim())
+                .filter(Boolean);
+            return [{ type: 'list', items }];
         }
-        // Otherwise split on semicolons when many
-        const semiParts = body.split(/;\s+/).filter(Boolean);
-        if (semiParts.length >= 5) {
-            return [{ type: 'list', items: semiParts }];
-        }
-        // Otherwise paragraphs
+        // Default to paragraphs with natural sentence/paragraph flow
         const paraParts = body
             .split(/\n{2,}/)
             .flatMap(p => p.split(/(?<=[.!?])\s{2,}/))
-            .map(p => p.trim())
+            .map(p => p.replace(/^([\u2022\-\*]|\d+\.)\s+/, '').trim())
             .filter(Boolean);
         return paraParts.map(p => ({ type: 'para', text: p }));
     };
@@ -63,16 +90,16 @@ export default function StructuredText({ text }) {
                 return (
                     <div key={i} className="space-y-2">
                         {sec.title && (
-                            <h4 className="text-sm md:text-base font-semibold text-gray-900">{sec.title}</h4>
+                            <h4 className="text-base md:text-lg font-bold text-gray-900">{sec.title}</h4>
                         )}
                         {blocks.map((b, j) => b.type === 'para' ? (
                             <p key={j} className="text-gray-800 text-sm md:text-base leading-relaxed md:leading-7">{b.text}</p>
                         ) : (
-                            <ul key={j} className="list-disc pl-5 space-y-1 text-gray-800 text-sm md:text-base">
+                            <div key={j} className="space-y-2 text-gray-800 text-sm md:text-base">
                                 {b.items.map((it, k) => (
-                                    <li key={k} className="leading-relaxed">{it}</li>
+                                    <p key={k} className="leading-relaxed">{it}</p>
                                 ))}
-                            </ul>
+                            </div>
                         ))}
                     </div>
                 );

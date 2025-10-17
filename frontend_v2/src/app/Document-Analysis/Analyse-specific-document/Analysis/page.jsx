@@ -353,20 +353,19 @@ export default function AnalysisPage() {
                     </svg>
                     <h3 className="text-base md:text-lg font-semibold text-amber-800 uppercase tracking-wide">{t('keyPoints')}</h3>
                 </div>
-                <ul className="space-y-3">
+                <div className="space-y-3">
                     {pointsArray.map((point, index) => (
-                        <motion.li
+                        <motion.p
                             key={index}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="flex items-start gap-3 text-base text-gray-800 leading-relaxed"
+                            className="text-base text-gray-800 leading-relaxed"
                         >
-                            <span className="flex-shrink-0 w-1.5 h-1.5 bg-amber-600 rounded-full mt-2"></span>
-                            <span className="leading-relaxed">{typeof point === 'string' ? point : point.text || point.content || JSON.stringify(point)}</span>
-                        </motion.li>
+                            {typeof point === 'string' ? point : point.text || point.content || JSON.stringify(point)}
+                        </motion.p>
                     ))}
-                </ul>
+                </div>
             </div>
         );
     };
@@ -420,16 +419,15 @@ export default function AnalysisPage() {
                 </div>
                 <div className="space-y-3">
                     {recommendationsArray.map((rec, index) => (
-                        <motion.div
+                        <motion.p
                             key={index}
                             initial={{ opacity: 0, x: 10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="flex items-start gap-3 text-base text-gray-800 leading-relaxed"
+                            className="text-base text-gray-800 leading-relaxed"
                         >
-                            <span className="flex-shrink-0 w-1.5 h-1.5 bg-green-600 rounded-full mt-2"></span>
-                            <span className="leading-relaxed">{typeof rec === 'string' ? rec : rec.text || rec.content || rec.action || JSON.stringify(rec)}</span>
-                        </motion.div>
+                            {typeof rec === 'string' ? rec : rec.text || rec.content || rec.action || JSON.stringify(rec)}
+                        </motion.p>
                     ))}
                 </div>
             </div>
