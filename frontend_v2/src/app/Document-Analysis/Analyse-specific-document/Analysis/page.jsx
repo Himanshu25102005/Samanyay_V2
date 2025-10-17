@@ -672,7 +672,6 @@ export default function AnalysisPage() {
                                         {renderMetadata(parsedAnalysis.metadata)}
 
                                         {/* Conversation Section */}
-                                        {chat.length > 0 && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
@@ -686,7 +685,24 @@ export default function AnalysisPage() {
                                                     <h3 className="text-base md:text-lg font-semibold text-gray-900 uppercase tracking-wide">{t('conversation')}</h3>
                                         </div>
                                                 <div className="space-y-3">
-                                        {chat.map((message, idx) => (
+                                        {chat.length === 0 && !loadingChat ? (
+                                            <div className="flex items-center justify-center py-10 text-gray-600">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center shadow-sm">
+                                                        <svg className="w-8 h-8 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                                            <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" strokeLinejoin="round"/>
+                                                            <path d="M14 3v5h5" strokeLinejoin="round"/>
+                                                            <path d="M8 12h8M8 16h6" strokeLinecap="round"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div className="text-sm leading-relaxed">
+                                                        <div className="font-medium text-gray-700">{t('chatWithAnalyzer')}</div>
+                                                        <div className="text-gray-500">{t('startConversationHint')}</div>
+                                                    </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                            chat.map((message, idx) => (
                                             <motion.div
                                                 key={idx}
                                                             initial={{ opacity: 0, y: 12, scale: 0.98 }}
@@ -710,7 +726,8 @@ export default function AnalysisPage() {
                                                     </span>
                                                 </div>
                                             </motion.div>
-                                        ))}
+                                        ))
+                                        )}
                                         {loadingChat && (
                                                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
                                                 <div className="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
@@ -728,7 +745,6 @@ export default function AnalysisPage() {
                                         <div ref={chatEndRef} />
                                                 </div>
                                             </motion.div>
-                                        )}
 
                                         {/* Document Preview */}
                                         {previewText && (

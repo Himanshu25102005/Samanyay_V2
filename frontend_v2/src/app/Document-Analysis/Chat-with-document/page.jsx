@@ -234,23 +234,23 @@ export default function ChatWithDocument() {
 
     return (
         <>
-            <div className={`min-h-screen bg-gradient-to-br  from-slate-100 to-slate-200 p-2 sm:p-4 lg:p-6 flex flex-col ${getFontClass(lang)}`}>
-                <div className="flex-1 mt-9 w-full max-w-7xl mx-auto">
+            <div className={`min-h-screen bg-gradient-to-br  from-slate-100 to-slate-200 p-1 sm:p-2 lg:p-4 flex flex-col ${getFontClass(lang)}`}>
+                <div className="flex-1 mt-6 w-full max-w-7xl mx-auto">
                     {/* Chat Section */}
                     <motion.div 
                         initial={{opacity:0,y:12}} 
                         animate={{opacity:1,y:0}} 
-                        className={`rounded-2xl sm:rounded-3xl bg-white/90 backdrop-blur border ${dragOver ? 'border-sky-500 bg-sky-50/50' : 'border-gray-200'} p-3 sm:p-4 lg:p-6 shadow flex flex-col min-h-0 h-[calc(100vh-120px)]`}
+                        className={`rounded-2xl sm:rounded-3xl bg-white/90 backdrop-blur border ${dragOver ? 'border-sky-500 bg-sky-50/50' : 'border-gray-200'} p-2 sm:p-3 lg:p-5 shadow flex flex-col min-h-0 h-[calc(100vh-88px)]`}
                         onDragOver={handleDrag} 
                         onDragLeave={handleDrag} 
                         onDrop={handleDrag}
                     >
-                        <div className="flex items-center justify-between mb-3 sm:mb-4">
+                        <div className="flex items-center justify-between mb-2 sm:mb-3">
                             <div className="text-base sm:text-lg font-semibold text-gray-900">{t('chatWithDoc')}</div>
                             <LanguageSelector />
                         </div>
 
-                        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto rounded-xl sm:rounded-2xl bg-sky-50 border border-gray-200 p-2 sm:p-3 lg:p-4 space-y-2 sm:space-y-3 lg:space-y-4">
+                        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto rounded-xl sm:rounded-2xl bg-sky-50 border border-gray-200 p-2 sm:p-3 lg:p-3 space-y-2 sm:space-y-3 lg:space-y-3">
                             <AnimatePresence>
                                 {!documentId && chat.length === 0 && (
                                     <motion.div 
@@ -264,6 +264,27 @@ export default function ChatWithDocument() {
                                         <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3">{t('uploadToStart')}</h3>
                                         <p className="text-base sm:text-lg text-gray-600 mb-6 max-w-lg leading-relaxed">{t('dragDropHint')}</p>
                                         
+                                    </motion.div>
+                                )}
+                                {documentId && chat.length === 0 && !isSending && (
+                                    <motion.div 
+                                        initial={{opacity:0,y:8}} 
+                                        animate={{opacity:1,y:0}} 
+                                        className="flex items-center justify-center h-full py-10 text-gray-600"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-14 h-14 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                                <svg className="w-8 h-8 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                                    <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" strokeLinejoin="round"/>
+                                                    <path d="M14 3v5h5" strokeLinejoin="round"/>
+                                                    <path d="M8 12h8M8 16h6" strokeLinecap="round"/>
+                                                </svg>
+                                            </div>
+                                            <div className="text-sm leading-relaxed">
+                                                <div className="font-medium text-gray-700">{t('chatWithDoc')}</div>
+                                                <div className="text-gray-500">{t('startConversationHint')}</div>
+                                            </div>
+                                        </div>
                                     </motion.div>
                                 )}
                                 {chat.map((m, idx) => (
@@ -297,16 +318,9 @@ export default function ChatWithDocument() {
                             </AnimatePresence>
                         </div>
 
-                        {/* Upload Status */}
-                        {fileInfo && (
-                            <div className="mb-3 p-3 bg-sky-50 border border-sky-200 rounded-lg">
-                                <div className="text-sm text-sky-800">
-                                    <span className="font-medium">{t('selected')}:</span> {fileInfo.name} • {fileInfo.type || t('file')} • {fileInfo.size} {t('bytes')}
-                                </div>
-                            </div>
-                        )}
+                        {/* Upload Status moved below input area to avoid overlap */}
 
-                        <div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3">
+                        <div className="mt-2 sm:mt-3 grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3">
                             <div className="sm:col-span-9 flex items-center gap-2">
                                 <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={(e)=>onFileChosen(e.target.files?.[0])} />
                                 <button 
@@ -318,19 +332,15 @@ export default function ChatWithDocument() {
                                     title={isUploading ? t('uploading') : t('uploadDocument')}
                                 >
                                     {isUploading ? (
-                                        <motion.span 
+                                        <motion.div 
+                                            className="w-5 h-5 border-2 border-white/70 border-t-white rounded-full"
                                             animate={{ rotate: 360 }} 
                                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                        >
-                                            ⏳
-                                        </motion.span>
+                                        />
                                     ) : (
-                                        <motion.span
-                                            whileHover={{ scale: 1.1 }}
-                                            transition={{ duration: 0.2 }}
-                                        >
-                                            ➕
-                                        </motion.span>
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3" />
+                                        </svg>
                                     )}
                                 </button>
                                 <textarea 
@@ -339,14 +349,14 @@ export default function ChatWithDocument() {
                                     onKeyDown={handleKeyDown} 
                                     placeholder={t('askPlaceholder')} 
                                     rows={1} 
-                                    className="flex-1 rounded-lg sm:rounded-xl border border-gray-300 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-sky-500 resize-y min-h-[44px] sm:min-h-[48px]" 
+                                    className="flex-1 rounded-lg sm:rounded-xl border border-gray-300 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-sky-500 resize-y min-h-[48px] sm:min-h-[52px]" 
                                 />
                             </div>
                             <div className="sm:col-span-3 flex items-center gap-2 sm:gap-3">
                                 <motion.button 
                                     onClick={sendQuestion} 
                                     disabled={!documentId || isSending || isRecording} 
-                                    className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white text-sm sm:text-base ${isSending || isRecording ?'bg-[#0818A8]/60':'bg-[#0818A8] hover:bg-[#0A1BB8]'} transition-all duration-300`}
+                                    className={`flex-1 px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-white text-sm sm:text-base ${isSending || isRecording ?'bg-[#0818A8]/60':'bg-[#0818A8] hover:bg-[#0A1BB8]'} transition-all duration-300`}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     animate={isSending ? { scale: [1, 1.02, 1] } : {}}
@@ -417,6 +427,13 @@ export default function ChatWithDocument() {
                                 </div>
                             </div>
                         </div>
+                        {fileInfo && (
+                            <div className="mt-2 p-2 bg-sky-50 border border-sky-200 rounded-lg">
+                                <div className="text-xs sm:text-sm text-sky-800 truncate">
+                                    <span className="font-medium">{t('selected')}:</span> {fileInfo.name} • {fileInfo.type || t('file')} • {fileInfo.size} {t('bytes')}
+                                </div>
+                            </div>
+                        )}
                         <div className="mt-2 text-xs text-gray-500">{t('pressEnterHint')}</div>
                     </motion.div>
                 </div>

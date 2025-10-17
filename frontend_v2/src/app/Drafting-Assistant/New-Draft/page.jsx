@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import LanguageSelector from "../../../../components/LanguageSelector.jsx";
 import Navbar from "../../../../components/Navbar.jsx";
 import { useI18n } from "../../../../components/I18nProvider.jsx";
+import useAppLanguage from "../../../../components/useAppLanguage.js";
 import { useNavbar } from "../../../../components/NavbarContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -23,6 +24,7 @@ function SearchParamsHandler({ onParamsLoaded }) {
 
 function NewDraftContent({ type, initialDid }) {
   const { t } = useI18n();
+  const { language } = useAppLanguage();
   const { isCollapsed, isLargeScreen } = useNavbar();
 
   // Per-document type general guidance
@@ -199,7 +201,7 @@ function NewDraftContent({ type, initialDid }) {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/Drafting-Assistant/api/drafting/upload", { method: "POST", body: fd });
+      const res = await fetch(`/Drafting-Assistant/api/drafting/upload?document_type=${encodeURIComponent(type)}&language=${encodeURIComponent(language || 'en')}`, { method: "POST", body: fd });
       const data = await res.json();
       if (data?.data?.document_id) setDocumentId(data.data.document_id);
     } finally {
@@ -339,7 +341,7 @@ function NewDraftContent({ type, initialDid }) {
         if (prompt.trim()) fd.append("prompt", prompt);
         
         console.log('Generating draft with voice recording...');
-        const res = await fetch("/Drafting-Assistant/api/drafting/voice-chat?format=docx", { 
+        const res = await fetch(`/Drafting-Assistant/api/drafting/voice-chat?format=docx&document_type=${encodeURIComponent(type)}&language=${encodeURIComponent(language || 'en')}`, { 
           method: "POST", 
           body: fd 
         });
@@ -359,8 +361,8 @@ function NewDraftContent({ type, initialDid }) {
         setResult(data?.data || null);
       } else {
         // Use text prompt for generation
-        const body = JSON.stringify({ prompt, document_id: documentId || null });
-        const res = await fetch("/Drafting-Assistant/api/drafting/new?format=docx", { 
+        const body = JSON.stringify({ prompt, document_id: documentId || null, document_type: type, language: language || 'en' });
+        const res = await fetch(`/Drafting-Assistant/api/drafting/new?format=docx`, { 
           method: "POST", 
           headers: { "content-type": "application/json" }, 
           body 

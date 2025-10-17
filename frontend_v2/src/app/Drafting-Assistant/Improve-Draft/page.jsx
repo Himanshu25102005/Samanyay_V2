@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import LanguageSelector from "../../../../components/LanguageSelector.jsx";
 import Navbar from "../../../../components/Navbar.jsx";
 import { useI18n } from "../../../../components/I18nProvider.jsx";
+import useAppLanguage from "../../../../components/useAppLanguage.js";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Component that uses useSearchParams - needs to be wrapped in Suspense
@@ -22,6 +23,7 @@ function SearchParamsHandler({ onParamsLoaded }) {
 
 function ImproveDraftContent({ type, initialDid }) {
   const { t } = useI18n();
+  const { language } = useAppLanguage();
   // Per-document type general guidance (same mapping as New Draft)
   const GUIDANCE_BY_TYPE = {
     "Bail / Anticipatory Bail Application": {
@@ -155,6 +157,7 @@ function ImproveDraftContent({ type, initialDid }) {
   const [error, setError] = useState(null);
   const [backendStatus, setBackendStatus] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [userId] = useState('default_user');
 
   async function uploadSupportingDoc(file) {
     setUploading(true);
@@ -166,7 +169,7 @@ function ImproveDraftContent({ type, initialDid }) {
       
       console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
       
-      const res = await fetch("/Drafting-Assistant/api/drafting/upload", { 
+      const res = await fetch(`/Drafting-Assistant/api/drafting/upload?user_id=${encodeURIComponent(userId)}&document_type=${encodeURIComponent(type)}&language=${encodeURIComponent(language || 'en')}`, { 
         method: "POST", 
         body: fd 
       });
@@ -230,8 +233,8 @@ function ImproveDraftContent({ type, initialDid }) {
     setSubmitting(true);
     setError(null);
     try {
-      const body = JSON.stringify({ prompt, document_id: documentId });
-      const res = await fetch("/Drafting-Assistant/api/drafting/improve?format=docx", { 
+      const body = JSON.stringify({ prompt, document_id: documentId, document_type: type, user_id: userId, language: language || 'en' });
+      const res = await fetch(`/Drafting-Assistant/api/drafting/improve?format=docx`, { 
         method: "POST", 
         headers: { "content-type": "application/json" }, 
         body 
