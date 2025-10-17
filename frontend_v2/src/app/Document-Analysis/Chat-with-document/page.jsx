@@ -5,9 +5,11 @@ import Navbar from "../../../../components/Navbar.jsx";
 import LanguageSelector from "../../../../components/LanguageSelector.jsx";
 import useAppLanguage from "../../../../components/useAppLanguage.js";
 import { useI18n, getFontClass } from "../../../../components/I18nProvider.jsx";
+import StructuredText from "../../../components/StructuredText.jsx";
 
 export default function ChatWithDocument() {
     const [documentId, setDocumentId] = useState(null);
+    const [userId] = useState('default_user');
     const { language, setLanguage } = useAppLanguage();
     const { t, lang } = useI18n();
     const [chat, setChat] = useState([]);
@@ -77,7 +79,11 @@ export default function ChatWithDocument() {
         const form = new FormData();
         form.append('file', file);
         try {
-            const res = await fetch('/api/analyzer/upload', { method: 'POST', body: form });
+            const res = await fetch(`/api/analyzer/upload?user_id=${encodeURIComponent(userId)}`, { method: 'POST', body: form });
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.detail?.message || `Upload failed: ${res.status}`);
+            }
             const json = await res.json();
             const id = json?.data?.document_id;
             if (id) {
@@ -85,8 +91,12 @@ export default function ChatWithDocument() {
                 sessionStorage.setItem('language', language);
                 setDocumentId(id);
             }
+            if (!id) {
+                throw new Error('No document ID received');
+            }
         } catch (e) {
             console.error('Upload failed', e);
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: `Upload error: ${e.message}`, ts: new Date() }]);
         } finally {
             setIsUploading(false);
         }
@@ -102,13 +112,22 @@ export default function ChatWithDocument() {
             const res = await fetch('/api/analyzer/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ document_id: documentId, question: q, language })
+                body: JSON.stringify({ document_id: documentId, question: q, language, user_id: userId })
             });
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.detail?.message || 'Chat failed');
+            }
             const json = await res.json();
-            const answer = json?.data?.answer || 'No answer';
-            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: answer, ts: new Date() }]);
+            if (json.status === 'success' && json.data?.answer) {
+                const answer = json.data.answer;
+                setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: answer, ts: new Date(), structured: true }]);
+            } else {
+                throw new Error('No answer received');
+            }
         } catch (e) {
             console.error('Chat error', e);
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: `Error: ${e.message}`, ts: new Date() }]);
         } finally {
             setIsSending(false);
         }
@@ -166,15 +185,20 @@ export default function ChatWithDocument() {
         
         try {
             setIsSending(true);
-            const res = await fetch(`/api/analyzer/voice-chat?document_id=${encodeURIComponent(documentId)}`, { 
+            const res = await fetch(`/api/analyzer/voice-chat?document_id=${encodeURIComponent(documentId)}&language=${encodeURIComponent(language)}&user_id=${encodeURIComponent(userId)}`, { 
                 method: 'POST', 
                 body: form 
             });
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.detail?.message || 'Voice chat failed');
+            }
             const json = await res.json();
-            const response = json?.data?.response || 'No response';
-            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: response, ts: new Date() }]);
+            const response = json?.data?.response || json?.data?.answer || 'No response';
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: response, ts: new Date(), structured: true }]);
         } catch (e) {
             console.error('Voice chat error', e);
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: `Voice error: ${e.message}`, ts: new Date() }]);
         } finally { 
             setIsSending(false);
             setRecordingTime(0);
@@ -187,12 +211,17 @@ export default function ChatWithDocument() {
         form.append('audio', audioInputRef.current.files[0]);
         try {
             setIsSending(true);
-            const res = await fetch(`/api/analyzer/voice-chat?document_id=${encodeURIComponent(documentId)}`, { method: 'POST', body: form });
+            const res = await fetch(`/api/analyzer/voice-chat?document_id=${encodeURIComponent(documentId)}&language=${encodeURIComponent(language)}&user_id=${encodeURIComponent(userId)}`, { method: 'POST', body: form });
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.detail?.message || 'Voice chat failed');
+            }
             const json = await res.json();
-            const response = json?.data?.response || 'No response';
-            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: response, ts: new Date() }]);
+            const response = json?.data?.response || json?.data?.answer || 'No response';
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: response, ts: new Date(), structured: true }]);
         } catch (e) {
             console.error('Voice chat error', e);
+            setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: `Voice error: ${e.message}`, ts: new Date() }]);
         } finally { setIsSending(false); }
     }
 
@@ -245,7 +274,11 @@ export default function ChatWithDocument() {
                                         transition={{duration:0.3,ease:"easeOut"}}
                                         whileHover={{scale:1.02}}
                                         className={`max-w-full sm:max-w-3xl px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-sm leading-relaxed shadow-sm ${m.role==='user'?'bg-sky-700 text-white ml-auto':'bg-white border border-gray-200 text-gray-800 mr-auto'}`}>
-                                        {m.content}
+                                        {m.structured && m.role !== 'user' ? (
+                                            <StructuredText text={m.content} />
+                                        ) : (
+                                            m.content
+                                        )}
                                     </motion.div>
                                 ))}
                                 {isSending && (

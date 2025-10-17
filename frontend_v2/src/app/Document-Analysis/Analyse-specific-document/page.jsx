@@ -34,7 +34,7 @@ export default function AnalyseSpecificDocument() {
             transition={{ duration: 0.4, ease: [0.22,1,0.36,1] }}
             whileHover={{ y: -4, scale: 1.02 }}
             className={`rounded-3xl shadow-lg hover:shadow-2xl border p-8 bg-gradient-to-br ${gradient} transition-all min-h-[280px] flex flex-col cursor-pointer`}
-            onClick={() => router.push('/Document-Analysis/Analyse-specific-document/Analysis')}
+            onClick={() => router.push(`/Document-Analysis/Analyse-specific-document/Analysis?document_type=${encodeURIComponent(key)}`)}
         >
             <div className="flex items-center justify-between mb-6">
                 <div className="w-12 h-12 rounded-xl bg-white/70 backdrop-blur flex items-center justify-center text-2xl">
@@ -128,7 +128,7 @@ export default function AnalyseSpecificDocument() {
                             transition={{ duration: 0.4, ease: [0.22,1,0.36,1] }}
                             whileHover={{ y: -4, scale: 1.02 }}
                             className={`rounded-3xl shadow-lg hover:shadow-2xl border p-8 bg-gradient-to-br from-white to-amber-50 border-amber-100 transition-all min-h-[280px] flex flex-col cursor-pointer`}
-                            onClick={() => router.push('/Document-Analysis/Analyse-specific-document/Analysis')}
+                            onClick={() => router.push('/Document-Analysis/Analyse-specific-document/Analysis?document_type=general')}
                         >
                             <div className="flex items-center justify-between mb-6">
                                 <div className="w-12 h-12 rounded-xl bg-white/70 backdrop-blur flex items-center justify-center text-2xl">

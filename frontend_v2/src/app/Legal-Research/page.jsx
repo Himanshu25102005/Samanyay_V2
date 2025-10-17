@@ -1,6 +1,7 @@
 'use client'
 
 import Navbar from "../../../components/Navbar.jsx";
+import StructuredText from "../../components/StructuredText.jsx";
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSelector from "../../../components/LanguageSelector.jsx";
@@ -79,7 +80,7 @@ export default function LegalResearch() {
             const text = json?.text || '';
             const summary = json?.summary || '';
             const references = Array.isArray(json?.references) ? json.references : [];
-            setChat(prev => [...prev, { role: 'assistant', content: text, ts: new Date() }]);
+            setChat(prev => [...prev, { role: 'assistant', content: text, ts: new Date(), structured: true }]);
             setPanel({ title, text, summary, references });
         } catch (e) {
             setError('Service unavailable. Please try again.');
@@ -324,10 +325,14 @@ export default function LegalResearch() {
                                                             'bg-slate-100 text-slate-800'
                                                         }`} style={i%2 ? {backgroundColor: '#0818A8'} : {}}>
                                                             <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                                                {m.content}
-                                            </div>
+                                                                {m.structured && !(i%2) ? (
+                                                                    <StructuredText text={m.content} />
+                                                                ) : (
+                                                                    m.content
+                                                                )}
+                                                            </div>
                                                             <div className={`text-xs mt-2 opacity-70 ${i%2 ? 'text-white/80' : 'text-slate-500'}`}>
-                                                {m.ts ? new Date(m.ts).toLocaleTimeString() : ''}
+                                                                {m.ts ? new Date(m.ts).toLocaleTimeString() : ''}
                                                             </div>
                                         </div>
                                     </motion.div>
