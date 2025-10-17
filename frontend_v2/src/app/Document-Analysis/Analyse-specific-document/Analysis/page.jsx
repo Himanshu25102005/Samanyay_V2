@@ -26,6 +26,7 @@ export default function AnalysisPage() {
     const [chat, setChat] = useState([]);
     const [loadingChat, setLoadingChat] = useState(false);
     const [chatError, setChatError] = useState(null);
+    const [isRecording, setIsRecording] = useState(false);
 
     const [isTranslating, setIsTranslating] = useState(false);
     const [showUploadPanel, setShowUploadPanel] = useState(true);
@@ -143,6 +144,11 @@ export default function AnalysisPage() {
         } finally {
             setLoadingChat(false);
         }
+    }
+
+    function toggleVoiceRecording() {
+        // Placeholder for future audio capture integration
+        setIsRecording(prev => !prev);
     }
 
     function clearSession() {
@@ -415,6 +421,19 @@ export default function AnalysisPage() {
                                         disabled={loadingChat || !documentId}
                                     />
                                     <motion.button
+                                        whileTap={{ scale: 0.95 }}
+                                        type="button"
+                                        onClick={toggleVoiceRecording}
+                                        aria-pressed={isRecording}
+                                        aria-label={isRecording ? 'Stop voice recording' : 'Start voice recording'}
+                                        className={`px-3 py-2 rounded-full border text-sm transition-colors flex items-center gap-2 ${isRecording ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'}`}
+                                    >
+                                        <svg className={`w-4 h-4 ${isRecording ? 'text-rose-600' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 12a3 3 0 003-3V5a3 3 0 10-6 0v4a3 3 0 003 3z" />
+                                            <path fillRule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 006 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H9a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clipRule="evenodd" />
+                                        </svg>
+                                    </motion.button>
+                                    <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={sendMessage}
@@ -426,6 +445,12 @@ export default function AnalysisPage() {
                                         </svg>
                                     </motion.button>
                                 </div>
+                                {isRecording && (
+                                    <div className="mt-2 text-xs text-rose-700 flex items-center gap-2">
+                                        <span className="inline-block w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+                                        Recording…
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
 

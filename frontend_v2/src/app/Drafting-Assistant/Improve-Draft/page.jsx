@@ -154,6 +154,7 @@ function ImproveDraftContent({ type, initialDid }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [backendStatus, setBackendStatus] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
 
   async function uploadSupportingDoc(file) {
     setUploading(true);
@@ -278,6 +279,11 @@ function ImproveDraftContent({ type, initialDid }) {
       console.error('Health check failed:', err);
       setBackendStatus({ status: 'error', message: err.message });
     }
+  }
+
+  function toggleVoiceRecording(){
+    // Placeholder: actual audio capture will be integrated with microservices later
+    setIsRecording((prev)=>!prev);
   }
 
   return (
@@ -498,6 +504,21 @@ function ImproveDraftContent({ type, initialDid }) {
                         <span className="sm:hidden">📄</span>
                       </motion.button>
 
+                      {/* Voice Input Button (placeholder) */}
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={toggleVoiceRecording}
+                        aria-pressed={isRecording}
+                        aria-label={isRecording ? 'Stop voice recording' : 'Start voice recording'}
+                        className={`rounded-lg border px-3 py-2 text-xs sm:text-sm font-medium transition-colors flex items-center gap-2 ${isRecording ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'}`}
+                      >
+                        <svg className={`w-4 h-4 ${isRecording ? 'text-rose-600' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 12a3 3 0 003-3V5a3 3 0 10-6 0v4a3 3 0 003 3z" />
+                          <path fillRule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 006 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H9a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clipRule="evenodd" />
+                        </svg>
+                      </motion.button>
+
                       {/* Generate Improved Draft Button */}
                       <motion.button 
                         whileTap={{ scale: 0.95 }} 
@@ -523,6 +544,12 @@ function ImproveDraftContent({ type, initialDid }) {
 
                     {/* Status Indicators */}
                     <div className="flex items-center gap-3 sm:gap-4 text-xs flex-wrap">
+                      {isRecording && (
+                        <span className="text-rose-700 flex items-center gap-1">
+                          <span className="inline-block w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+                          Recording…
+                        </span>
+                      )}
                       {uploading && (
                         <span className="text-slate-600 flex items-center gap-1">
                           <div className="w-3 h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></div>

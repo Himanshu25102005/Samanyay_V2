@@ -140,7 +140,7 @@ export default function LegalResearch() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="sticky top-0 z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-5 mb-6 sm:mb-8"
+                    className="sticky top-0 z-10 w-full border-b-2 border-gray-500 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 mb-6 sm:mb-8"
                     style={{ background: 'transparent' }}
                 >
                     <div className="max-w-7xl mx-auto">
@@ -268,12 +268,12 @@ export default function LegalResearch() {
                                 className="grid grid-cols-1 lg:grid-cols-4 gap-6"
                             >
                                 {/* Chat Area */}
-                                <div className="lg:col-span-3">
+                                <div className="lg:col-span-4 xl:col-span-3">
                                     <motion.div 
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.6, delay: 0.2 }}
-                                        className="rounded-xl border border-slate-200/60 bg-white/95 backdrop-blur-sm flex flex-col shadow-lg h-[70vh]"
+                                        className="rounded-xl border border-slate-200/60 bg-white/95 backdrop-blur-sm flex flex-col shadow-lg h-[85vh]"
                                     >
                                         {/* Chat Header */}
                                         <div className="p-4 sm:p-5 border-b border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-white/50 flex-shrink-0">
@@ -442,7 +442,7 @@ export default function LegalResearch() {
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.6, delay: 0.4 }}
-                                    className="lg:col-span-1"
+                                    className="hidden xl:block xl:col-span-1"
                                 >
                                     <div className="lg:sticky lg:top-24">
                                         <section className="rounded-xl border border-slate-200/60 bg-white/90 backdrop-blur-sm p-4 shadow-sm">
