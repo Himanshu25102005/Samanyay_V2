@@ -192,7 +192,7 @@ export default function Home() {
         onMouseEnter={() => setIsFeaturesOpen(true)}
         onMouseLeave={() => setIsFeaturesOpen(false)}
       >
-        <a href="/Legal-Research" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+        <a href="http://localhost:5000/api/legal-research" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-blue-200">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M3 5h18M6 8h12M8 11h8M10 14h4" stroke="#0818A8" strokeWidth="1.6" />
@@ -204,7 +204,7 @@ export default function Home() {
             <div className="text-xs text-slate-500">Smart search across jurisprudence</div>
           </div>
         </a>
-        <a href="/Drafting-Assistant" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+        <a href="http://localhost:5000/api/Drafting-Assistant" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-blue-200">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#0818A8" strokeWidth="1.6" strokeLinejoin="round" />
@@ -215,7 +215,7 @@ export default function Home() {
             <div className="text-xs text-slate-500">Create and refine legal drafts</div>
           </div>
         </a>
-        <a href="/Document-Analysis" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+        <a href="http://localhost:5000/api/Document-Analysis" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-blue-200">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" stroke="#1A2C4E" strokeWidth="1.6" />
