@@ -6,6 +6,16 @@ const session = require("express-session");
 const passport = require("passport");
 require("./auth");
 
+const isloggedin = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  } else {
+    res.redirect("http://localhost:3000/login");
+  }
+};
+
+
+
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.send("<a href='/api/auth/google'>Click to authenticate<a>");
@@ -134,5 +144,17 @@ router.get(
     res.redirect("http://localhost:3000/profile");
   }
 );
+
+router.get("/api/legal-research", isloggedin, (req, res) => {
+  res.redirect("http://localhost:3000/Legal-Research");
+});
+
+router.get("/api/Drafting-Assistant", isloggedin, (req, res) => {
+  res.redirect("http://localhost:3000/Drafting-Assistant");
+});
+
+router.get("/api/Document-Analysis", isloggedin, (req, res) => {
+  res.redirect("http://localhost:3000/Document-Analysis");
+});
 
 module.exports = router;
