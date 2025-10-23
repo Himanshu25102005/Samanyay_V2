@@ -421,52 +421,69 @@ function NewDraftContent({ type, initialDid }) {
         <main 
           className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
         >
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-4 ml-6 mt-2"
-          >
-            <div className="text-sm ml-2 text-slate-500 font-medium">{t('selectedType')}</div>
-            <div className="text-xl ml-2 font-semibold text-slate-800 mt-1">{type}</div>
-          </motion.div>
 
-          {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            {/* Left Side - General Guidance */
-            }
+          {/* Two Section Layout */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full items-start">
+            {/* Left Section - Document Info & Guidelines (Dynamic Size) */}
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="lg:col-span-3 order-2 lg:order-1 pl-5"
+              className="lg:w-80 xl:w-96 flex-shrink-0 order-2 lg:order-1 ml-2 lg:ml-0"
             >
-              <div className="lg:sticky lg:top-24">
-                <section className="rounded-xl border border-slate-200/60 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-md transition-all duration-300">
-                  <div className="font-semibold text-slate-800 mb-4 text-lg flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-sky-600" fill="currentColor" viewBox="0 0 20 20">
+              <div className="lg:sticky lg:top-24 space-y-4 ml-2 w-full">
+                {/* Document Selection Card */}
+                <section className="rounded-xl border border-slate-200/60 bg-white/80 backdrop-blur-sm p-4 lg:p-6 shadow-sm hover:shadow-md mt-2 transition-all duration-300">
+                  <div className="font-semibold text-slate-800 mb-3 text-base lg:text-lg flex items-center gap-3">
+                    <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
+                      <svg className="w-3 h-3 lg:w-4 lg:h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="hidden sm:inline">Selected Document</span>
+                    <span className="sm:hidden">Document</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-xs text-slate-500 font-medium">{t('selectedType')}</div>
+                    <div className="text-sm lg:text-base font-semibold text-slate-800 bg-slate-50 rounded-lg p-3 border border-slate-200">
+                      {type}
+                    </div>
+                    {documentId && (
+                      <div className="text-xs text-slate-600 bg-blue-50 rounded-lg p-2 border border-blue-200">
+                        <span className="font-medium">Document ID:</span> 
+                        <span className="font-mono ml-1">{documentId.substring(0, 8)}...</span>
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* Guidelines Card */}
+                <section className="rounded-xl border border-slate-200/60 bg-white/80 backdrop-blur-sm p-4 lg:p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                  <div className="font-semibold text-slate-800 mb-3 text-base lg:text-lg flex items-center gap-3">
+                    <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-lg bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center">
+                      <svg className="w-3 h-3 lg:w-4 lg:h-4 text-sky-600" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    General Guidance
+                    <span className="hidden sm:inline">General Guidance</span>
+                    <span className="sm:hidden">Guidelines</span>
                   </div>
                   {activeGuidance.desc && (
-                    <div className="text-slate-700 text-sm mb-3">
+                    <div className="text-slate-700 text-xs lg:text-sm mb-3 leading-relaxed">
                       {activeGuidance.desc}
                     </div>
                   )}
-                  <ul className="space-y-3 text-slate-600 text-sm leading-relaxed">
+                  <ul className="space-y-2 lg:space-y-3 text-slate-600 text-xs lg:text-sm leading-relaxed">
                     {activeGuidance.items.map((item, index) => (
                       <motion.li 
                         key={index}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                        className="flex items-start gap-3"
+                        className="flex items-start gap-2 lg:gap-3"
                       >
-                        <div className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-2 flex-shrink-0"></div>
-                        <span>{item}</span>
+                        <div className="w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full bg-sky-400 mt-1.5 lg:mt-2 flex-shrink-0"></div>
+                        <span className="text-xs lg:text-sm">{item}</span>
                       </motion.li>
                     ))}
                   </ul>
@@ -474,12 +491,12 @@ function NewDraftContent({ type, initialDid }) {
               </div>
             </motion.div>
 
-            {/* Right Side - Chat Interface */}
+            {/* Right Section - Chat Interface (Full Width) */}
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="lg:col-span-9 order-1 lg:order-2 mt-4 pr-7" 
+              className="flex-1 min-w-0 order-1 lg:order-2 mr-2 lg:mr-0 w-full"
               ref={chatSectionRef}
             >
               {/* Mobile Scroll Hint */}
@@ -497,8 +514,8 @@ function NewDraftContent({ type, initialDid }) {
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-semibold text-base mb-1">Start Drafting Below 👇</div>
-                          <div className="text-sm text-sky-100">Tap here to jump to the chat interface</div>
+                          <div className="font-semibold text-base mb-1">Ready to Draft! 🚀</div>
+                          <div className="text-sm text-sky-100">Start creating your document below</div>
                         </div>
                         <motion.div
                           animate={{ y: [0, 8, 0] }}
@@ -515,24 +532,24 @@ function NewDraftContent({ type, initialDid }) {
                 )}
               </AnimatePresence>
 
-              <section className="rounded-xl border border-slate-200/60 bg-white/90 backdrop-blur-sm flex flex-col shadow-lg hover:shadow-xl transition-all duration-300" style={{ height: 'calc(100vh - 180px)', minHeight: '600px' }}>
+              <section className="rounded-xl border border-slate-200/60 bg-white/90 backdrop-blur-sm flex flex-col shadow-lg hover:shadow-xl transition-all duration-300 h-[calc(100vh-120px)] lg:h-[calc(100vh-100px)] mt-2 mr-2 lg:mr-4">
                 {/* Chat Header */}
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.5 }}
-                  className="p-5 sm:p-6 border-b border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-white/50 flex-shrink-0"
+                  className="p-4 sm:p-5 lg:p-6 border-b border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-white/50 flex-shrink-0"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
-                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
                         <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-slate-800 text-lg sm:text-xl">Draft Generation Chat</div>
-                      <div className="text-sm text-slate-500 truncate">Get help with your document drafting</div>
+                      <div className="font-bold text-slate-800 text-base sm:text-lg lg:text-xl">Draft Generation Chat</div>
+                      <div className="text-xs sm:text-sm text-slate-500 truncate">Get help with your document drafting</div>
                     </div>
                   </div>
                 </motion.div>
@@ -642,7 +659,7 @@ function NewDraftContent({ type, initialDid }) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.6 }}
-                  className="p-4 sm:p-5 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/80 to-white/80 backdrop-blur-sm flex-shrink-0"
+                  className="p-3 sm:p-4 lg:p-5 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/80 to-white/80 backdrop-blur-sm flex-shrink-0"
                 >
                   {error && (
                     <motion.div
@@ -653,28 +670,28 @@ function NewDraftContent({ type, initialDid }) {
                       {String(error)}
                     </motion.div>
                   )}
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Instructions</label>
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Instructions</label>
                       <textarea 
                         value={prompt} 
                         onChange={(e)=>setPrompt(e.target.value)} 
                         rows={3} 
-                        className="w-full rounded-xl border border-slate-300/60 bg-white/80 backdrop-blur-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 text-sm resize-none transition-all duration-200 placeholder:text-slate-400" 
+                        className="w-full rounded-xl border border-slate-300/60 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 text-xs sm:text-sm resize-none transition-all duration-200 placeholder:text-slate-400" 
                         placeholder="Describe the draft you want..." 
                       />
                     </div>
                     
                     {/* All Buttons - Responsive Layout */}
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                       {/* Upload Document Button */}
                       <motion.button 
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }} 
                         onClick={onChooseFile} 
-                        className="rounded-xl bg-slate-600 text-white px-4 py-2.5 hover:bg-slate-700 flex items-center gap-2 text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                        className="rounded-lg sm:rounded-xl bg-slate-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-slate-700 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                       >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                         <span className="hidden sm:inline">Upload</span>
@@ -687,9 +704,9 @@ function NewDraftContent({ type, initialDid }) {
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }} 
                           onClick={startRecording} 
-                          className="rounded-xl border border-slate-300/60 bg-white/80 backdrop-blur-sm px-4 py-2.5 hover:bg-slate-50/80 flex items-center gap-2 text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                          className="rounded-lg sm:rounded-xl border border-slate-300/60 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-slate-50/80 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                         >
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
                           </svg>
                           <span className="hidden sm:inline">Record</span>
@@ -700,10 +717,10 @@ function NewDraftContent({ type, initialDid }) {
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }} 
                           onClick={stopRecording} 
-                          className="rounded-xl bg-red-600 text-white px-4 py-2.5 hover:bg-red-700 flex items-center gap-2 text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                          className="rounded-lg sm:rounded-xl bg-red-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-red-700 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                         >
-                          <div className="w-3 h-3 bg-white rounded-sm"></div>
-                          Stop ({recordingDuration}s)
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-sm"></div>
+                          <span className="text-xs sm:text-sm">Stop ({recordingDuration}s)</span>
                         </motion.button>
                       )}
                       
@@ -714,17 +731,17 @@ function NewDraftContent({ type, initialDid }) {
                           whileTap={{ scale: 0.98 }} 
                           onClick={processVoiceRecording}
                           disabled={isProcessingVoice}
-                          className="rounded-xl bg-green-600 text-white px-4 py-2.5 hover:bg-green-700 disabled:opacity-50 flex items-center gap-2 text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                          className="rounded-lg sm:rounded-xl bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-green-700 disabled:opacity-50 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                         >
                           {isProcessingVoice ? (
                             <>
-                              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <div className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                               <span className="hidden sm:inline">Processing...</span>
                               <span className="sm:hidden">⏳</span>
                             </>
                           ) : (
                             <>
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <svg className="w-2 h-2 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                               </svg>
                               <span className="hidden sm:inline">Process</span>
@@ -740,55 +757,55 @@ function NewDraftContent({ type, initialDid }) {
                         whileTap={{ scale: 0.98 }} 
                         disabled={submitting || (!prompt.trim() && !audioBlob)} 
                         onClick={generateNewDraft} 
-                        className="rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white px-6 py-2.5 hover:from-sky-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg flex-1 sm:flex-initial justify-center"
+                        className="rounded-lg sm:rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white px-4 sm:px-6 py-2 sm:py-2.5 hover:from-sky-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg flex-1 sm:flex-initial justify-center"
                       >
                         {submitting ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Generating...</span>
+                            <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-xs sm:text-sm">Generating...</span>
                           </>
                         ) : (
                           <>
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
                             </svg>
-                            <span>Generate Draft</span>
+                            <span className="text-xs sm:text-sm">Generate Draft</span>
                           </>
                         )}
                       </motion.button>
                     </div>
                     
                     {/* Status Indicators */}
-                    <div className="flex items-center gap-3 sm:gap-4 text-xs flex-wrap">
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
                       {uploading && (
                         <span className="text-slate-600 flex items-center gap-1">
-                          <div className="w-3 h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></div>
-                          Uploading…
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-xs">Uploading…</span>
                         </span>
                       )}
                       {documentId && (
-                        <span className="text-slate-700 truncate max-w-[200px] sm:max-w-none">
-                          Doc ID: <span className="font-mono text-xs">{documentId.substring(0, 8)}...</span>
+                        <span className="text-slate-700 truncate max-w-[150px] sm:max-w-none text-xs">
+                          Doc ID: <span className="font-mono">{documentId.substring(0, 6)}...</span>
                         </span>
                       )}
                       {recording && (
-                        <div className="flex items-center gap-2 text-red-600 font-medium">
-                          <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
-                          <span>Recording... ({recordingDuration}s)</span>
+                        <div className="flex items-center gap-1 sm:gap-2 text-red-600 font-medium">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-600 rounded-full animate-pulse"></div>
+                          <span className="text-xs">Recording... ({recordingDuration}s)</span>
                         </div>
                       )}
                       {audioBlob && !recording && (
-                        <div className="flex items-center gap-2 text-green-600 font-medium">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <div className="flex items-center gap-1 sm:gap-2 text-green-600 font-medium">
+                          <svg className="w-2 h-2 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
-                          <span>Ready ({Math.round(audioBlob.size / 1024)}KB)</span>
+                          <span className="text-xs">Ready ({Math.round(audioBlob.size / 1024)}KB)</span>
                         </div>
                       )}
                       {submitting && (
                         <span className="text-slate-600 flex items-center gap-1">
-                          <div className="w-3 h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></div>
-                          Creating your draft...
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-xs">Creating your draft...</span>
                         </span>
                       )}
                     </div>

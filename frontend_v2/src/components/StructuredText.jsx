@@ -107,7 +107,7 @@ export default function StructuredText({ text }) {
                             <table className="min-w-full border border-gray-300 rounded-lg">
                                 {children}
                             </table>
-                        </div>
+                            </div>
                     ),
                     thead: ({ children }) => (
                         <thead className="bg-gray-50">

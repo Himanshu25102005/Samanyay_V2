@@ -310,10 +310,6 @@ function ImproveDraftContent({ type, initialDid }) {
         </div>
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-          <div className="mb-4 ml-6 mt-2">
-            <div className="text-sm text-slate-600">{t('selectedType')}</div>
-            <div className="text-lg font-medium text-slate-800">{type}</div>
-          </div>
 
           {/* Backend Status Display
           {backendStatus && (
@@ -355,11 +351,28 @@ function ImproveDraftContent({ type, initialDid }) {
             </div>
           )} */}
 
-          {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-          {/* Left Side - General Guidance */}
-            <div className="lg:col-span-3 ml-5 order-2 lg:order-1">
-              <div className="lg:sticky lg:top-24">
+          {/* Two Section Layout */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start h-full">
+            {/* Left Section - Selected Document & Guidance (Dynamic) */}
+            <div className="lg:w-80 xl:w-96 flex-shrink-0 order-2 lg:order-1 ml-2 lg:ml-0">
+              <div className="lg:sticky lg:top-24 ml-2 w-full space-y-4">
+                {/* Selected Document Card */}
+                <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm mt-2">
+                  <div className="font-semibold text-slate-800 mb-3 text-base flex items-center gap-2">
+                    <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                    </svg>
+                    Selected Document
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-xs text-slate-500 font-medium">{t('selectedType')}</div>
+                    <div className="text-sm font-semibold text-slate-800 bg-slate-50 rounded-lg p-3 border border-slate-200">
+                      {type}
+                    </div>
+                  </div>
+                </section>
+
+                {/* General Guidance Card */}
                 <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="font-semibold text-slate-800 mb-3 text-base flex items-center gap-2">
                     <svg className="w-5 h-5 text-sky-600" fill="currentColor" viewBox="0 0 20 20">
@@ -381,9 +394,9 @@ function ImproveDraftContent({ type, initialDid }) {
               </div>
             </div>
 
-          {/* Right Side - Chat Interface */}
-            <div className="lg:col-span-9 order-1 lg:order-2">
-              <section className="rounded-xl border mt-6 mr-7 border-slate-200 bg-white flex flex-col shadow-sm" style={{ height: 'calc(100vh - 150px)', minHeight: '500px' }}>
+            {/* Right Section - Chat Interface (Full Width) */}
+            <div className="flex-1 min-w-0 order-1 lg:order-2">
+              <section className="rounded-xl border mt-2 mr-2 lg:mr-4 border-slate-200 bg-white flex flex-col shadow-sm h-[calc(100vh-120px)] lg:h-[calc(100vh-100px)]" style={{ minHeight: '500px' }}>
                 {/* Chat Header */}
                 <div className="p-4 sm:p-5 border-b border-slate-200 flex-shrink-0">
                   <div className="flex items-center gap-3">
