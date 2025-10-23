@@ -456,7 +456,7 @@ export default function Home() {
                 title: "Document Analysis & Summarization",
                 name: "Document Analyser",
                 desc: "Understand lengthy documents in seconds.",
-                href: "/Document-Analysis",
+                href: "https://backendv2-for-dep-production.up.railway.app/api/Document-Analysis",
                 points: [
                   "Upload PDFs, DOCX, or images",
                   "Instant summaries and key clauses",
@@ -473,7 +473,7 @@ export default function Home() {
                 title: "AI-Driven Legal Research",
                 name: "Legal Research",
                 desc: "Search jurisprudence and insights intelligently.",
-                href: "/Legal-Research",
+                href: "https://backendv2-for-dep-production.up.railway.app/api/legal-research",
                 points: [
                   "Cite cases with paragraphs",
                   "Jurisdiction and year filters",
@@ -490,7 +490,7 @@ export default function Home() {
                 title: "Custom Document Generation",
                 name: "Drafting Assistant",
                 desc: "Draft contracts, notices, and more.",
-                href: "/Drafting-Assistant",
+                href: "https://backendv2-for-dep-production.up.railway.app/api/Drafting-Assistant",
                 points: [
                   "Templates + prompts",
                   "Voice-to-draft",

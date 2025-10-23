@@ -32,7 +32,7 @@ export default function Home() {
         console.log('Registration successful:', response.data);
         
         // Redirect to profile page
-        window.location.href = 'http://localhost:3000/profile';
+        window.location.href = 'https://samanyay-v2.vercel.app/profile';
         
         // Or if using React Router:
         // navigate('/profile');

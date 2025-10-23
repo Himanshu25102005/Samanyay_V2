@@ -10,7 +10,7 @@ const isloggedin = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   } else {
-    res.redirect("http://localhost:3000/login");
+    res.redirect("https://samanyay-v2.vercel.app/login");
   }
 };
 
@@ -137,24 +137,24 @@ router.get(
 // Google OAuth callback route
 router.get(
   "/api/google/callback",
-  passport.authenticate("google", { failureRedirect: "http://localhost:3000" }),
+  passport.authenticate("google", { failureRedirect: "https://samanyay-v2.vercel.app/" }),
   (req, res) => {
     console.log("Google OAuth successful, redirecting to profile...");
     // Redirect to frontend profile page
-    res.redirect("http://localhost:3000/profile");
+    res.redirect("https://samanyay-v2.vercel.app/profile");
   }
 );
 
 router.get("/api/legal-research", isloggedin, (req, res) => {
-  res.redirect("http://localhost:3000/Legal-Research");
+  res.redirect("https://samanyay-v2.vercel.app/Legal-Research");
 });
 
 router.get("/api/Drafting-Assistant", isloggedin, (req, res) => {
-  res.redirect("http://localhost:3000/Drafting-Assistant");
+  res.redirect("https://samanyay-v2.vercel.app/Drafting-Assistant");
 });
 
 router.get("/api/Document-Analysis", isloggedin, (req, res) => {
-  res.redirect("http://localhost:3000/Document-Analysis");
+  res.redirect("https://samanyay-v2.vercel.app/Document-Analysis");
 });
 
 module.exports = router;
