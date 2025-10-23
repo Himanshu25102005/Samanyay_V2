@@ -6,6 +6,7 @@ import Navbar from "../../../../components/Navbar.jsx";
 import { useI18n } from "../../../../components/I18nProvider.jsx";
 import useAppLanguage from "../../../../components/useAppLanguage.js";
 import { motion, AnimatePresence } from "framer-motion";
+import StructuredText from "../../../../components/StructuredText.jsx";
 
 // Component that uses useSearchParams - needs to be wrapped in Suspense
 function SearchParamsHandler({ onParamsLoaded }) {
@@ -417,7 +418,9 @@ function ImproveDraftContent({ type, initialDid }) {
                           <div className="flex-1 min-w-0">
                             <div className="bg-blue-50 rounded-lg p-3">
                               <div className="text-sm font-medium text-blue-900 mb-2">Improvements Analysis</div>
-                              <div className="text-sm text-blue-800 whitespace-pre-wrap max-h-[500px] overflow-y-auto break-words">{result.improvements_analysis}</div>
+                              <div className="text-sm text-blue-800 max-h-[500px] overflow-y-auto break-words">
+                                <StructuredText text={result.improvements_analysis} />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -431,7 +434,9 @@ function ImproveDraftContent({ type, initialDid }) {
                           <div className="flex-1 min-w-0">
                             <div className="bg-green-50 rounded-lg p-3">
                               <div className="text-sm font-medium text-green-900 mb-2">Improved Draft</div>
-                              <div className="text-sm text-green-800 whitespace-pre-wrap max-h-[500px] sm:max-h-[500px] overflow-y-auto break-words">{result.updated_draft}</div>
+                              <div className="text-sm text-green-800 max-h-[500px] sm:max-h-[500px] overflow-y-auto break-words">
+                                <StructuredText text={result.updated_draft} />
+                              </div>
                               {result.download_url && result.filename && (
                                 <div className="mt-3">
                                   <motion.button 

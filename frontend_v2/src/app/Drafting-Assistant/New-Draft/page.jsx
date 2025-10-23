@@ -7,6 +7,7 @@ import { useI18n } from "../../../../components/I18nProvider.jsx";
 import useAppLanguage from "../../../../components/useAppLanguage.js";
 import { useNavbar } from "../../../../components/NavbarContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
+import StructuredText from "../../../../components/StructuredText.jsx";
 
 // Component that uses useSearchParams - needs to be wrapped in Suspense
 function SearchParamsHandler({ onParamsLoaded }) {
@@ -567,7 +568,9 @@ function NewDraftContent({ type, initialDid }) {
                         <div className="flex-1 min-w-0">
                           <div className="bg-green-50 rounded-lg p-3">
                             <div className="text-sm font-medium text-green-900 mb-2">Generated Draft</div>
-                            <div className="text-sm text-green-800 whitespace-pre-wrap max-h-[400px] sm:max-h-[500px] overflow-y-auto break-words">{voiceResult.draft}</div>
+                            <div className="text-sm text-green-800 max-h-[400px] sm:max-h-[500px] overflow-y-auto break-words">
+                              <StructuredText text={voiceResult.draft} />
+                            </div>
                             {voiceResult.download_url && voiceResult.filename && (
                               <div className="mt-3">
                                 <button 
@@ -598,7 +601,9 @@ function NewDraftContent({ type, initialDid }) {
                       <div className="flex-1 min-w-0">
                         <div className="bg-green-50 rounded-lg p-3">
                           <div className="text-sm font-medium text-green-900 mb-2">Generated Draft</div>
-                          <div className="text-sm text-green-800 whitespace-pre-wrap max-h-[400px] sm:max-h-[500px] overflow-y-auto break-words">{result.draft}</div>
+                          <div className="text-sm text-green-800 max-h-[400px] sm:max-h-[500px] overflow-y-auto break-words">
+                            <StructuredText text={result.draft} />
+                          </div>
                           {result.download_url && result.filename && (
                             <div className="mt-3">
                               <button 

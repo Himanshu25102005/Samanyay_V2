@@ -295,7 +295,7 @@ export default function ChatWithDocument() {
                                         transition={{duration:0.3,ease:"easeOut"}}
                                         whileHover={{scale:1.02}}
                                         className={`max-w-full sm:max-w-3xl px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-sm leading-relaxed shadow-sm ${m.role==='user'?'bg-sky-700 text-white ml-auto':'bg-white border border-gray-200 text-gray-800 mr-auto'}`}>
-                                        {m.structured && m.role !== 'user' ? (
+                                        {m.role !== 'user' ? (
                                             <StructuredText text={m.content} />
                                         ) : (
                                             m.content

@@ -325,7 +325,7 @@ export default function LegalResearch() {
                                                             'bg-slate-100 text-slate-800'
                                                         }`} style={i%2 ? {backgroundColor: '#0818A8'} : {}}>
                                                             <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                                                                {m.structured && !(i%2) ? (
+                                                                {!(i%2) ? (
                                                                     <StructuredText text={m.content} />
                                                                 ) : (
                                                                     m.content
