@@ -17,9 +17,10 @@ export default function Home() {
       console.log("Sending data:", { email, password, name }); */
       
       // Try to connect to backend if available
-      const response = await axios.post("https://backendv2-for-dep-production.up.railway.app/api/login", { 
+      const response = await axios.post("https://backendv2-for-dep-production.up.railway.app//api/register", { 
         email, 
-        password
+        password, 
+        name 
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -28,7 +29,7 @@ export default function Home() {
       });
       
       if (response.data.success) {
-        console.log('Login successful:', response.data);
+        console.log('Registration successful:', response.data);
         
         // Redirect to profile page
         window.location.href = 'https://samanyay-v2.vercel.app/profile';
@@ -36,7 +37,7 @@ export default function Home() {
         // Or if using React Router:
         // navigate('/profile');
       }
-      alert("Login successful!");
+      alert("Registration successful!");
       
     } catch (error) {
       console.error("Full error details:", error);
@@ -47,7 +48,7 @@ export default function Home() {
       
       if (error.code === 'ERR_NETWORK' || error.message.includes('ERR_CONNECTION_REFUSED')) {
         console.log("Backend server not running. This is a demo - form data would be sent to backend:");
-        console.log("Form submitted:", { email, password });
+        console.log("Form submitted:", { email, password, name });
         alert("Demo Mode: Backend server not running. In production, this data would be sent to the server.");
       } else if (error.code === 'ECONNABORTED') {
         console.log("Request timeout - backend might be slow to respond");
@@ -57,8 +58,8 @@ export default function Home() {
         console.log("Server responded with error:", error.response.status, error.response.data);
         alert(`Server error: ${error.response.status} - ${error.response.data || 'Unknown error'}`);
       } else {
-        console.error("Login failed:", error);
-        alert("Login failed. Please try again.");
+        console.error("Registration failed:", error);
+        alert("Registration failed. Please try again.");
       }
     }
   };
@@ -88,7 +89,7 @@ export default function Home() {
         // Or if using React Router:
         // navigate('/profile');
       } */
-      alert("Google login initiated!");
+      alert("Registration successful!");
       
     } catch (error) {
       console.error("Full error details:", error);
@@ -129,10 +130,10 @@ export default function Home() {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name Input - Optional for login */}
+          {/* Name Input */}
           <div className="space-y-2">
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Name (Optional)
+              Name
             </label>
             <input
               id="name"
@@ -142,6 +143,7 @@ export default function Home() {
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-blue-400"
               placeholder="Enter your Name"
+              required
             />
           </div>
 

@@ -27,7 +27,10 @@ router.get("/api/test", function (req, res, next) {
 });
 
 router.post("/api/register", (req, res) => {
+  console.log("=== REGISTER REQUEST ===");
   console.log("Registration request received:", req.body);
+  console.log("Headers:", req.headers);
+  console.log("Origin:", req.get('origin'));
   
   const data = new userModel({
     name: req.body.name,
@@ -60,7 +63,10 @@ router.post("/api/register", (req, res) => {
 
 
 router.post("/api/login", (req, res, next) => {
+  console.log("=== LOGIN REQUEST ===");
   console.log("Login request received:", req.body);
+  console.log("Headers:", req.headers);
+  console.log("Origin:", req.get('origin'));
   
   passport.authenticate("local", (err, user, info) => {
     if (err) {
@@ -82,7 +88,12 @@ router.post("/api/login", (req, res, next) => {
     
     req.logIn(user, (err) => {
       if (err) {
-        console.error("Login error:", err);
+        console.error("=== LOGIN ERROR ===");
+        console.error("Error:", err);
+        console.error("Error message:", err.message);
+        console.error("User object:", user);
+        console.error("User._id:", user?._id);
+        console.error("User.id:", user?.id);
         return res.status(500).json({ 
           success: false, 
           message: "Login failed", 
@@ -155,6 +166,29 @@ router.get("/api/Drafting-Assistant", isloggedin, (req, res) => {
 
 router.get("/api/Document-Analysis", isloggedin, (req, res) => {
   res.redirect("https://samanyay-v2.vercel.app/Document-Analysis");
+});
+
+// Debug route to catch all requests and see what's being called
+router.all("*", (req, res) => {
+  console.log("=== 404 REQUEST ===");
+  console.log("Method:", req.method);
+  console.log("URL:", req.url);
+  console.log("Headers:", req.headers);
+  console.log("Body:", req.body);
+  console.log("Origin:", req.get('origin'));
+  res.status(404).json({ 
+    error: "Route not found", 
+    method: req.method, 
+    url: req.url,
+    availableRoutes: [
+      "POST /api/register",
+      "POST /api/login", 
+      "GET /api/user",
+      "GET /api/test",
+      "GET /api/auth/google",
+      "GET /api/google/callback"
+    ]
+  });
 });
 
 module.exports = router;
