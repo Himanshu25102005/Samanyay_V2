@@ -7,7 +7,7 @@ import { useI18n } from "../../../../components/I18nProvider.jsx";
 import useAppLanguage from "../../../../components/useAppLanguage.js";
 import { useNavbar } from "../../../../components/NavbarContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
-import StructuredText from "../../../../components/StructuredText.jsx";
+import StructuredText from "../../../components/StructuredText.jsx";
 
 // Component that uses useSearchParams - needs to be wrapped in Suspense
 function SearchParamsHandler({ onParamsLoaded }) {
