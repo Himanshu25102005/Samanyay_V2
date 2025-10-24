@@ -6,6 +6,7 @@ import Navbar from "../../../../components/Navbar.jsx";
 import { useI18n } from "../../../../components/I18nProvider.jsx";
 import useAppLanguage from "../../../../components/useAppLanguage.js";
 import { useNavbar } from "../../../../components/NavbarContext.jsx";
+import { useUser } from "../../../../components/UserContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import StructuredText from "../../../components/StructuredText.jsx";
 
@@ -27,6 +28,7 @@ function NewDraftContent({ type, initialDid }) {
   const { t } = useI18n();
   const { language } = useAppLanguage();
   const { isCollapsed, isLargeScreen } = useNavbar();
+  const { userId } = useUser();
 
   // Per-document type general guidance
   const GUIDANCE_BY_TYPE = {
@@ -292,8 +294,21 @@ function NewDraftContent({ type, initialDid }) {
       fd.append("audio", audioBlob, "recording.webm");
       if (documentId) fd.append("document_id", documentId);
       
-      console.log('Sending voice recording to API...');
-      const res = await fetch("/Drafting-Assistant/api/drafting/voice-chat?format=docx", { 
+      // Build query parameters for voice chat
+      const queryParams = new URLSearchParams({
+        mode: 'new',
+        document_type: type,
+        language: language || 'en',
+        user_id: userId,
+        format: 'docx'
+      });
+      
+      if (documentId) {
+        queryParams.append('document_id', documentId);
+      }
+      
+      console.log('Sending voice recording to API with params:', queryParams.toString());
+      const res = await fetch(`/Drafting-Assistant/api/drafting/voice-chat?${queryParams.toString()}`, { 
         method: "POST", 
         body: fd 
       });
@@ -341,8 +356,21 @@ function NewDraftContent({ type, initialDid }) {
         if (documentId) fd.append("document_id", documentId);
         if (prompt.trim()) fd.append("prompt", prompt);
         
+        // Build query parameters for voice chat
+        const queryParams = new URLSearchParams({
+          mode: 'new',
+          document_type: type,
+          language: language || 'en',
+          user_id: userId,
+          format: 'docx'
+        });
+        
+        if (documentId) {
+          queryParams.append('document_id', documentId);
+        }
+        
         console.log('Generating draft with voice recording...');
-        const res = await fetch(`/Drafting-Assistant/api/drafting/voice-chat?format=docx&document_type=${encodeURIComponent(type)}&language=${encodeURIComponent(language || 'en')}`, { 
+        const res = await fetch(`/Drafting-Assistant/api/drafting/voice-chat?${queryParams.toString()}`, { 
           method: "POST", 
           body: fd 
         });

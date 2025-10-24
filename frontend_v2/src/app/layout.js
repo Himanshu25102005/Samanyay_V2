@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import I18nProvider from "../../components/I18nProvider.jsx";
 import NavbarProvider from "../../components/NavbarContext.jsx";
+import { UserProvider } from "../../components/UserContext.jsx";
 import SidebarLayout from "../../components/SidebarLayout.jsx";
 import "./globals.css";
 
@@ -28,13 +29,15 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <I18nProvider>
-          <NavbarProvider>
-            <SidebarLayout>
-              {children}
-            </SidebarLayout>
-          </NavbarProvider>
-        </I18nProvider>
+        <UserProvider>
+          <I18nProvider>
+            <NavbarProvider>
+              <SidebarLayout>
+                {children}
+              </SidebarLayout>
+            </NavbarProvider>
+          </I18nProvider>
+        </UserProvider>
       </body>
     </html>
   );

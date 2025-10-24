@@ -1,10 +1,11 @@
 "use client";
-import { useState, Suspense, useEffect, useCallback } from "react";
+import { useState, Suspense, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import LanguageSelector from "../../../../components/LanguageSelector.jsx";
 import Navbar from "../../../../components/Navbar.jsx";
 import { useI18n } from "../../../../components/I18nProvider.jsx";
 import useAppLanguage from "../../../../components/useAppLanguage.js";
+import { useUser } from "../../../../components/UserContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import StructuredText from "../../../components/StructuredText.jsx";
 
@@ -25,6 +26,7 @@ function SearchParamsHandler({ onParamsLoaded }) {
 function ImproveDraftContent({ type, initialDid }) {
   const { t } = useI18n();
   const { language } = useAppLanguage();
+  const { userId } = useUser();
   // Per-document type general guidance (same mapping as New Draft)
   const GUIDANCE_BY_TYPE = {
     "Bail / Anticipatory Bail Application": {
@@ -158,7 +160,13 @@ function ImproveDraftContent({ type, initialDid }) {
   const [error, setError] = useState(null);
   const [backendStatus, setBackendStatus] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [userId] = useState('default_user');
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [voiceResult, setVoiceResult] = useState(null);
+  
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
 
   async function uploadSupportingDoc(file) {
     setUploading(true);
@@ -226,38 +234,77 @@ function ImproveDraftContent({ type, initialDid }) {
       setError('Please upload a document first');
       return;
     }
-    if (!prompt.trim()) {
-      setError('Please enter your instructions');
+    if (!prompt.trim() && !audioBlob) {
+      setError('Please enter your instructions or record voice instructions');
       return;
     }
     
     setSubmitting(true);
     setError(null);
     try {
-      const body = JSON.stringify({ prompt, document_id: documentId, document_type: type, user_id: userId, language: language || 'en' });
-      const res = await fetch(`/Drafting-Assistant/api/drafting/improve?format=docx`, { 
-        method: "POST", 
-        headers: { "content-type": "application/json" }, 
-        body 
-      });
-      
-      if (!res.ok) {
-        throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+      if (audioBlob) {
+        // Use voice recording for improvement
+        const fd = new FormData();
+        fd.append("audio", audioBlob, "recording.webm");
+        fd.append("document_id", documentId);
+        if (prompt.trim()) fd.append("prompt", prompt);
+        
+        // Build query parameters for voice chat
+        const queryParams = new URLSearchParams({
+          mode: 'improve',
+          document_type: type,
+          language: language || 'en',
+          user_id: userId,
+          document_id: documentId,
+          format: 'docx'
+        });
+        
+        console.log('Generating improved draft with voice recording...');
+        const res = await fetch(`/Drafting-Assistant/api/drafting/voice-chat?${queryParams.toString()}`, { 
+          method: "POST", 
+          body: fd 
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Voice generation failed: ${res.status} ${res.statusText}`);
+        }
+        
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch { data = { status: 'error', message: text }; }
+        
+        if (data.status === 'error') {
+          throw new Error(data.message || 'Voice generation failed');
+        }
+        
+        setResult(data?.data || null);
+      } else {
+        // Use text prompt for improvement
+        const body = JSON.stringify({ prompt, document_id: documentId, document_type: type, user_id: userId, language: language || 'en' });
+        const res = await fetch(`/Drafting-Assistant/api/drafting/improve?format=docx`, { 
+          method: "POST", 
+          headers: { "content-type": "application/json" }, 
+          body 
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+        }
+        
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { status: 'error', message: text };
+        }
+        
+        if (data.status === 'error') {
+          throw new Error(data.message || 'Unknown error occurred');
+        }
+        
+        setResult(data?.data || null);
       }
-      
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        data = { status: 'error', message: text };
-      }
-      
-      if (data.status === 'error') {
-        throw new Error(data.message || 'Unknown error occurred');
-      }
-      
-      setResult(data?.data || null);
     } catch (err) {
       console.error('Generate draft error:', err);
       setError(err.message);
@@ -285,9 +332,141 @@ function ImproveDraftContent({ type, initialDid }) {
     }
   }
 
+  // Cleanup function to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current?.durationInterval) {
+        clearInterval(mediaRecorderRef.current.durationInterval);
+      }
+    };
+  }, []);
+
+  async function startRecording() {
+    try {
+      setError(null);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+      
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+      
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        setAudioBlob(blob);
+        console.log('Recording stopped, audio blob created:', blob.size, 'bytes');
+        
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingDuration(0);
+      setAudioBlob(null);
+      
+      // Start duration timer
+      const durationInterval = setInterval(() => {
+        setRecordingDuration(prev => prev + 1);
+      }, 1000);
+      
+      // Store interval reference for cleanup
+      mediaRecorderRef.current.durationInterval = durationInterval;
+      
+      console.log('Recording started');
+    } catch (err) {
+      console.error('Error starting recording:', err);
+      setError('Failed to start recording. Please check microphone permissions.');
+    }
+  }
+
+  function stopRecording() {
+    const mr = mediaRecorderRef.current;
+    if (!mr) return;
+    
+    mr.stop();
+    setIsRecording(false);
+    
+    // Clear duration interval
+    if (mr.durationInterval) {
+      clearInterval(mr.durationInterval);
+    }
+    
+    console.log('Recording stopped');
+  }
+
+  async function processVoiceRecording() {
+    if (!audioBlob) {
+      setError('No audio recording available. Please record audio first.');
+      return;
+    }
+    
+    if (!documentId) {
+      setError('Please upload a document first before using voice instructions.');
+      return;
+    }
+    
+    setIsProcessingVoice(true);
+    setError(null);
+    
+    try {
+      const fd = new FormData();
+      fd.append("audio", audioBlob, "recording.webm");
+      fd.append("document_id", documentId);
+      if (prompt.trim()) fd.append("prompt", prompt);
+      
+      // Build query parameters for voice chat
+      const queryParams = new URLSearchParams({
+        mode: 'improve',
+        document_type: type,
+        language: language || 'en',
+        user_id: userId,
+        document_id: documentId,
+        format: 'docx'
+      });
+      
+      console.log('Sending voice recording to API with params:', queryParams.toString());
+      const res = await fetch(`/Drafting-Assistant/api/drafting/voice-chat?${queryParams.toString()}`, { 
+        method: "POST", 
+        body: fd 
+      });
+      
+      if (!res.ok) {
+        throw new Error(`Voice processing failed: ${res.status} ${res.statusText}`);
+      }
+      
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { status: 'error', message: text };
+      }
+      
+      if (data.status === 'error') {
+        throw new Error(data.message || 'Voice processing failed');
+      }
+      
+      setVoiceResult(data?.data || null);
+      console.log('Voice processing successful:', data);
+    } catch (err) {
+      console.error('Voice processing error:', err);
+      setError(err.message);
+    } finally {
+      setIsProcessingVoice(false);
+    }
+  }
+
   function toggleVoiceRecording(){
-    // Placeholder: actual audio capture will be integrated with microservices later
-    setIsRecording((prev)=>!prev);
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
   }
 
   return (
@@ -416,6 +595,54 @@ function ImproveDraftContent({ type, initialDid }) {
                 {/* Chat Messages Area - Scrollable */}
                 <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 min-h-0">
                   <AnimatePresence>
+                    {voiceResult && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-3"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="bg-blue-50 rounded-lg p-3">
+                              <div className="text-sm font-medium text-blue-900 mb-1">Voice Instructions</div>
+                              <div className="text-sm text-blue-800 whitespace-pre-wrap break-words">{voiceResult.transcript}</div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="bg-green-50 rounded-lg p-3">
+                              <div className="text-sm font-medium text-green-900 mb-2">Improved Draft</div>
+                              <div className="text-sm text-green-800 max-h-[400px] sm:max-h-[500px] overflow-y-auto break-words">
+                                <StructuredText text={voiceResult.updated_draft || voiceResult.draft} />
+                              </div>
+                              {voiceResult.download_url && voiceResult.filename && (
+                                <div className="mt-3">
+                                  <button 
+                                    onClick={()=>triggerDownload(voiceResult.filename)} 
+                                    className="text-xs sm:text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                                  >
+                                    Download Improved Draft
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
                     {result && (
                       <motion.div 
                         initial={{ opacity: 0, y: 20 }}
@@ -468,7 +695,7 @@ function ImproveDraftContent({ type, initialDid }) {
                     )}
                   </AnimatePresence>
 
-                  {!result && (
+                  {!voiceResult && !result && (
                     <div className="flex items-center justify-center h-full text-slate-500">
                       <div className="text-center px-4">
                         <motion.div
@@ -525,25 +752,63 @@ function ImproveDraftContent({ type, initialDid }) {
                         <span className="sm:hidden">📄</span>
                       </motion.button>
 
-                      {/* Voice Input Button (placeholder) */}
-                      <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        type="button"
-                        onClick={toggleVoiceRecording}
-                        aria-pressed={isRecording}
-                        aria-label={isRecording ? 'Stop voice recording' : 'Start voice recording'}
-                        className={`rounded-lg border px-3 py-2 text-xs sm:text-sm font-medium transition-colors flex items-center gap-2 ${isRecording ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'}`}
-                      >
-                        <svg className={`w-4 h-4 ${isRecording ? 'text-rose-600' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10 12a3 3 0 003-3V5a3 3 0 10-6 0v4a3 3 0 003 3z" />
-                          <path fillRule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 006 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H9a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clipRule="evenodd" />
-                        </svg>
-                      </motion.button>
+                      {/* Voice Recording Button */}
+                      {!isRecording ? (
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          type="button"
+                          onClick={toggleVoiceRecording}
+                          className="rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 px-3 py-2 text-xs sm:text-sm font-medium transition-colors flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                          </svg>
+                          <span className="hidden sm:inline">Record</span>
+                          <span className="sm:hidden">🎤</span>
+                        </motion.button>
+                      ) : (
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          type="button"
+                          onClick={toggleVoiceRecording}
+                          className="rounded-lg bg-red-600 text-white px-3 py-2 text-xs sm:text-sm font-medium transition-colors flex items-center gap-2"
+                        >
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-sm"></div>
+                          <span className="text-xs sm:text-sm">Stop ({recordingDuration}s)</span>
+                        </motion.button>
+                      )}
+                      
+                      {/* Process Voice Button */}
+                      {audioBlob && !isRecording && (
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          type="button"
+                          onClick={processVoiceRecording}
+                          disabled={isProcessingVoice}
+                          className="rounded-lg bg-green-600 text-white px-3 py-2 hover:bg-green-700 disabled:opacity-50 text-xs sm:text-sm font-medium transition-colors flex items-center gap-2"
+                        >
+                          {isProcessingVoice ? (
+                            <>
+                              <div className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span className="hidden sm:inline">Processing...</span>
+                              <span className="sm:hidden">⏳</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-2 h-2 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                              </svg>
+                              <span className="hidden sm:inline">Process</span>
+                              <span className="sm:hidden">▶️</span>
+                            </>
+                          )}
+                        </motion.button>
+                      )}
 
                       {/* Generate Improved Draft Button */}
                       <motion.button 
                         whileTap={{ scale: 0.95 }} 
-                        disabled={!documentId || submitting || !prompt.trim()} 
+                        disabled={!documentId || submitting || (!prompt.trim() && !audioBlob)} 
                         onClick={generateImprovedDraft} 
                         className="rounded-lg bg-[#0818A8] text-white px-4 py-2 hover:bg-[#0A1BB8] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors"
                       >
@@ -568,7 +833,21 @@ function ImproveDraftContent({ type, initialDid }) {
                       {isRecording && (
                         <span className="text-rose-700 flex items-center gap-1">
                           <span className="inline-block w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
-                          Recording…
+                          Recording… ({recordingDuration}s)
+                        </span>
+                      )}
+                      {audioBlob && !isRecording && (
+                        <div className="flex items-center gap-1 sm:gap-2 text-green-600 font-medium">
+                          <svg className="w-2 h-2 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-xs">Ready ({Math.round(audioBlob.size / 1024)}KB)</span>
+                        </div>
+                      )}
+                      {isProcessingVoice && (
+                        <span className="text-slate-600 flex items-center gap-1">
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-xs">Processing voice...</span>
                         </span>
                       )}
                       {uploading && (
