@@ -232,6 +232,14 @@ function NewDraftContent({ type, initialDid }) {
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch(`/Drafting-Assistant/api/drafting/upload?document_type=${encodeURIComponent(type)}&language=${encodeURIComponent(language || 'en')}`, { method: "POST", body: fd });
+      
+      // Check content type before parsing JSON
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Expected JSON but received:', contentType);
+        throw new Error('Response is not JSON');
+      }
+      
       const data = await res.json();
       if (data?.data?.document_id) setDocumentId(data.data.document_id);
     } finally {
@@ -447,10 +455,23 @@ function NewDraftContent({ type, initialDid }) {
   }
 
   async function triggerDownload(filename) {
-    const res = await fetch(`/Drafting-Assistant/api/drafting/download/${encodeURIComponent(filename)}`);
-    const data = await res.json();
-    console.log("download:", data);
-    alert("File downloaded");
+    try {
+      const res = await fetch(`/Drafting-Assistant/api/drafting/download/${encodeURIComponent(filename)}`);
+      
+      // Check content type before parsing JSON
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Expected JSON but received:', contentType);
+        throw new Error('Response is not JSON');
+      }
+      
+      const data = await res.json();
+      console.log("download:", data);
+      alert("File downloaded");
+    } catch (err) {
+      console.error('Download error:', err);
+      alert('Failed to download file');
+    }
   }
 
   return (

@@ -314,15 +314,36 @@ function ImproveDraftContent({ type, initialDid }) {
   }
 
   async function triggerDownload(filename) {
-    const res = await fetch(`/Drafting-Assistant/api/drafting/download/${encodeURIComponent(filename)}`);
-    const data = await res.json();
-    console.log("download:", data);
-    alert("File downloaded");
+    try {
+      const res = await fetch(`/Drafting-Assistant/api/drafting/download/${encodeURIComponent(filename)}`);
+      
+      // Check content type before parsing JSON
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Expected JSON but received:', contentType);
+        throw new Error('Response is not JSON');
+      }
+      
+      const data = await res.json();
+      console.log("download:", data);
+      alert("File downloaded");
+    } catch (err) {
+      console.error('Download error:', err);
+      alert('Failed to download file');
+    }
   }
 
   async function checkBackendHealth() {
     try {
       const res = await fetch('/Drafting-Assistant/api/drafting/health');
+      
+      // Check content type before parsing JSON
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Expected JSON but received:', contentType);
+        throw new Error('Response is not JSON');
+      }
+      
       const data = await res.json();
       setBackendStatus(data);
       console.log('Backend health check:', data);

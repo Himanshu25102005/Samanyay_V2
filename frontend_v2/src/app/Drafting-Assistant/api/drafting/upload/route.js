@@ -1,15 +1,23 @@
 export const runtime = 'nodejs';
 
+import { extractUserId, addUserIdToQuery } from '../../../../lib/userUtils';
+
 const BASE = 'http://34.93.247.115:8002';
 
 export async function POST(req) {
   try {
     const url = new URL(req.url);
+    
+    // Extract user ID and add to query parameters
+    const userId = extractUserId(req);
+    addUserIdToQuery(url.searchParams, userId);
+    
     const qs = url.searchParams.toString();
     const target = `${BASE}/drafting/upload${qs ? `?${qs}` : ''}`;
 
     console.log('Proxying upload request to:', target);
     console.log('Content-Type:', req.headers.get('content-type'));
+    console.log(`[Drafting Assistant - Upload] User ID: ${userId}`);
 
     const res = await fetch(target, {
       method: 'POST',
@@ -33,7 +41,8 @@ export async function POST(req) {
     return Response.json({ 
       status: 'error', 
       message: err?.message || 'Proxy error',
-      details: `Failed to connect to backend service at ${BASE}. Please check if the service is running.`
+      details: `Failed to connect to backend service at ${BASE}. Please check if the service is running.`,
+      service: 'drafting-assistant-upload'
     }, { status: 500 });
   }
 }

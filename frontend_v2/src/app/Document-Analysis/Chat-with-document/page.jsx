@@ -81,9 +81,19 @@ export default function ChatWithDocument() {
         try {
             const res = await fetch(`/api/analyzer/upload?user_id=${encodeURIComponent(userId)}`, { method: 'POST', body: form });
             if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
+                const contentType = res.headers.get('content-type');
+                const errorData = (contentType && contentType.includes('application/json')) 
+                    ? await res.json().catch(() => ({})) 
+                    : {};
                 throw new Error(errorData.detail?.message || `Upload failed: ${res.status}`);
             }
+            
+            // Check content type before parsing JSON
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
+            }
+            
             const json = await res.json();
             const id = json?.data?.document_id;
             if (id) {
@@ -115,9 +125,19 @@ export default function ChatWithDocument() {
                 body: JSON.stringify({ document_id: documentId, question: q, language, user_id: userId })
             });
             if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
+                const contentType = res.headers.get('content-type');
+                const errorData = (contentType && contentType.includes('application/json')) 
+                    ? await res.json().catch(() => ({})) 
+                    : {};
                 throw new Error(errorData.detail?.message || 'Chat failed');
             }
+            
+            // Check content type before parsing JSON
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
+            }
+            
             const json = await res.json();
             if (json.status === 'success' && json.data?.answer) {
                 const answer = json.data.answer;
@@ -190,9 +210,19 @@ export default function ChatWithDocument() {
                 body: form 
             });
             if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
+                const contentType = res.headers.get('content-type');
+                const errorData = (contentType && contentType.includes('application/json')) 
+                    ? await res.json().catch(() => ({})) 
+                    : {};
                 throw new Error(errorData.detail?.message || 'Voice chat failed');
             }
+            
+            // Check content type before parsing JSON
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
+            }
+            
             const json = await res.json();
             const response = json?.data?.response || json?.data?.answer || 'No response';
             setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: response, ts: new Date(), structured: true }]);
@@ -213,9 +243,19 @@ export default function ChatWithDocument() {
             setIsSending(true);
             const res = await fetch(`/api/analyzer/voice-chat?document_id=${encodeURIComponent(documentId)}&language=${encodeURIComponent(language)}&user_id=${encodeURIComponent(userId)}`, { method: 'POST', body: form });
             if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
+                const contentType = res.headers.get('content-type');
+                const errorData = (contentType && contentType.includes('application/json')) 
+                    ? await res.json().catch(() => ({})) 
+                    : {};
                 throw new Error(errorData.detail?.message || 'Voice chat failed');
             }
+            
+            // Check content type before parsing JSON
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
+            }
+            
             const json = await res.json();
             const response = json?.data?.response || json?.data?.answer || 'No response';
             setChat(prev => [...prev, { id: generateMessageId(), role: 'assistant', content: response, ts: new Date(), structured: true }]);

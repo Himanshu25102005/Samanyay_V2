@@ -16,11 +16,18 @@ export function UserProvider({ children }) {
         });
         
         if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setUser(data.user);
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+            if (data.success) {
+              setUser(data.user);
+            } else {
+              // User not authenticated, use default
+              setUser({ id: 'default_user', name: 'Guest User', email: 'guest@example.com' });
+            }
           } else {
-            // User not authenticated, use default
+            console.warn('API did not return JSON response');
             setUser({ id: 'default_user', name: 'Guest User', email: 'guest@example.com' });
           }
         } else {

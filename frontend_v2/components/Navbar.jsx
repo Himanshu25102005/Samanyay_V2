@@ -18,6 +18,7 @@ export default function Navbar() {
         if (path.startsWith('/Legal-Research')) return 'legal-research';
         if (path.startsWith('/Drafting-Assistant')) return 'drafting-assistant';
         if (path.startsWith('/Document-Analysis')) return 'document-analysis';
+        if (path.startsWith('/Case-Management')) return 'case-management';
         return 'home';
     };
 
@@ -35,6 +36,7 @@ export default function Navbar() {
         else if (section === 'legal-research') router.push('/Legal-Research');
         else if (section === 'drafting-assistant') router.push('/Drafting-Assistant');
         else if (section === 'document-analysis') router.push('/Document-Analysis');
+        else if (section === 'case-management') router.push('/Case-Management');
     };
 
     // Handle logout
@@ -254,6 +256,34 @@ export default function Navbar() {
                             <path d="m21 18-1.5-1.5"/>
                         </svg>
                         <span className={styles.navText}>{t('documentAnalysis')}</span>
+                    </button>
+                </li>
+                
+                <li role="none">
+                    <button
+                        className={`${styles.navButton} ${isMounted && activeSection === 'case-management' ? styles.active : ''}`}
+                        onClick={() => handleNavigation('case-management')}
+                        role="menuitem"
+                        aria-label="Navigate to Case Management"
+                        tabIndex="0"
+                    >
+                        <svg 
+                            className={styles.navIcon} 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                            <path d="M9 8h6"/>
+                            <path d="M9 12h6"/>
+                            <path d="M9 16h4"/>
+                        </svg>
+                        <span className={styles.navText}>{t('caseManagement')}</span>
                     </button>
                 </li>
             </ul>

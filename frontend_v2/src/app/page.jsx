@@ -227,6 +227,18 @@ export default function Home() {
             <div className="text-xs text-slate-500">Summaries, risks, and insights</div>
           </div>
         </a>
+        <a href="https://backendv2-for-dep-production.up.railway.app/api/Case-Management" className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" role="menuitem" onClick={() => setIsFeaturesOpen(false)}>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 ring-1 ring-blue-200">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#1A2C4E" strokeWidth="1.6" />
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="#0818A8" strokeWidth="1.6" />
+            </svg>
+          </span>
+          <div>
+            <div className="font-medium text-[#1A2C4E]">Case Management</div>
+            <div className="text-xs text-slate-500">Organize and track legal cases</div>
+          </div>
+        </a>
       </motion.div>,
       document.body
     );
@@ -499,6 +511,23 @@ export default function Home() {
                 svg: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="M4 20h16M7 16l10-10 2 2-10 10H7v-2z" stroke="#1A2C4E" strokeWidth="1.6" strokeLinejoin="round" />
+                  </svg>
+                )
+              },
+              {
+                title: "Comprehensive Case Management",
+                name: "Case Management",
+                desc: "Organize and track legal cases efficiently.",
+                href: "https://backendv2-for-dep-production.up.railway.app/api/Case-Management",
+                points: [
+                  "Client case tracking",
+                  "Task management",
+                  "Document organization",
+                ],
+                svg: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#1A2C4E" strokeWidth="1.6" />
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="#0818A8" strokeWidth="1.6" />
                   </svg>
                 )
               },

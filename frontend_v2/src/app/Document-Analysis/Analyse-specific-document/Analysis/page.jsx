@@ -62,8 +62,17 @@ export default function AnalysisPage() {
             const res = await fetch(url, { method: 'POST', body: form });
 
             if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
+                const contentType = res.headers.get('content-type');
+                const errorData = (contentType && contentType.includes('application/json')) 
+                    ? await res.json().catch(() => ({})) 
+                    : {};
                 throw new Error(errorData.detail?.message || `Upload failed: ${res.status}`);
+            }
+
+            // Check content type before parsing JSON
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
             }
 
             const json = await res.json();
@@ -98,8 +107,17 @@ export default function AnalysisPage() {
             });
 
             if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
+                const contentType = res.headers.get('content-type');
+                const errorData = (contentType && contentType.includes('application/json')) 
+                    ? await res.json().catch(() => ({})) 
+                    : {};
                 throw new Error(errorData.detail?.message || 'Analysis failed');
+            }
+
+            // Check content type before parsing JSON
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
             }
 
             const json = await res.json();
@@ -133,8 +151,17 @@ export default function AnalysisPage() {
             });
 
             if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
+                const contentType = res.headers.get('content-type');
+                const errorData = (contentType && contentType.includes('application/json')) 
+                    ? await res.json().catch(() => ({})) 
+                    : {};
                 throw new Error(errorData.detail?.message || 'Chat failed');
+            }
+
+            // Check content type before parsing JSON
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
             }
 
             const json = await res.json();

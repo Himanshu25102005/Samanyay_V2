@@ -10,6 +10,7 @@ const session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var casesRouter = require('./routes/cases');
 
 var app = express();
 
@@ -42,6 +43,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/', casesRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 

@@ -7,6 +7,7 @@
 //  - /api/analyzer/voice-chat?foo=bar    -> http://localhost:8001/analyzer/voice-chat?foo=bar
 
 import { NextResponse } from 'next/server';
+import { extractUserId, addUserIdToHeaders, addUserIdToQuery } from '../../../lib/userUtils';
 
 const TARGET_ORIGIN = process.env.ANALYZER_BASE_URL || 'http://34.93.247.115:8001';
 
@@ -20,13 +21,26 @@ async function proxy(request, context) {
 
     const url = new URL(request.url);
     const targetUrl = new URL(targetPath, TARGET_ORIGIN);
-    targetUrl.search = url.search; // preserve query
+    
+    // Extract user ID and add to query parameters
+    const userId = extractUserId(request);
+    addUserIdToQuery(targetUrl.searchParams, userId);
+    
+    // Preserve original query parameters
+    url.searchParams.forEach((value, key) => {
+      if (!targetUrl.searchParams.has(key)) {
+        targetUrl.searchParams.set(key, value);
+      }
+    });
 
     // Clone headers and strip hop-by-hop or restricted headers
     const headers = new Headers(request.headers);
     headers.delete('host');
     headers.delete('content-length');
     headers.delete('connection');
+    
+    // Add user ID to headers
+    addUserIdToHeaders(headers, userId);
 
     const init = {
       method: request.method,
@@ -34,6 +48,9 @@ async function proxy(request, context) {
       body: request.body,
       duplex: 'half', // allow streaming bodies in Node fetch
     };
+
+    console.log(`[Analyzer] Proxying ${request.method} request to: ${targetUrl.toString()}`);
+    console.log(`[Analyzer] User ID: ${userId}`);
 
     const res = await fetch(targetUrl.toString(), init);
     const responseHeaders = new Headers(res.headers);
@@ -45,7 +62,13 @@ async function proxy(request, context) {
       headers: responseHeaders,
     });
   } catch (err) {
-    return NextResponse.json({ error: 'Proxy error', details: String(err) }, { status: 502 });
+    console.error('[Analyzer] Proxy error:', err);
+    return NextResponse.json({ 
+      error: 'Proxy error', 
+      details: String(err),
+      service: 'analyzer',
+      target: TARGET_ORIGIN
+    }, { status: 502 });
   }
 }
 

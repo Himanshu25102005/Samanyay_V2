@@ -15,7 +15,13 @@ export default function AnalyseSpecificDocument() {
     useEffect(() => {
         // Health check
         fetch('/api/analyzer/health')
-            .then(r => r.json())
+            .then(async r => {
+                const contentType = r.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return r.json();
+                }
+                throw new Error('Response is not JSON');
+            })
             .then(data => {
                 console.log('Analyzer health:', data);
                 setHealth(data?.status || 'unknown');

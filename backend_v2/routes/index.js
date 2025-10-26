@@ -168,6 +168,10 @@ router.get("/api/Document-Analysis", isloggedin, (req, res) => {
   res.redirect("https://samanyay-v2.vercel.app/Document-Analysis");
 });
 
+router.get("/api/Case-Management", isloggedin, (req, res) => {
+  res.redirect("https://samanyay-v2.vercel.app/Case-Management");
+});
+
 // Debug route to catch all requests and see what's being called
 router.all("*", (req, res) => {
   console.log("=== 404 REQUEST ===");
