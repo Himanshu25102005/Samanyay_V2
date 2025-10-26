@@ -493,8 +493,8 @@ export default function CaseManagement() {
         
         // Cleanup
         setTimeout(() => {
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
         }, 100);
         
         console.log('Document downloaded successfully');
@@ -761,7 +761,7 @@ export default function CaseManagement() {
                       {selectedCase.status}
                     </span>
                   </div>
-                </div>
+                  </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
@@ -772,7 +772,7 @@ export default function CaseManagement() {
                       </p>
                     </div>
                     
-                    {selectedCase.nextDate && (
+                  {selectedCase.nextDate && (
                       <div className="bg-white rounded-lg p-4 border border-gray-100">
                         <label className="text-sm font-medium text-gray-600 block mb-2">{t('nextDate')}</label>
                         <p className="text-gray-800 font-medium">
@@ -783,8 +783,8 @@ export default function CaseManagement() {
                             day: 'numeric'
                           })}
                         </p>
-                      </div>
-                    )}
+                    </div>
+                  )}
                   </div>
                   
                   <div className="space-y-4">
@@ -858,7 +858,7 @@ export default function CaseManagement() {
             <div className="space-y-6">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">{t('tasksAndWorkflow')}</h3>
+                <h3 className="text-lg font-semibold text-gray-800">{t('tasksAndWorkflow')}</h3>
                   <p className="text-sm text-gray-500">
                     {tasks.filter(t => !t.isCompleted).length} pending • {tasks.filter(t => t.isCompleted).length} completed
                   </p>
@@ -892,18 +892,18 @@ export default function CaseManagement() {
                     </div>
                     <p className="text-gray-500 font-medium mb-1">All tasks completed!</p>
                     <p className="text-sm text-gray-400">Great job! No pending tasks at the moment.</p>
-                  </div>
-                ) : (
+                </div>
+              ) : (
                   <div className="grid gap-3">
                     {tasks.filter(t => !t.isCompleted).map(task => (
                       <div key={task._id} className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-all hover:border-blue-300">
                         <div className="flex justify-between items-start mb-3">
-                          <div className="flex-1">
+                        <div className="flex-1">
                             <h4 className="font-semibold text-gray-800 mb-2">{task.title}</h4>
                             {task.description && (
                               <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
                             )}
-                          </div>
+                        </div>
                           <div className="flex items-center gap-2 ml-3">
                             <button
                               onClick={() => handleEditTask(task)}
@@ -923,45 +923,45 @@ export default function CaseManagement() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
                               </svg>
                             </button>
-                            <button
-                              onClick={() => handleDeleteTask(task._id)}
+                        <button
+                          onClick={() => handleDeleteTask(task._id)}
                               className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition active:scale-95"
                               title="Delete task"
-                            >
+                        >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
-                            </button>
-                          </div>
+                        </button>
+                      </div>
                         </div>
                         <div className="flex flex-wrap gap-2 items-center">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                             task.priority === 'High' ? 'bg-red-100 text-red-700 border border-red-200' :
                             task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' :
                             'bg-green-100 text-green-700 border border-green-200'
-                          }`}>
-                            {task.priority}
-                          </span>
+                        }`}>
+                          {task.priority}
+                        </span>
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                             task.status === 'Done' ? 'bg-green-100 text-green-700 border border-green-200' :
                             task.status === 'In Progress' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
                             'bg-gray-100 text-gray-700 border border-gray-200'
-                          }`}>
-                            {task.status}
-                          </span>
-                          {task.dueDate && (
+                        }`}>
+                          {task.status}
+                        </span>
+                        {task.dueDate && (
                             <span className="text-xs text-gray-500 flex items-center gap-1">
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
-                              Due: {new Date(task.dueDate).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
+                            Due: {new Date(task.dueDate).toLocaleDateString()}
+                          </span>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
+                    </div>
+                  ))}
+                </div>
+              )}
               </div>
 
               {/* Completed Tasks Section */}
@@ -1055,7 +1055,7 @@ export default function CaseManagement() {
             <div className="space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">{t('documents')}</h3>
+                <h3 className="text-lg font-semibold text-gray-800">{t('documents')}</h3>
                   <p className="text-sm text-gray-500">{documents.length} {documents.length === 1 ? 'document' : 'documents'} total</p>
                 </div>
                 <button
@@ -1087,7 +1087,7 @@ export default function CaseManagement() {
                         <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p className="text-sm text-gray-400">No documents in this category</p>
+                      <p className="text-sm text-gray-400">No documents in this category</p>
                       </div>
                     ) : (
                       <div className="p-6 space-y-3">
@@ -1102,7 +1102,7 @@ export default function CaseManagement() {
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium text-gray-800 truncate">{doc.fileName}</p>
                                 <div className="flex items-center gap-3 mt-1">
-                                  <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-500">
                                     {new Date(doc.uploadedAt).toLocaleDateString('en-US', { 
                                       year: 'numeric', 
                                       month: 'short', 
@@ -1182,10 +1182,10 @@ export default function CaseManagement() {
         <div className="bg-white border-b border-gray-200 p-4">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-4">
-              <div>
+            <div>
                 <h1 className="text-2xl font-bold text-gray-800">{t('myCases')}</h1>
                 <p className="text-gray-600 text-sm">⚖️ {t('hereAreYourActiveCases')}</p>
-              </div>
+            </div>
               {/* User info */}
               {user && (
                 <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full">
@@ -1210,12 +1210,12 @@ export default function CaseManagement() {
                 <option value="Marathi">मराठी</option>
                 <option value="Gujarati">ગુજરાતી</option>
               </select>
-              <button
-                onClick={() => setShowCreateModal(true)}
+            <button
+              onClick={() => setShowCreateModal(true)}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-xl font-medium active:scale-95"
-              >
-                + {t('newCase')}
-              </button>
+            >
+              + {t('newCase')}
+            </button>
             </div>
           </div>
 
@@ -1297,17 +1297,17 @@ export default function CaseManagement() {
                       >
                         ✏️ Edit
                       </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteCase(caseItem._id);
-                        }}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCase(caseItem._id);
+                      }}
                         className={`px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition font-medium ${
                           clickedButton === caseItem._id ? 'scale-90 ring-2 ring-red-400' : ''
                         }`}
-                      >
+                    >
                         🗑️ Delete
-                      </button>
+                    </button>
                     </div>
                   </div>
                 </div>

@@ -239,7 +239,29 @@ const DICT = {
     greatProgress: 'Task completed — great progress today!',
     letsPlanNext: "Let's plan your next step",
     preparingFile: "We're preparing your file",
-    convertingScan: 'Converting your scan into PDF…'
+    convertingScan: 'Converting your scan into PDF…',
+    
+    // Dashboard specific translations
+    welcomeBack: 'Welcome back',
+    totalCases: 'Total Cases',
+    activeCases: 'Active Cases',
+    completedTasks: 'Completed Tasks',
+    recentCases: 'Recent Cases',
+    upcomingDeadlines: 'Upcoming Deadlines',
+    recentActivity: 'Recent Activity',
+    noUpcomingDeadlines: 'No upcoming deadlines',
+    noRecentActivity: 'No recent activity',
+    viewAll: 'View All',
+    powerfulFeatures: 'Powerful Features at Your Fingertips',
+    aiPoweredDocumentAnalysis: 'AI-Powered Document Analysis',
+    documentAnalysisDescription: 'Upload and analyze legal documents with advanced AI technology for instant insights and summaries.',
+    comprehensiveLegalResearch: 'Comprehensive Legal Research',
+    legalResearchDescription: 'Access vast legal databases and get comprehensive research results for your cases.',
+    aiPoweredDrafting: 'AI-Powered Drafting',
+    draftingAssistantDescription: 'Generate professional legal documents with AI assistance for various legal scenarios.',
+    getStarted: 'Get Started',
+    exploreNow: 'Explore Now',
+    startDrafting: 'Start Drafting'
   },
   Hindi: {
     // Navigation
@@ -475,7 +497,29 @@ const DICT = {
     greatProgress: 'कार्य पूर्ण — आज बहुत बढ़िया काम हुआ!',
     letsPlanNext: 'अपना अगला कदम योजनाबद्ध करते हैं',
     preparingFile: 'हम आपकी फ़ाइल तैयार कर रहे हैं',
-    convertingScan: 'आपके स्कैन को PDF में बदला जा रहा है…'
+    convertingScan: 'आपके स्कैन को PDF में बदला जा रहा है…',
+    
+    // Dashboard specific translations
+    welcomeBack: 'वापस स्वागत है',
+    totalCases: 'कुल केस',
+    activeCases: 'सक्रिय केस',
+    completedTasks: 'पूर्ण कार्य',
+    recentCases: 'हाल के केस',
+    upcomingDeadlines: 'आगामी समय सीमा',
+    recentActivity: 'हाल की गतिविधि',
+    noUpcomingDeadlines: 'कोई आगामी समय सीमा नहीं',
+    noRecentActivity: 'कोई हाल की गतिविधि नहीं',
+    viewAll: 'सभी देखें',
+    powerfulFeatures: 'आपकी उंगलियों पर शक्तिशाली सुविधाएं',
+    aiPoweredDocumentAnalysis: 'एआई-संचालित दस्तावेज़ विश्लेषण',
+    documentAnalysisDescription: 'तत्काल अंतर्दृष्टि और सारांश के लिए उन्नत एआई तकनीक के साथ कानूनी दस्तावेज़ अपलोड और विश्लेषण करें।',
+    comprehensiveLegalResearch: 'व्यापक कानूनी अनुसंधान',
+    legalResearchDescription: 'अपने केसों के लिए विशाल कानूनी डेटाबेस तक पहुंचें और व्यापक अनुसंधान परिणाम प्राप्त करें।',
+    aiPoweredDrafting: 'एआई-संचालित ड्राफ्टिंग',
+    draftingAssistantDescription: 'विभिन्न कानूनी परिदृश्यों के लिए एआई सहायता के साथ पेशेवर कानूनी दस्तावेज़ उत्पन्न करें।',
+    getStarted: 'शुरू करें',
+    exploreNow: 'अभी खोजें',
+    startDrafting: 'ड्राफ्टिंग शुरू करें'
   },
   Marathi: {
     // Navigation
@@ -697,7 +741,29 @@ const DICT = {
     greatProgress: 'कार्य पूर्ण — आज छान प्रगती!',
     letsPlanNext: 'तुमचा पुढील चरण योजना करूया',
     preparingFile: 'आम्ही तुमची फाइल तयार करत आहोत',
-    convertingScan: 'तुमचा स्कॅन PDF मध्ये रूपांतरित केला जात आहे…'
+    convertingScan: 'तुमचा स्कॅन PDF मध्ये रूपांतरित केला जात आहे…',
+    
+    // Dashboard specific translations
+    welcomeBack: 'पुन्हा स्वागत',
+    totalCases: 'एकूण केस',
+    activeCases: 'सक्रिय केस',
+    completedTasks: 'पूर्ण कार्ये',
+    recentCases: 'अलीकडील केस',
+    upcomingDeadlines: 'आगामी मुदत',
+    recentActivity: 'अलीकडील क्रियाकलाप',
+    noUpcomingDeadlines: 'कोणतीही आगामी मुदत नाही',
+    noRecentActivity: 'कोणताही अलीकडील क्रियाकलाप नाही',
+    viewAll: 'सर्व पहा',
+    powerfulFeatures: 'तुमच्या बोटांवर शक्तिशाली वैशिष्ट्ये',
+    aiPoweredDocumentAnalysis: 'एआय-चालित दस्तऐवज विश्लेषण',
+    documentAnalysisDescription: 'तत्काळ अंतर्दृष्टी आणि सारांशासाठी प्रगत एआय तंत्रज्ञानासह कायदेशीर दस्तऐवज अपलोड आणि विश्लेषण करा.',
+    comprehensiveLegalResearch: 'व्यापक कायदेशीर संशोधन',
+    legalResearchDescription: 'तुमच्या केससाठी विशाल कायदेशीर डेटाबेसमध्ये प्रवेश मिळवा आणि व्यापक संशोधन परिणाम मिळवा.',
+    aiPoweredDrafting: 'एआय-चालित मसुदा',
+    draftingAssistantDescription: 'विविध कायदेशीर परिस्थितीसाठी एआय सहाय्याने व्यावसायिक कायदेशीर दस्तऐवज तयार करा.',
+    getStarted: 'सुरू करा',
+    exploreNow: 'आता शोधा',
+    startDrafting: 'मसुदा सुरू करा'
   },
   Gujarati: {
     // Navigation
@@ -932,7 +998,29 @@ const DICT = {
     greatProgress: 'કાર્ય પૂર્ણ — આજે મહાન પ્રગતિ!',
     letsPlanNext: 'ચાલો તમારા આગળના પગલાની યોજના બનાવીએ',
     preparingFile: 'અમે તમારી ફાઇલ તૈયાર કરી રહ્યા છીએ',
-    convertingScan: 'તમારા સ્કેનને PDF માં રૂપાંતરિત કરી રહ્યા છીએ…'
+    convertingScan: 'તમારા સ્કેનને PDF માં રૂપાંતરિત કરી રહ્યા છીએ…',
+    
+    // Dashboard specific translations
+    welcomeBack: 'પાછા સ્વાગત',
+    totalCases: 'કુલ કેસ',
+    activeCases: 'સક્રિય કેસ',
+    completedTasks: 'પૂર્ણ કાર્યો',
+    recentCases: 'તાજેતરના કેસ',
+    upcomingDeadlines: 'આગામી મુદત',
+    recentActivity: 'તાજેતરની પ્રવૃત્તિ',
+    noUpcomingDeadlines: 'કોઈ આગામી મુદત નથી',
+    noRecentActivity: 'કોઈ તાજેતરની પ્રવૃત્તિ નથી',
+    viewAll: 'બધા જુઓ',
+    powerfulFeatures: 'તમારી આંગળીઓ પર શક્તિશાળી સુવિધાઓ',
+    aiPoweredDocumentAnalysis: 'એઆઇ-સંચાલિત દસ્તાવેજ વિશ્લેષણ',
+    documentAnalysisDescription: 'તાત્કાલિક અંતર્દૃષ્ટિ અને સારાંશ માટે અદ્યતન એઆઇ ટેકનોલોજી સાથે કાનૂની દસ્તાવેજો અપલોડ અને વિશ્લેષણ કરો.',
+    comprehensiveLegalResearch: 'વ્યાપક કાનૂની સંશોધન',
+    legalResearchDescription: 'તમારા કેસ માટે વિશાળ કાનૂની ડેટાબેસમાં પ્રવેશ મેળવો અને વ્યાપક સંશોધન પરિણામો મેળવો.',
+    aiPoweredDrafting: 'એઆઇ-સંચાલિત ડ્રાફ્ટિંગ',
+    draftingAssistantDescription: 'વિવિધ કાનૂની પરિસ્થિતિઓ માટે એઆઇ સહાયતા સાથે વ્યાવસાયિક કાનૂની દસ્તાવેજો ઉત્પન્ન કરો.',
+    getStarted: 'શરૂ કરો',
+    exploreNow: 'હવે અન્વેષણ કરો',
+    startDrafting: 'ડ્રાફ્ટિંગ શરૂ કરો'
   }
 };
 

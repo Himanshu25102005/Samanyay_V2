@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'http://localhost:5000';
 
 async function proxy(request) {
   try {
@@ -60,12 +60,22 @@ async function proxy(request) {
   } catch (err) {
     console.error('Proxy error:', err);
     console.error('Backend URL:', targetUrl.toString());
+    console.error('Environment variables:', {
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+      BACKEND_URL: process.env.BACKEND_URL
+    });
     return NextResponse.json({ 
       success: false,
       error: 'Proxy error', 
       details: String(err),
       message: `Failed to connect to backend service at ${targetUrl.toString()}`,
-      backend_url: BACKEND_URL
+      backend_url: BACKEND_URL,
+      hint: 'Make sure NEXT_PUBLIC_API_URL is set in your Vercel environment variables',
+      environment_check: {
+        has_next_public_api_url: !!process.env.NEXT_PUBLIC_API_URL,
+        has_backend_url: !!process.env.BACKEND_URL,
+        final_backend_url: BACKEND_URL
+      }
     }, { status: 502 });
   }
 }
