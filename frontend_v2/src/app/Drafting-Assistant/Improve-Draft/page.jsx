@@ -5,7 +5,7 @@ import LanguageSelector from "../../../../components/LanguageSelector.jsx";
 import Navbar from "../../../../components/Navbar.jsx";
 import { useI18n } from "../../../../components/I18nProvider.jsx";
 import useAppLanguage from "../../../../components/useAppLanguage.js";
-import { useUser } from "../../../../components/UserContext.jsx";
+import { useUser } from "../../../components/UserContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import StructuredText from "../../../components/StructuredText.jsx";
 
@@ -575,7 +575,7 @@ function ImproveDraftContent({ type, initialDid }) {
 
             {/* Right Section - Chat Interface (Full Width) */}
             <div className="flex-1 min-w-0 order-1 lg:order-2">
-              <section className="rounded-xl border mt-2 mr-2 lg:mr-4 border-slate-200 bg-white flex flex-col shadow-sm h-[calc(100vh-120px)] lg:h-[calc(100vh-100px)]" style={{ minHeight: '500px' }}>
+              <section className="rounded-xl border mt-2 mr-2 lg:mr-4 border-slate-200 bg-white flex flex-col shadow-sm h-[calc(100vh-80px)] lg:h-[calc(100vh-60px)]" style={{ minHeight: '500px' }}>
                 {/* Chat Header */}
                 <div className="p-4 sm:p-5 border-b border-slate-200 flex-shrink-0">
                   <div className="flex items-center gap-3">

@@ -168,11 +168,9 @@ function NewDraftContent({ type, initialDid }) {
   const [audioBlob, setAudioBlob] = useState(null);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   
-  // Mobile UI state management
+  // New state for mobile scroll hint
   const [showScrollHint, setShowScrollHint] = useState(true);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const chatSectionRef = useRef(null);
-  const inputRef = useRef(null);
 
   // Cleanup function to prevent memory leaks
   useEffect(() => {
@@ -183,7 +181,7 @@ function NewDraftContent({ type, initialDid }) {
     };
   }, []);
 
-  // Enhanced mobile scroll behavior
+  // Hide scroll hint on mobile when user scrolls
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerWidth < 1024 && showScrollHint) {
@@ -191,39 +189,14 @@ function NewDraftContent({ type, initialDid }) {
       }
     };
     
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setShowScrollHint(false);
-        setIsMobileMenuOpen(false);
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleResize, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [showScrollHint]);
 
-  // Smooth scroll to chat with enhanced animation
+  // Auto-scroll to chat on mobile after hint is clicked
   const scrollToChat = () => {
     setShowScrollHint(false);
-    if (chatSectionRef.current) {
-      chatSectionRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start',
-        inline: 'nearest'
-      });
-    }
-  };
-
-  // Focus input after generation
-  const focusInput = () => {
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 300);
+    chatSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   async function uploadSupportingDoc(file) {
@@ -456,122 +429,35 @@ function NewDraftContent({ type, initialDid }) {
   return (
     <>
       <Navbar />
-        <div 
-          className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50 text-slate-900 flex flex-col transition-all duration-500 ease-out"
-          style={{
-            paddingLeft: isLargeScreen ? (isCollapsed ? '0px' : '0px') : '0px'
-          }}
-        >
-        {/* Enhanced Header with Mobile Menu */}
+      <div 
+        className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50 text-slate-900 flex flex-col transition-all duration-300"
+        style={{
+          paddingLeft: isLargeScreen ? (isCollapsed ? '0px' : '0px') : '0px'
+        }}
+      >
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="sticky top-0 z-20 backdrop-blur-xl bg-white/95 border-b border-slate-200/70 shadow-sm"
+          className="sticky top-0 z-10 backdrop-blur-md bg-white/90 border-b border-slate-200/70 shadow-sm"
         >
-          <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-2 sm:py-3 lg:py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-md">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 tracking-tight">{t('draftingAssistant')}</h1>
-              </div>
-              <div className="flex items-center gap-2">
-                <LanguageSelector />
-                {/* Mobile Menu Toggle */}
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200"
-                >
-                  <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-                  </svg>
-                </button>
-              </div>
-            </div>
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex items-center justify-between">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">{t('draftingAssistant')}</h1>
+            <LanguageSelector />
           </div>
         </motion.div>
-        {/* Mobile Menu Overlay */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="lg:hidden fixed inset-0 z-30 bg-black/20 backdrop-blur-sm"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <motion.div
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="absolute right-0 top-0 h-full w-72 sm:w-80 max-w-[90vw] bg-white shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between mb-4 sm:mb-6">
-                    <h2 className="text-lg font-semibold text-slate-800">Document Info</h2>
-                    <button
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                    >
-                      <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  {/* Mobile Document Info */}
-                  <div className="space-y-3 sm:space-y-4">
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
-                      <div className="text-sm font-medium text-slate-600 mb-2">Document Type</div>
-                      <div className="text-base font-semibold text-slate-800">{type}</div>
-                      {documentId && (
-                        <div className="mt-2 text-xs text-slate-500">
-                          ID: {documentId.substring(0, 8)}...
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
-                      <div className="text-sm font-medium text-slate-600 mb-3">Guidelines</div>
-                      {activeGuidance.desc && (
-                        <div className="text-sm text-slate-700 mb-3 leading-relaxed">
-                          {activeGuidance.desc}
-                        </div>
-                      )}
-                      <ul className="space-y-2 text-sm text-slate-600">
-                        {activeGuidance.items.map((item, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-2 flex-shrink-0"></div>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <main 
-          className="flex-1 w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-2 sm:py-4 lg:py-6"
+          className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
         >
-          {/* Responsive Layout */}
-          <div className="flex flex-col lg:flex-row gap-2 sm:gap-3 lg:gap-6 h-full items-start">
-            {/* Left Section - Document Info & Guidelines (Hidden on Mobile) */}
+
+          {/* Two Section Layout */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full items-start">
+            {/* Left Section - Document Info & Guidelines (Dynamic Size) */}
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="hidden lg:block lg:w-80 xl:w-96 flex-shrink-0"
+              className="lg:w-80 xl:w-96 flex-shrink-0 order-2 lg:order-1 ml-2 lg:ml-0"
             >
               <div className="lg:sticky lg:top-24 space-y-4 ml-2 w-full">
                 {/* Document Selection Card */}
@@ -633,107 +519,71 @@ function NewDraftContent({ type, initialDid }) {
               </div>
             </motion.div>
 
-            {/* Right Section - Chat Interface (Full Width on Mobile) */}
+            {/* Right Section - Chat Interface (Full Width) */}
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex-1 min-w-0 w-full lg:w-auto"
+              className="flex-1 min-w-0 order-1 lg:order-2 mr-2 lg:mr-0 w-full"
               ref={chatSectionRef}
             >
-              {/* Enhanced Mobile Scroll Hint */}
+              {/* Mobile Scroll Hint */}
               <AnimatePresence>
                 {showScrollHint && (
                   <motion.div
-                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                    transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                    className="lg:hidden mb-2 sm:mb-3 relative"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="lg:hidden mb-4 relative"
                   >
-                    <motion.div 
+                    <div 
                       onClick={scrollToChat}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white rounded-2xl p-3 sm:p-4 lg:p-5 shadow-xl cursor-pointer relative overflow-hidden"
+                      className="bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl p-4 shadow-lg cursor-pointer active:scale-95 transition-transform"
                     >
-                      {/* Animated background */}
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"
-                        animate={{ x: ['-100%', '100%'] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                      />
-                      
-                      <div className="relative flex items-center justify-between">
-                        <div className="flex-1">
-                          <motion.div 
-                            className="font-bold text-base sm:text-lg mb-1"
-                            animate={{ opacity: [0.8, 1, 0.8] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
-                            Ready to Draft! 🚀
-                          </motion.div>
-                          <div className="text-xs sm:text-sm text-sky-100/90">Start creating your document below</div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-base mb-1">Ready to Draft! 🚀</div>
+                          <div className="text-sm text-sky-100">Start creating your document below</div>
                         </div>
                         <motion.div
-                          animate={{ 
-                            y: [0, -8, 0],
-                            rotate: [0, 5, 0]
-                          }}
-                          transition={{ 
-                            duration: 1.8, 
-                            repeat: Infinity,
-                            ease: 'easeInOut'
-                          }}
+                          animate={{ y: [0, 8, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
                           className="ml-3"
                         >
-                          <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd" />
                           </svg>
                         </motion.div>
                       </div>
-                    </motion.div>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              <section className="rounded-2xl border border-slate-200/60 bg-white/95 backdrop-blur-sm flex flex-col shadow-xl hover:shadow-2xl transition-all duration-500 ease-out h-[calc(100vh-90px)] sm:h-[calc(100vh-80px)] lg:h-[calc(100vh-60px)]">
-                {/* Enhanced Chat Header */}
+              <section className="rounded-xl border border-slate-200/60 bg-white/90 backdrop-blur-sm flex flex-col shadow-lg hover:shadow-xl transition-all duration-300 h-[calc(100vh-120px)] lg:h-[calc(100vh-100px)] mt-2 mr-2 lg:mr-4">
+                {/* Chat Header */}
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                  className="p-3 sm:p-4 lg:p-6 border-b border-slate-200/60 bg-gradient-to-r from-slate-50/80 to-white/80 flex-shrink-0"
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                  className="p-4 sm:p-5 lg:p-6 border-b border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-white/50 flex-shrink-0"
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <motion.div 
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg"
-                      whileHover={{ scale: 1.05, rotate: 5 }}
-                      transition={{ type: 'spring', damping: 15 }}
-                    >
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
                       <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
                         <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
                       </svg>
-                    </motion.div>
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-slate-800 text-base sm:text-lg lg:text-xl">Draft Generation Chat</div>
                       <div className="text-xs sm:text-sm text-slate-500 truncate">Get help with your document drafting</div>
                     </div>
-                    {/* Mobile Info Button */}
-                    <button
-                      onClick={() => setIsMobileMenuOpen(true)}
-                      className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200"
-                    >
-                      <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </button>
                   </div>
                 </motion.div>
 
-                {/* Enhanced Chat Messages Area - Smooth Scrolling */}
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-5 space-y-3 sm:space-y-4 min-h-0 scroll-smooth" style={{ scrollBehavior: 'smooth' }}>
+                {/* Chat Messages Area - Scrollable */}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 min-h-0">
                   {voiceResult && (
                     <motion.div 
                       initial={{ opacity: 0, y: 20 }}
@@ -815,106 +665,59 @@ function NewDraftContent({ type, initialDid }) {
                   )}
 
                   {!voiceResult && !result && (
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.6, delay: 0.3 }}
-                      className="flex items-center justify-center h-full text-slate-500"
-                    >
+                    <div className="flex items-center justify-center h-full text-slate-500">
                       <div className="text-center px-4">
                         <motion.div
-                          animate={{ 
-                            scale: [1, 1.05, 1],
-                            rotate: [0, 2, 0]
-                          }}
-                          transition={{ 
-                            duration: 3, 
-                            repeat: Infinity,
-                            ease: 'easeInOut'
-                          }}
-                          className="relative"
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
                         >
-                          <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center shadow-lg">
-                            <svg className="w-10 h-10 sm:w-12 sm:h-12 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                          </div>
-                          {/* Floating dots */}
-                          <motion.div
-                            className="absolute -top-2 -right-2 w-3 h-3 bg-sky-400 rounded-full"
-                            animate={{ 
-                              y: [0, -10, 0],
-                              opacity: [0.5, 1, 0.5]
-                            }}
-                            transition={{ 
-                              duration: 2, 
-                              repeat: Infinity,
-                              delay: 0.5
-                            }}
-                          />
-                          <motion.div
-                            className="absolute -bottom-2 -left-2 w-2 h-2 bg-blue-400 rounded-full"
-                            animate={{ 
-                              y: [0, 10, 0],
-                              opacity: [0.5, 1, 0.5]
-                            }}
-                            transition={{ 
-                              duration: 2.5, 
-                              repeat: Infinity,
-                              delay: 1
-                            }}
-                          />
+                          <svg className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
                         </motion.div>
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.6, delay: 0.6 }}
-                        >
-                          <p className="text-lg sm:text-xl font-semibold text-slate-700 mb-2">Ready to Start</p>
-                          <p className="text-sm sm:text-base text-slate-500">Begin generating your draft to see results here</p>
-                        </motion.div>
+                        <p className="text-base sm:text-lg font-medium text-slate-600 mb-2">Ready to Start</p>
+                        <p className="text-sm text-slate-500">Begin generating your draft to see results here</p>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
                 </div>
 
-                {/* Enhanced Chat Input Area */}
+                {/* Chat Input Area - Fixed at bottom */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.7 }}
-                  className="p-2 sm:p-3 lg:p-5 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/90 to-white/90 backdrop-blur-sm flex-shrink-0"
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                  className="p-3 sm:p-4 lg:p-5 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/80 to-white/80 backdrop-blur-sm flex-shrink-0"
                 >
                   {error && (
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="rounded-xl border border-rose-200 bg-rose-50 text-rose-700 px-3 py-2 text-xs sm:text-sm mb-3"
+                      className="rounded-lg border border-rose-200 bg-rose-50 text-rose-700 px-3 py-2 text-xs sm:text-sm mb-3"
                     >
                       {String(error)}
                     </motion.div>
                   )}
-                  <div className="space-y-2 sm:space-y-3 lg:space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1 sm:mb-2">Instructions</label>
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Instructions</label>
                       <textarea 
-                        ref={inputRef}
                         value={prompt} 
                         onChange={(e)=>setPrompt(e.target.value)} 
                         rows={3} 
-                        className="w-full rounded-xl border border-slate-300/60 bg-white/90 backdrop-blur-sm px-2 sm:px-3 lg:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 text-xs sm:text-sm resize-none transition-all duration-300 placeholder:text-slate-400 shadow-sm hover:shadow-md" 
+                        className="w-full rounded-xl border border-slate-300/60 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 text-xs sm:text-sm resize-none transition-all duration-200 placeholder:text-slate-400" 
                         placeholder="Describe the draft you want..." 
                       />
                     </div>
                     
-                    {/* Enhanced Button Layout */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-wrap">
+                    {/* All Buttons - Responsive Layout */}
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                       {/* Upload Document Button */}
                       <motion.button 
-                        whileHover={{ scale: 1.05, y: -1 }}
-                        whileTap={{ scale: 0.95 }} 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }} 
                         onClick={onChooseFile} 
-                        className="rounded-xl bg-slate-600 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 hover:bg-slate-700 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+                        className="rounded-lg sm:rounded-xl bg-slate-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-slate-700 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                       >
                         <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -926,10 +729,10 @@ function NewDraftContent({ type, initialDid }) {
                       {/* Voice Recording Button */}
                       {!recording ? (
                         <motion.button 
-                          whileHover={{ scale: 1.05, y: -1 }}
-                          whileTap={{ scale: 0.95 }} 
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }} 
                           onClick={startRecording} 
-                          className="rounded-xl border border-slate-300/60 bg-white/90 backdrop-blur-sm px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 hover:bg-slate-50/90 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+                          className="rounded-lg sm:rounded-xl border border-slate-300/60 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-slate-50/80 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                         >
                           <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
@@ -939,16 +742,12 @@ function NewDraftContent({ type, initialDid }) {
                         </motion.button>
                       ) : (
                         <motion.button 
-                          whileHover={{ scale: 1.05, y: -1 }}
-                          whileTap={{ scale: 0.95 }} 
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }} 
                           onClick={stopRecording} 
-                          className="rounded-xl bg-red-600 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 hover:bg-red-700 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+                          className="rounded-lg sm:rounded-xl bg-red-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-red-700 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                         >
-                          <motion.div 
-                            className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-sm"
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ duration: 0.5, repeat: Infinity }}
-                          />
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-sm"></div>
                           <span className="text-xs sm:text-sm">Stop ({recordingDuration}s)</span>
                         </motion.button>
                       )}
@@ -956,19 +755,15 @@ function NewDraftContent({ type, initialDid }) {
                       {/* Process Voice Button */}
                       {audioBlob && !recording && (
                         <motion.button 
-                          whileHover={{ scale: 1.05, y: -1 }}
-                          whileTap={{ scale: 0.95 }} 
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }} 
                           onClick={processVoiceRecording}
                           disabled={isProcessingVoice}
-                          className="rounded-xl bg-green-600 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 hover:bg-green-700 disabled:opacity-50 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+                          className="rounded-lg sm:rounded-xl bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 hover:bg-green-700 disabled:opacity-50 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                         >
                           {isProcessingVoice ? (
                             <>
-                              <motion.div 
-                                className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-white border-t-transparent rounded-full"
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                              />
+                              <div className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                               <span className="hidden sm:inline">Processing...</span>
                               <span className="sm:hidden">⏳</span>
                             </>
@@ -986,22 +781,15 @@ function NewDraftContent({ type, initialDid }) {
                       
                       {/* Generate Draft Button */}
                       <motion.button 
-                        whileHover={{ scale: 1.05, y: -1 }}
-                        whileTap={{ scale: 0.95 }} 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }} 
                         disabled={submitting || (!prompt.trim() && !audioBlob)} 
-                        onClick={() => {
-                          generateNewDraft();
-                          focusInput();
-                        }} 
-                        className="rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-2.5 hover:from-sky-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex-1 sm:flex-initial justify-center"
+                        onClick={generateNewDraft} 
+                        className="rounded-lg sm:rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white px-4 sm:px-6 py-2 sm:py-2.5 hover:from-sky-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg flex-1 sm:flex-initial justify-center"
                       >
                         {submitting ? (
                           <>
-                            <motion.div 
-                              className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full"
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                            />
+                            <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             <span className="text-xs sm:text-sm">Generating...</span>
                           </>
                         ) : (
@@ -1015,85 +803,40 @@ function NewDraftContent({ type, initialDid }) {
                       </motion.button>
                     </div>
                     
-                    {/* Enhanced Status Indicators */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.8 }}
-                      className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 text-xs flex-wrap"
-                    >
+                    {/* Status Indicators */}
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
                       {uploading && (
-                        <motion.span 
-                          className="text-slate-600 flex items-center gap-1"
-                          animate={{ opacity: [0.7, 1, 0.7] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        >
-                          <motion.div 
-                            className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-slate-600 border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                          />
+                        <span className="text-slate-600 flex items-center gap-1">
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></div>
                           <span className="text-xs">Uploading…</span>
-                        </motion.span>
+                        </span>
                       )}
                       {documentId && (
-                        <motion.span 
-                          className="text-slate-700 truncate max-w-[150px] sm:max-w-none text-xs"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.5 }}
-                        >
-                          Doc ID: <span className="font-mono text-blue-600">{documentId.substring(0, 6)}...</span>
-                        </motion.span>
+                        <span className="text-slate-700 truncate max-w-[150px] sm:max-w-none text-xs">
+                          Doc ID: <span className="font-mono">{documentId.substring(0, 6)}...</span>
+                        </span>
                       )}
                       {recording && (
-                        <motion.div 
-                          className="flex items-center gap-1 sm:gap-2 text-red-600 font-medium"
-                          animate={{ scale: [1, 1.05, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                        >
-                          <motion.div 
-                            className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-600 rounded-full"
-                            animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
-                            transition={{ duration: 0.8, repeat: Infinity }}
-                          />
+                        <div className="flex items-center gap-1 sm:gap-2 text-red-600 font-medium">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-600 rounded-full animate-pulse"></div>
                           <span className="text-xs">Recording... ({recordingDuration}s)</span>
-                        </motion.div>
+                        </div>
                       )}
                       {audioBlob && !recording && (
-                        <motion.div 
-                          className="flex items-center gap-1 sm:gap-2 text-green-600 font-medium"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.5 }}
-                        >
-                          <motion.svg 
-                            className="w-2 h-2 sm:w-3 sm:h-3" 
-                            fill="currentColor" 
-                            viewBox="0 0 20 20"
-                            animate={{ scale: [1, 1.1, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
+                        <div className="flex items-center gap-1 sm:gap-2 text-green-600 font-medium">
+                          <svg className="w-2 h-2 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </motion.svg>
+                          </svg>
                           <span className="text-xs">Ready ({Math.round(audioBlob.size / 1024)}KB)</span>
-                        </motion.div>
+                        </div>
                       )}
                       {submitting && (
-                        <motion.span 
-                          className="text-slate-600 flex items-center gap-1"
-                          animate={{ opacity: [0.7, 1, 0.7] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        >
-                          <motion.div 
-                            className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-slate-600 border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                          />
+                        <span className="text-slate-600 flex items-center gap-1">
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></div>
                           <span className="text-xs">Creating your draft...</span>
-                        </motion.span>
+                        </span>
                       )}
-                    </motion.div>
+                    </div>
                   </div>
                 </motion.div>
               </section>
@@ -1117,26 +860,12 @@ export default function NewDraftPage() {
   return (
     <>
       <Suspense fallback={
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50 flex items-center justify-center"
-        >
+        <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 flex items-center justify-center">
           <div className="text-center">
-            <motion.div 
-              className="w-16 h-16 border-4 border-sky-600 border-t-transparent rounded-full mx-auto mb-6"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            />
-            <motion.div 
-              className="text-slate-700 font-semibold text-lg"
-              animate={{ opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              Loading...
-            </motion.div>
+            <div className="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="text-slate-600 font-medium">Loading...</div>
           </div>
-        </motion.div>
+        </div>
       }>
         <SearchParamsHandler onParamsLoaded={handleParamsLoaded} />
       </Suspense>

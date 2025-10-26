@@ -536,7 +536,33 @@ export default function AnalysisPage() {
                             font-bold leading-tight bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent mb-2">
                                 {t('documentAnalysisTitle')}
                             </h1>
-                            <p className="text-gray-600">{t('documentAnalysisSubtitle')}</p>
+                            <p className="text-gray-600 mb-3">{t('documentAnalysisSubtitle')}</p>
+                            
+                            {/* Document Type Display */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.2 }}
+                                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl px-4 py-2 shadow-sm"
+                            >
+                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span className="text-sm font-medium text-blue-800">
+                                    {t('documentType')}: 
+                                </span>
+                                <span className="text-sm font-semibold text-blue-900 capitalize">
+                                    {documentType === 'general' ? t('generalDocument') : 
+                                     documentType === 'legal' ? t('legalDocument') :
+                                     documentType === 'contract' ? t('contractDocument') :
+                                     documentType === 'financial' ? t('financialDocument') :
+                                     documentType === 'medical' ? t('medicalDocument') :
+                                     documentType === 'technical' ? t('technicalDocument') :
+                                     documentType === 'academic' ? t('academicDocument') :
+                                     documentType === 'corporate' ? t('corporateDocument') :
+                                     documentType === 'government' ? t('governmentDocument') :
+                                     documentType === 'personal' ? t('personalDocument') :
+                                     documentType}
+                                </span>
+                            </motion.div>
                         </div>
                         <div className="hidden sm:block">
                             <LanguageSelector />
@@ -563,7 +589,23 @@ export default function AnalysisPage() {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <h3 className="text-base font-semibold text-gray-900">{t('analysisOfDocument')}</h3>
-                                        <p className="text-xs text-gray-500">{t('aiPoweredInsights')}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="text-xs text-gray-500">{t('aiPoweredInsights')}</p>
+                                            <span className="text-xs text-gray-400">•</span>
+                                            <span className="text-xs font-medium text-blue-700 capitalize">
+                                                {documentType === 'general' ? t('generalDocument') : 
+                                                 documentType === 'legal' ? t('legalDocument') :
+                                                 documentType === 'contract' ? t('contractDocument') :
+                                                 documentType === 'financial' ? t('financialDocument') :
+                                                 documentType === 'medical' ? t('medicalDocument') :
+                                                 documentType === 'technical' ? t('technicalDocument') :
+                                                 documentType === 'academic' ? t('academicDocument') :
+                                                 documentType === 'corporate' ? t('corporateDocument') :
+                                                 documentType === 'government' ? t('governmentDocument') :
+                                                 documentType === 'personal' ? t('personalDocument') :
+                                                 documentType}
+                                            </span>
+                                        </div>
                                     </div>
                                     {analysis && (
                                         <motion.button
@@ -786,7 +828,28 @@ export default function AnalysisPage() {
                                 ) : (
                                     <div className="flex items-center justify-center h-full">
                                         <div className="w-full max-w-md">
-                                            <div className="text-center mb-4 text-gray-600 text-sm">{t('uploadDocumentToAnalyze')}</div>
+                                            <div className="text-center mb-4">
+                                                <div className="text-gray-600 text-sm mb-2">{t('uploadDocumentToAnalyze')}</div>
+                                                <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+                                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                                    <span className="text-xs font-medium text-blue-800">
+                                                        {t('documentType')}: 
+                                                    </span>
+                                                    <span className="text-xs font-semibold text-blue-900 capitalize">
+                                                        {documentType === 'general' ? t('generalDocument') : 
+                                                         documentType === 'legal' ? t('legalDocument') :
+                                                         documentType === 'contract' ? t('contractDocument') :
+                                                         documentType === 'financial' ? t('financialDocument') :
+                                                         documentType === 'medical' ? t('medicalDocument') :
+                                                         documentType === 'technical' ? t('technicalDocument') :
+                                                         documentType === 'academic' ? t('academicDocument') :
+                                                         documentType === 'corporate' ? t('corporateDocument') :
+                                                         documentType === 'government' ? t('governmentDocument') :
+                                                         documentType === 'personal' ? t('personalDocument') :
+                                                         documentType}
+                                                    </span>
+                                                </div>
+                                            </div>
                                             <input
                                                 ref={fileInputRef}
                                                 type="file"

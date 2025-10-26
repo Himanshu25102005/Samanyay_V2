@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import I18nProvider from "../../components/I18nProvider.jsx";
 import NavbarProvider from "../../components/NavbarContext.jsx";
-import { UserProvider } from "../../components/UserContext.jsx";
+import { UserProvider } from "../components/UserContext.jsx";
 import SidebarLayout from "../../components/SidebarLayout.jsx";
 import "./globals.css";
 

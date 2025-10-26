@@ -107,6 +107,19 @@ const DICT = {
     type_writPetition: 'Writ Petition',
     type_rtiApplication: 'RTI Application/Appeal',
     
+    // Document Types
+    documentType: 'Document Type',
+    generalDocument: 'General Document',
+    legalDocument: 'Legal Document',
+    contractDocument: 'Contract Document',
+    financialDocument: 'Financial Document',
+    medicalDocument: 'Medical Document',
+    technicalDocument: 'Technical Document',
+    academicDocument: 'Academic Document',
+    corporateDocument: 'Corporate Document',
+    governmentDocument: 'Government Document',
+    personalDocument: 'Personal Document',
+    
     // Common
     language: 'Language',
     loading: 'Loading...',
@@ -269,6 +282,19 @@ const DICT = {
     type_replyRejoinder: 'उत्तर/प्रत्युत्तर का मसौदा',
     type_writPetition: 'रिट याचिका',
     type_rtiApplication: 'आरटीआई आवेदन/अपील',
+    
+    // Document Types
+    documentType: 'दस्तावेज़ प्रकार',
+    generalDocument: 'सामान्य दस्तावेज़',
+    legalDocument: 'कानूनी दस्तावेज़',
+    contractDocument: 'अनुबंध दस्तावेज़',
+    financialDocument: 'वित्तीय दस्तावेज़',
+    medicalDocument: 'चिकित्सा दस्तावेज़',
+    technicalDocument: 'तकनीकी दस्तावेज़',
+    academicDocument: 'शैक्षणिक दस्तावेज़',
+    corporateDocument: 'कॉर्पोरेट दस्तावेज़',
+    governmentDocument: 'सरकारी दस्तावेज़',
+    personalDocument: 'व्यक्तिगत दस्तावेज़',
     
     // Common
     language: 'भाषा',
@@ -595,6 +621,19 @@ const DICT = {
     type_replyRejoinder: 'જવાબ/રીજોઈન્ડરનો ડ્રાફ્ટ',
     type_writPetition: 'રિટ અરજી',
     type_rtiApplication: 'આરટીઆઈ અરજી/અપીલ',
+    
+    // Document Types
+    documentType: 'દસ્તાવેજ પ્રકાર',
+    generalDocument: 'સામાન્ય દસ્તાવેજ',
+    legalDocument: 'કાનૂની દસ્તાવેજ',
+    contractDocument: 'કરાર દસ્તાવેજ',
+    financialDocument: 'નાણાકીય દસ્તાવેજ',
+    medicalDocument: 'દવાખાનું દસ્તાવેજ',
+    technicalDocument: 'ટેકનિકલ દસ્તાવેજ',
+    academicDocument: 'શૈક્ષણિક દસ્તાવેજ',
+    corporateDocument: 'કોર્પોરેટ દસ્તાવેજ',
+    governmentDocument: 'સરકારી દસ્તાવેજ',
+    personalDocument: 'વ્યક્તિગત દસ્તાવેજ',
     
     // Common
     language: 'ભાષા',
