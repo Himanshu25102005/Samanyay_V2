@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { extractUserId, addUserIdToHeaders, addUserIdToQuery } from '../../../lib/userUtils';
+import { extractUserId, addUserIdToHeaders, addUserIdToQuery } from '../../../../lib/userUtils';
 
 const TARGET = process.env.LEGAL_RESEARCH_BASE_URL || 'http://34.93.247.115:8000';
 

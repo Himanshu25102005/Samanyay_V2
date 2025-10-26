@@ -7,7 +7,7 @@
 //  - /api/analyzer/voice-chat?foo=bar    -> http://localhost:8001/analyzer/voice-chat?foo=bar
 
 import { NextResponse } from 'next/server';
-import { extractUserId, addUserIdToHeaders, addUserIdToQuery } from '../../../lib/userUtils';
+import { extractUserId, addUserIdToHeaders, addUserIdToQuery } from '../../../../lib/userUtils';
 
 const TARGET_ORIGIN = process.env.ANALYZER_BASE_URL || 'http://34.93.247.115:8001';
 

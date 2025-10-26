@@ -1,6 +1,6 @@
 export const runtime = 'nodejs';
 
-import { extractUserId, addUserIdToQuery } from '../../../../lib/userUtils';
+import { extractUserId, addUserIdToQuery } from '../../../../../lib/userUtils';
 
 const BASE = 'http://34.93.247.115:8002';
 
