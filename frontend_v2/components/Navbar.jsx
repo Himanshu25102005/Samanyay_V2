@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useI18n, getFontClass } from './I18nProvider.jsx';
 import { useNavbar } from './NavbarContext.jsx';
-import { API } from '../lib/api';
+import { API } from '../src/lib/api';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
