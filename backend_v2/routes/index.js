@@ -132,7 +132,7 @@ router.get("/api/user", (req, res) => {
       success: true,
       user: {
         id: req.user._id || req.user.google_id,
-        name: req.user.name || req.user.displayName,
+        name: req.user.name || req.user.displayName || req.user.username,
         email: req.user.email,
         photo: req.user.photo || req.user.avatar,
         googleId: req.user.google_id

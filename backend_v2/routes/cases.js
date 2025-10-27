@@ -113,9 +113,13 @@ router.post("/api/cases", isAuthenticated, async (req, res) => {
       userId = req.user.google_id.toString();
       console.log("Using Google ID as userId:", userId);
     } else {
-      // Create a default ObjectId for development
-      userId = new mongoose.Types.ObjectId('000000000000000000000000');
-      console.log("Using default userId for development");
+      // For development: create a consistent user ID based on email or use a default
+      const email = req.body.clientEmail || 'default@example.com';
+      // Create a consistent hash-based ID for the same email
+      const crypto = require('crypto');
+      const hash = crypto.createHash('md5').update(email).digest('hex');
+      userId = hash.substring(0, 24); // Use first 24 characters as ObjectId-like string
+      console.log("Using hash-based userId for development:", userId);
     }
     
     const caseData = {
