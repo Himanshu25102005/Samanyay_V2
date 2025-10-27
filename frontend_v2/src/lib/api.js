@@ -91,6 +91,15 @@ export async function apiRequest(endpoint, options = {}) {
 export const API = {
   // User endpoints
   getUser: () => apiRequest('/api/user'),
+  register: (userData) => apiRequest('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(userData)
+  }),
+  login: (credentials) => apiRequest('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials)
+  }),
+  logout: () => apiRequest('/api/auth/logout', { method: 'POST' }),
   
   // Case endpoints
   getCases: () => apiRequest('/api/cases'),

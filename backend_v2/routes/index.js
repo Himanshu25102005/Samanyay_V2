@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const userModel = require("./users");
+const User = require("../models/User");
 const session = require("express-session");
 
 const passport = require("passport");
@@ -139,17 +140,10 @@ router.get("/api/user", (req, res) => {
       }
     });
   } else {
-    console.log("User not authenticated, returning default user for development");
-    // For development, return a default user
-    res.json({
-      success: true,
-      user: {
-        id: 'dev_user_123',
-        name: 'Demo User',
-        email: 'demo@samanyay.com',
-        photo: null,
-        googleId: null
-      }
+    console.log("User not authenticated, returning 401");
+    res.status(401).json({
+      success: false,
+      message: "User not authenticated"
     });
   }
 });
@@ -183,6 +177,165 @@ router.get("/api/Drafting-Assistant", isloggedin, (req, res) => {
 
 router.get("/api/Document-Analysis", isloggedin, (req, res) => {
   res.redirect("https://samanyay-v2.vercel.app/Document-Analysis");
+});
+
+// User registration route
+router.post("/api/auth/register", async (req, res) => {
+  try {
+    console.log("=== REGISTRATION DEBUG ===");
+    console.log("Registration data:", req.body);
+    
+    const { name, email, password, phone } = req.body;
+    
+    // Basic validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Name, email, and password are required" 
+      });
+    }
+    
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "User with this email already exists" 
+      });
+    }
+    
+    // Create new user
+    const newUser = new User({
+      name,
+      email,
+      password, // Note: In production, hash this password
+      phone: phone || '',
+      google_id: null,
+      photo: null
+    });
+    
+    await newUser.save();
+    
+    console.log("User registered successfully:", newUser._id);
+    
+    // Auto-login the user after registration
+    req.login(newUser, (err) => {
+      if (err) {
+        console.error("Auto-login error:", err);
+        return res.status(500).json({ success: false, message: "Registration successful but login failed" });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: "User registered and logged in successfully",
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          phone: newUser.phone,
+          photo: newUser.photo
+        }
+      });
+    });
+    
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Registration failed", 
+      error: error.message 
+    });
+  }
+});
+
+// User login route
+router.post("/api/auth/login", async (req, res) => {
+  try {
+    console.log("=== LOGIN DEBUG ===");
+    console.log("Login data:", req.body);
+    
+    const { email, password } = req.body;
+    
+    // Basic validation
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Email and password are required" 
+      });
+    }
+    
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid email or password" 
+      });
+    }
+    
+    // Check password (Note: In production, use bcrypt to compare hashed passwords)
+    if (user.password !== password) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid email or password" 
+      });
+    }
+    
+    // Login the user
+    req.login(user, (err) => {
+      if (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ success: false, message: "Login failed" });
+      }
+      
+      console.log("User logged in successfully:", user._id);
+      
+      res.json({ 
+        success: true, 
+        message: "Login successful",
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          photo: user.photo
+        }
+      });
+    });
+    
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Login failed", 
+      error: error.message 
+    });
+  }
+});
+
+// Logout route
+router.post("/api/auth/logout", (req, res) => {
+  console.log("=== LOGOUT DEBUG ===");
+  console.log("Session before logout:", req.session);
+  console.log("User before logout:", req.user);
+  
+  req.logout((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).json({ success: false, message: "Logout failed" });
+    }
+    
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Session destroy error:", err);
+        return res.status(500).json({ success: false, message: "Session cleanup failed" });
+      }
+      
+      console.log("User logged out successfully");
+      res.clearCookie('connect.sid'); // Clear session cookie
+      res.json({ success: true, message: "Logged out successfully" });
+    });
+  });
 });
 
 router.get("/api/Case-Management", isloggedin, (req, res) => {

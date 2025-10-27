@@ -19,14 +19,14 @@ export function UserProvider({ children }) {
         if (data.success && data.user) {
           setUser(data.user);
         } else {
-          // User not authenticated, use default
-          console.log('User not authenticated, using default user');
-          setUser({ id: 'default_user', name: 'Guest User', email: 'guest@example.com' });
+          // User not authenticated
+          console.log('User not authenticated');
+          setUser(null);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
-        // Use default user on error
-        setUser({ id: 'default_user', name: 'Guest User', email: 'guest@example.com' });
+        // User not authenticated on error
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -35,12 +35,30 @@ export function UserProvider({ children }) {
     fetchUser();
   }, []);
 
+  const refreshUser = async () => {
+    try {
+      console.log('Refreshing user data...');
+      const data = await API.getUser();
+      console.log('User API response data:', data);
+      
+      if (data.success && data.user) {
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      setUser(null);
+    }
+  };
+
   const value = {
     user,
     loading,
     userId: user?.id || 'default_user',
     userName: user?.name || 'Guest User',
-    userEmail: user?.email || 'guest@example.com'
+    userEmail: user?.email || 'guest@example.com',
+    refreshUser
   };
 
   return (

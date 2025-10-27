@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useI18n, getFontClass } from './I18nProvider.jsx';
 import { useNavbar } from './NavbarContext.jsx';
+import { API } from '../lib/api';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
@@ -40,10 +41,22 @@ export default function Navbar() {
     };
 
     // Handle logout
-    const handleLogout = () => {
-        // Add logout logic here
-        console.log('Logout clicked');
-        setIsMobileMenuOpen(false);
+    const handleLogout = async () => {
+        try {
+            console.log('Logout clicked');
+            await API.logout();
+            console.log('Logout successful');
+            // Clear any local storage or state
+            localStorage.clear();
+            // Redirect to home page
+            router.push('/');
+            setIsMobileMenuOpen(false);
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Still redirect to home page even if logout fails
+            router.push('/');
+            setIsMobileMenuOpen(false);
+        }
     };
 
     // Toggle mobile menu
