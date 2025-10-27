@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from "../../../components/Navbar.jsx";
-import { useI18n } from "../../../components/I18nProvider";
+import { useI18n, getFontClass } from "../../../components/I18nProvider";
 import { useUser } from "../../components/UserContext";
 
 export default function Profile() {
@@ -54,10 +54,10 @@ export default function Profile() {
     };
 
     const languages = [
-        { code: 'en', name: 'English', flag: '🇺🇸' },
-        { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
-        { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
-        { code: 'gu', name: 'ગુજરાતી', flag: '🇮🇳' }
+        { code: 'en', name: 'English', displayName: 'English', flag: '🇺🇸' },
+        { code: 'hi', name: 'Hindi', displayName: 'हिन्दी', flag: '🇮🇳' },
+        { code: 'mr', name: 'Marathi', displayName: 'मराठी', flag: '🇮🇳' },
+        { code: 'gu', name: 'Gujarati', displayName: 'ગુજરાતી', flag: '🇮🇳' }
     ];
 
     // Data fetching functions
@@ -246,7 +246,7 @@ export default function Profile() {
         <>
             <Navbar />
             {/* Main Content with proper spacing for navbar */}
-            <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 transition-all duration-500 hide-scrollbar overflow-y-auto pt-16 lg:pt-6 lg:ml-[10px] ${
+            <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 transition-all duration-500 hide-scrollbar overflow-y-auto pt-16 lg:pt-6 lg:ml-[10px] ${getFontClass(lang)} ${
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}>
                 {/* Header Section */}
@@ -256,7 +256,7 @@ export default function Profile() {
                     <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center space-y-4 xl:space-y-0">
                         {/* User Info */}
                         <div className="flex items-center space-x-3 sm:space-x-4 w-full xl:w-auto">
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-slate-200 hover:ring-slate-300 transition-all duration-300">
                                 <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
@@ -279,7 +279,7 @@ export default function Profile() {
                             >
                                 {languages.map((language) => (
                                     <option key={language.code} value={language.name}>
-                                        {language.flag} {language.name}
+                                        {language.flag} {language.displayName}
                                     </option>
                                 ))}
                             </select>

@@ -103,11 +103,15 @@ router.post("/api/cases", isAuthenticated, async (req, res) => {
   try {
     console.log("Creating case with data:", req.body);
     
-    // Use default userId if user is not authenticated (for development)
+    // Use user ID from authentication or Google ID
     let userId;
     if (req.user && req.user._id) {
       userId = req.user._id;
       console.log("Using authenticated userId:", userId);
+    } else if (req.user && req.user.google_id) {
+      // Use Google ID as string if available
+      userId = req.user.google_id.toString();
+      console.log("Using Google ID as userId:", userId);
     } else {
       // Create a default ObjectId for development
       userId = new mongoose.Types.ObjectId('000000000000000000000000');
