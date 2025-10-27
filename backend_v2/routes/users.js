@@ -13,9 +13,10 @@ const userSchema = mongoose.Schema({
   password: String,
   name: String,
   email: String,
+  phone: String,
 
   // for oauth
-  google_id: Number,
+  google_id: String,
   displayName: String,
   photo: String,
 
