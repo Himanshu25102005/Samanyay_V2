@@ -2,7 +2,25 @@
  * API configuration and utility functions
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Get the base URL and ensure it doesn't have trailing slash
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+
+// Debug logging
+console.log('=== API CONFIGURATION DEBUG ===');
+console.log('Raw NEXT_PUBLIC_API_URL:', JSON.stringify(process.env.NEXT_PUBLIC_API_URL));
+console.log('Clean API_BASE_URL:', JSON.stringify(API_BASE_URL));
+console.log('Environment check:', {
+  NODE_ENV: process.env.NODE_ENV,
+  VERCEL: process.env.VERCEL,
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
+});
+console.log('URL validation:', {
+  hasTrailingSlash: rawApiUrl.endsWith('/'),
+  hasDoubleSlash: rawApiUrl.includes('//'),
+  length: rawApiUrl.length
+});
+console.log('================================');
 
 /**
  * Makes an API request with proper error handling
@@ -11,7 +29,21 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
  * @returns {Promise<Object>} - Response data
  */
 export async function apiRequest(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`;
+  // Ensure endpoint starts with / and API_BASE_URL doesn't end with /
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_BASE_URL}${cleanEndpoint}`;
+  
+  console.log('=== URL CONSTRUCTION DEBUG ===');
+  console.log('Original endpoint:', endpoint);
+  console.log('Clean endpoint:', cleanEndpoint);
+  console.log('API_BASE_URL:', API_BASE_URL);
+  console.log('Final URL:', url);
+  console.log('URL validation:', {
+    hasDoubleSlash: url.includes('//'),
+    startsWithHttp: url.startsWith('http'),
+    endsWithSlash: url.endsWith('/')
+  });
+  console.log('================================');
   
   const defaultOptions = {
     credentials: 'include',
