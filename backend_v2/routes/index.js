@@ -117,6 +117,15 @@ router.get("/new", function (req, res, next) {
 
 // Get current user data
 router.get("/api/user", (req, res) => {
+  console.log("=== USER API DEBUG ===");
+  console.log("Session ID:", req.sessionID);
+  console.log("Session data:", req.session);
+  console.log("Is authenticated:", req.isAuthenticated());
+  console.log("User object:", req.user);
+  console.log("Cookies:", req.cookies);
+  console.log("Headers:", req.headers);
+  console.log("=====================");
+  
   if (req.isAuthenticated()) {
     console.log("User authenticated:", req.user);
     res.json({
@@ -130,6 +139,7 @@ router.get("/api/user", (req, res) => {
       }
     });
   } else {
+    console.log("User not authenticated, returning 401");
     res.status(401).json({
       success: false,
       message: "User not authenticated"

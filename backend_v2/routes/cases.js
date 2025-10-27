@@ -219,12 +219,20 @@ router.delete("/api/cases/:caseId", isAuthenticated, async (req, res) => {
 // Get all tasks for a case
 router.get("/api/cases/:caseId/tasks", isAuthenticated, async (req, res) => {
   try {
-    console.log("Fetching tasks for case:", req.params.caseId);
+    console.log("=== TASKS API DEBUG ===");
+    console.log("Case ID:", req.params.caseId);
+    console.log("Is authenticated:", req.isAuthenticated());
+    console.log("User:", req.user);
+    console.log("Session ID:", req.sessionID);
+    console.log("======================");
     
     const caseData = await Case.findById(req.params.caseId);
     if (!caseData) {
+      console.log("Case not found for ID:", req.params.caseId);
       return res.status(404).json({ success: false, message: "Case not found" });
     }
+    
+    console.log("Case found:", caseData.caseID);
     
     // For development: skip user validation
     // if (caseData.userId.toString() !== req.user._id.toString()) {
@@ -238,7 +246,10 @@ router.get("/api/cases/:caseId/tasks", isAuthenticated, async (req, res) => {
     console.log("Found tasks:", tasks.length);
     res.json({ success: true, tasks });
   } catch (error) {
+    console.error("=== TASKS ERROR ===");
     console.error("Error fetching tasks:", error);
+    console.error("Error stack:", error.stack);
+    console.error("==================");
     res.status(500).json({ success: false, message: "Failed to fetch tasks", error: error.message });
   }
 });
