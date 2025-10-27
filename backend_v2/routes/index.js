@@ -174,15 +174,11 @@ router.get("/api/Case-Management", isloggedin, (req, res) => {
 
 // Debug route to catch all requests and see what's being called
 // Only catch requests that don't start with /api/ to avoid interfering with API routes
-router.all("*", (req, res) => {
+router.all("*", (req, res, next) => {
   // Skip if this is an API route that should be handled by other routers
   if (req.url.startsWith('/api/')) {
-    return res.status(404).json({ 
-      error: "API route not found", 
-      method: req.method, 
-      url: req.url,
-      message: "This API endpoint is not implemented"
-    });
+    // Let the request pass through to other routers
+    return next();
   }
   
   console.log("=== 404 REQUEST ===");

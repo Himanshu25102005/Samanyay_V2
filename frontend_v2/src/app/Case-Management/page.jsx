@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '../../../components/I18nProvider';
 import { useUser } from '../../components/UserContext';
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+import { API } from '../../lib/api';
 
 export default function CaseManagement() {
   const { t, lang, setLang } = useI18n();
@@ -90,28 +89,8 @@ export default function CaseManagement() {
   const fetchCases = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/cases', {
-        credentials: 'include'
-      });
-      
-      // Check if response is ok and content type is JSON
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Expected JSON but received:', text.substring(0, 200));
-        throw new Error('Response is not JSON');
-      }
-      
-      const data = await response.json();
-      if (data.success) {
-        setCases(data.cases || []);
-      } else {
-        setError(data.message || 'Failed to fetch cases');
-      }
+      const data = await API.getCases();
+      setCases(data.cases || []);
     } catch (err) {
       console.error('Error fetching cases:', err);
       setError('Failed to fetch cases. API endpoint may not be configured.');
@@ -122,23 +101,8 @@ export default function CaseManagement() {
 
   const fetchTasks = async (caseId) => {
     try {
-      const response = await fetch(`/api/cases/${caseId}/tasks`, {
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Response is not JSON');
-      }
-      
-      const data = await response.json();
-      if (data.success) {
-        setTasks(data.tasks || []);
-      }
+      const data = await API.getTasks(caseId);
+      setTasks(data.tasks || []);
     } catch (err) {
       console.error('Error fetching tasks:', err);
     }
@@ -146,23 +110,8 @@ export default function CaseManagement() {
 
   const fetchDocuments = async (caseId) => {
     try {
-      const response = await fetch(`/api/cases/${caseId}/documents`, {
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Response is not JSON');
-      }
-      
-      const data = await response.json();
-      if (data.success) {
-        setDocuments(data.documents || []);
-      }
+      const data = await API.getDocuments(caseId);
+      setDocuments(data.documents || []);
     } catch (err) {
       console.error('Error fetching documents:', err);
     }
@@ -171,48 +120,31 @@ export default function CaseManagement() {
   const handleCreateCase = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/cases', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          clientName: formData.clientName,
-          clientPhone: formData.clientPhone,
-          clientEmail: formData.clientEmail,
-          caseSummary: formData.caseSummary,
-          nextSteps: formData.nextSteps,
-          nextDate: formData.nextDate,
-          status: formData.status
-        })
+      const data = await API.createCase({
+        clientName: formData.clientName,
+        clientPhone: formData.clientPhone,
+        clientEmail: formData.clientEmail,
+        caseSummary: formData.caseSummary,
+        nextSteps: formData.nextSteps,
+        nextDate: formData.nextDate,
+        status: formData.status
       });
 
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Expected JSON but received:', text.substring(0, 200));
-        throw new Error('Response is not JSON');
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        setShowCreateModal(false);
-        setFormData({
-          clientName: '',
-          clientPhone: '',
-          clientEmail: '',
-          caseSummary: '',
-          nextSteps: '',
-          nextDate: '',
-          status: 'Active'
-        });
-        await fetchCases();
-        alert(t('caseCreated'));
-      } else {
-        alert(data.message || 'Failed to create case');
-      }
+      setShowCreateModal(false);
+      setFormData({
+        clientName: '',
+        clientPhone: '',
+        clientEmail: '',
+        caseSummary: '',
+        nextSteps: '',
+        nextDate: '',
+        status: 'Active'
+      });
+      await fetchCases();
+      alert(t('caseCreated'));
     } catch (err) {
       console.error('Error creating case:', err);
-      alert('Failed to create case. API may not be configured.');
+      alert('Failed to create case: ' + err.message);
     }
   };
 
@@ -221,52 +153,27 @@ export default function CaseManagement() {
     if (!selectedCase) return;
 
     try {
-      console.log('Creating task for case:', selectedCase._id);
-      console.log('Task data:', taskFormData);
-      
-      const response = await fetch(`/api/cases/${selectedCase._id}/tasks`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          title: taskFormData.title,
-          description: taskFormData.description,
-          dueDate: taskFormData.dueDate,
-          priority: taskFormData.priority,
-          status: taskFormData.status
-        })
+      await API.createTask(selectedCase._id, {
+        title: taskFormData.title,
+        description: taskFormData.description,
+        dueDate: taskFormData.dueDate,
+        priority: taskFormData.priority,
+        status: taskFormData.status
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Expected JSON but received:', text.substring(0, 200));
-        throw new Error('Response is not JSON');
-      }
-
-      const data = await response.json();
-      console.log('Response data:', data);
-      
-      if (data.success) {
-        setShowTaskModal(false);
-        setTaskFormData({
-          title: '',
-          description: '',
-          dueDate: '',
-          priority: 'Medium',
-          status: 'Pending'
-        });
-        await fetchTasks(selectedCase._id);
-        alert(t('taskCreated'));
-      } else {
-        alert(data.message || 'Failed to create task');
-      }
+      setShowTaskModal(false);
+      setTaskFormData({
+        title: '',
+        description: '',
+        dueDate: '',
+        priority: 'Medium',
+        status: 'Pending'
+      });
+      await fetchTasks(selectedCase._id);
+      alert(t('taskCreated'));
     } catch (err) {
       console.error('Error creating task:', err);
-      alert('Failed to create task. API may not be configured.');
+      alert('Failed to create task: ' + err.message);
     }
   };
 
@@ -275,49 +182,26 @@ export default function CaseManagement() {
     if (!selectedCase || !docFormData.file) return;
 
     try {
-      console.log('Uploading document for case:', selectedCase._id);
-      console.log('Document data:', docFormData);
-      
       const formData = new FormData();
       formData.append('file', docFormData.file);
       formData.append('fileName', docFormData.fileName || docFormData.file.name);
       formData.append('category', docFormData.category);
       formData.append('description', docFormData.description);
 
-      const response = await fetch(`/api/cases/${selectedCase._id}/documents`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
+      await API.uploadDocument(selectedCase._id, formData);
+      
+      setShowDocModal(false);
+      setDocFormData({
+        fileName: '',
+        category: 'Available Internally',
+        description: '',
+        file: null
       });
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Expected JSON but received:', text.substring(0, 200));
-        throw new Error('Response is not JSON');
-      }
-
-      const data = await response.json();
-      console.log('Response data:', data);
-      if (data.success) {
-        setShowDocModal(false);
-        setDocFormData({
-          fileName: '',
-          category: 'Available Internally',
-          description: '',
-          file: null
-        });
-        await fetchDocuments(selectedCase._id);
-        alert(t('uploadSuccess'));
-      } else {
-        alert(data.message || 'Failed to upload document');
-      }
+      await fetchDocuments(selectedCase._id);
+      alert(t('uploadSuccess'));
     } catch (err) {
       console.error('Error uploading document:', err);
-      alert('Failed to upload document. API may not be configured.');
+      alert('Failed to upload document: ' + err.message);
     }
   };
 
@@ -340,32 +224,14 @@ export default function CaseManagement() {
     if (!editingCase) return;
 
     try {
-      const response = await fetch(`/api/cases/${editingCase._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(editFormData)
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Expected JSON but received:', text.substring(0, 200));
-        throw new Error('Response is not JSON');
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        setShowEditModal(false);
-        setEditingCase(null);
-        await fetchCases();
-        alert(t('caseUpdated') || 'Case updated successfully');
-      } else {
-        alert(data.message || 'Failed to update case');
-      }
+      await API.updateCase(editingCase._id, editFormData);
+      setShowEditModal(false);
+      setEditingCase(null);
+      await fetchCases();
+      alert(t('caseUpdated') || 'Case updated successfully');
     } catch (err) {
       console.error('Error updating case:', err);
-      alert('Failed to update case. API may not be configured.');
+      alert('Failed to update case: ' + err.message);
     }
   };
 
@@ -377,29 +243,15 @@ export default function CaseManagement() {
     }
 
     try {
-      const response = await fetch(`/api/cases/${caseId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Response is not JSON');
+      await API.deleteCase(caseId);
+      await fetchCases();
+      if (selectedCase?._id === caseId) {
+        setSelectedCase(null);
       }
-
-      const data = await response.json();
-      if (data.success) {
-        await fetchCases();
-        if (selectedCase?._id === caseId) {
-          setSelectedCase(null);
-        }
-        alert(t('caseDeleted'));
-      } else {
-        alert(data.message || 'Failed to delete case');
-      }
+      alert(t('caseDeleted'));
     } catch (err) {
       console.error('Error deleting case:', err);
-      alert('Failed to delete case. API may not be configured.');
+      alert('Failed to delete case: ' + err.message);
     } finally {
       setTimeout(() => setClickedButton(null), 200);
     }

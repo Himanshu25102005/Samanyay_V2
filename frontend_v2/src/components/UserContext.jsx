@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from 'react';
+import { API } from '../lib/api';
 
 const UserContext = createContext();
 
@@ -11,27 +12,15 @@ export function UserProvider({ children }) {
     // Fetch user data from backend
     const fetchUser = async () => {
       try {
-        const response = await fetch('/api/user', {
-          credentials: 'include', // Include cookies for session
-        });
+        console.log('Fetching user data...');
+        const data = await API.getUser();
+        console.log('User API response data:', data);
         
-        if (response.ok) {
-          // Check if response is JSON
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const data = await response.json();
-            if (data.success) {
-              setUser(data.user);
-            } else {
-              // User not authenticated, use default
-              setUser({ id: 'default_user', name: 'Guest User', email: 'guest@example.com' });
-            }
-          } else {
-            console.warn('API did not return JSON response');
-            setUser({ id: 'default_user', name: 'Guest User', email: 'guest@example.com' });
-          }
+        if (data.success && data.user) {
+          setUser(data.user);
         } else {
-          // Backend not available or error, use default
+          // User not authenticated, use default
+          console.log('User not authenticated, using default user');
           setUser({ id: 'default_user', name: 'Guest User', email: 'guest@example.com' });
         }
       } catch (error) {
