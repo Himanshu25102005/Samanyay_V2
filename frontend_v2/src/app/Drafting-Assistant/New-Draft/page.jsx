@@ -744,11 +744,13 @@ function NewDraftContent({ type, initialDid }) {
                     {/* Mobile Info Button */}
                     <button
                       onClick={() => setIsMobileMenuOpen(true)}
-                      className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200"
+                      className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200 flex items-center gap-2"
+                      aria-label="General Guidance"
                     >
                       <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
+                      <span className="text-xs font-medium text-sky-700 block sm:hidden">General Guidance</span>
                     </button>
                   </div>
                 </motion.div>

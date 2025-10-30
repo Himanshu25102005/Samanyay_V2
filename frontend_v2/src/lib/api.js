@@ -59,8 +59,18 @@ export async function apiRequest(endpoint, options = {}) {
     console.log(`API Request: ${config.method || 'GET'} ${url}`);
     console.log('Request options:', config);
 
-    const response = await fetch(url, config);
-    
+    let response;
+    try {
+      response = await fetch(url, config);
+    } catch (fetchErr) {
+      // Handle low-level network errors here
+      if (fetchErr instanceof TypeError && fetchErr.message && fetchErr.message.includes('Failed to fetch')) {
+        console.error('[API] Network error: Failed to fetch:', url);
+        throw new Error('[Network Error] Could not reach backend server. Check your server URL, CORS, or server status. Tried: ' + url);
+      }
+      throw fetchErr;
+    }
+
     console.log(`API Response: ${response.status} ${response.statusText}`);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 

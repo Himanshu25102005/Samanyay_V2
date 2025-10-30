@@ -154,7 +154,7 @@ export default function Home() {
     const buttonRect = buttonRef.current.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
-    const dropdownHeight = 200;
+    const dropdownHeight = Math.min(360, viewportHeight - 48); // up to 360px or fit screen
     const dropdownWidth = 256; // 16rem = 256px
 
     // Calculate position
@@ -186,9 +186,14 @@ export default function Home() {
           top: `${top}px`,
           left: left === 'auto' ? 'auto' : `${left}px`,
           right: right === 'auto' ? 'auto' : `${right}px`,
-          maxHeight: `${Math.min(dropdownHeight, viewportHeight - 32)}px`,
-          overflowY: 'auto'
+          maxHeight: `${dropdownHeight}px`,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain',
+          boxShadow: '0 10px 32px rgba(26,44,78,0.19)'
         }}
+        tabIndex={0}
+        aria-label="Feature Navigation Dropdown"
         onMouseEnter={() => setIsFeaturesOpen(true)}
         onMouseLeave={() => setIsFeaturesOpen(false)}
       >

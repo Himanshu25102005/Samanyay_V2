@@ -57,11 +57,11 @@ const isAuthenticated = (req, res, next) => {
 // Get all cases for the authenticated user
 router.get("/api/cases", isAuthenticated, async (req, res) => {
   try {
-    console.log("Fetching cases...");
-    // For development: get all cases if no user
-    const cases = await Case.find({})
-      .sort({ updatedAt: -1 });
-    
+    console.log("Fetching cases for user:", req.user && req.user._id);
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
+    const cases = await Case.find({ userId: req.user._id }).sort({ updatedAt: -1 });
     console.log("Found cases:", cases.length);
     res.json({ success: true, cases: cases || [] });
   } catch (error) {
