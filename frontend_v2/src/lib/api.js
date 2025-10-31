@@ -29,14 +29,18 @@ console.log('================================');
  * @returns {Promise<Object>} - Response data
  */
 export async function apiRequest(endpoint, options = {}) {
-  // Ensure endpoint starts with / and API_BASE_URL doesn't end with /
+  // Ensure endpoint starts with /
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = `${API_BASE_URL}${cleanEndpoint}`;
+
+  // Prefer same-origin proxy for Next.js API routes to avoid CORS/cookie issues
+  const isNextApi = cleanEndpoint.startsWith('/api/');
+  const url = isNextApi ? cleanEndpoint : `${API_BASE_URL}${cleanEndpoint}`;
   
   console.log('=== URL CONSTRUCTION DEBUG ===');
   console.log('Original endpoint:', endpoint);
   console.log('Clean endpoint:', cleanEndpoint);
-  console.log('API_BASE_URL:', API_BASE_URL);
+  console.log('Using Next proxy:', isNextApi);
+  console.log('API_BASE_URL (for non-proxied):', API_BASE_URL);
   console.log('Final URL:', url);
   console.log('URL validation:', {
     hasDoubleSlash: url.includes('//'),
@@ -99,7 +103,7 @@ export async function apiRequest(endpoint, options = {}) {
  * API endpoints
  */
 export const API = {
-  // User endpoints
+  // User endpoints (go through Next.js proxy)
   getUser: () => apiRequest('/api/user'),
   register: (userData) => apiRequest('/api/auth/register', {
     method: 'POST',

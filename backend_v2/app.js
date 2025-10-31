@@ -14,6 +14,8 @@ var casesRouter = require('./routes/cases');
 
 var app = express();
 
+// Trust proxy for correct secure cookies behind proxies (Railway, Vercel, etc.)
+app.set('trust proxy', 1);
 
 // CORS configuration
 const corsOptions = {
@@ -40,6 +42,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+// Explicitly handle preflight
+app.options('*', cors(corsOptions));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -50,8 +54,8 @@ app.use(session({
   saveUninitialized: false,
   secret: process.env.SESSION_SECRET || "hey hey hey",
   cookie: {
-    secure: false, // Set to true in production with HTTPS
-    httpOnly: false, // Allow client-side access for cross-origin
+    secure: process.env.NODE_ENV === 'production', // secure cookies in production
+    httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'none' // Allow cross-origin cookies
   }
