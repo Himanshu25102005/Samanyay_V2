@@ -7,67 +7,52 @@ const UserContext = createContext();
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const retriedRef = useRef(false);
+  const retryCountRef = useRef(0);
+  const maxRetries = 3;
+
+  const fetchUserOnce = async () => {
+    try {
+      const data = await API.getUser();
+      if (data?.success && data.user) {
+        setUser(data.user);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
 
   useEffect(() => {
-    // Fetch user data from backend
-    const fetchUser = async () => {
-      try {
-        console.log('Fetching user data...');
-        const data = await API.getUser();
-        console.log('User API response data:', data);
-        
-        if (data.success && data.user) {
-          setUser(data.user);
-        } else {
-          console.log('User not authenticated');
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+    const init = async () => {
+      const ok = await fetchUserOnce();
+      setLoading(false);
+      if (!ok) scheduleRetry();
     };
-
-    fetchUser();
+    init();
+    // Refresh on focus/visibility regain
+    const onFocus = () => fetchUserOnce();
+    const onVisible = () => document.visibilityState === 'visible' && fetchUserOnce();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
-  // One-time short retry after initial load to catch late-arriving session cookie
-  useEffect(() => {
-    if (!loading && !user && !retriedRef.current) {
-      retriedRef.current = true;
-      const t = setTimeout(async () => {
-        try {
-          console.log('Retrying user fetch after delay...');
-          const data = await API.getUser();
-          if (data.success && data.user) {
-            setUser(data.user);
-          }
-        } catch (e) {
-          // ignore
-        }
-      }, 1200);
-      return () => clearTimeout(t);
-    }
-  }, [loading, user]);
+  const scheduleRetry = () => {
+    if (retryCountRef.current >= maxRetries) return;
+    const delay = 800 * (retryCountRef.current + 1); // 800ms, 1600ms, 2400ms
+    retryCountRef.current += 1;
+    setTimeout(async () => {
+      const ok = await fetchUserOnce();
+      if (!ok) scheduleRetry();
+    }, delay);
+  };
 
   const refreshUser = async () => {
-    try {
-      console.log('Refreshing user data...');
-      const data = await API.getUser();
-      console.log('User API response data:', data);
-      
-      if (data.success && data.user) {
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Error refreshing user:', error);
-      setUser(null);
-    }
+    await fetchUserOnce();
   };
 
   const value = {

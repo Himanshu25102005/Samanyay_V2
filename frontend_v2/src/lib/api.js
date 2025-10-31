@@ -51,6 +51,7 @@ export async function apiRequest(endpoint, options = {}) {
   
   const defaultOptions = {
     credentials: 'include',
+    cache: 'no-store',
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
