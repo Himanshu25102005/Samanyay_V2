@@ -35,10 +35,17 @@ async function proxy(request, context) {
       headers,
       body,
       duplex: 'half',
+      cache: 'no-store',
     });
 
     const responseHeaders = new Headers(res.headers);
     responseHeaders.delete('transfer-encoding');
+
+    // Explicitly forward Set-Cookie to ensure session persistence
+    const setCookie = res.headers.get('set-cookie');
+    if (setCookie) {
+      responseHeaders.set('set-cookie', setCookie);
+    }
 
     const contentType = res.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
