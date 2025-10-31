@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { API } from '../lib/api';
 
 const UserContext = createContext();
@@ -7,6 +7,7 @@ const UserContext = createContext();
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const retriedRef = useRef(false);
 
   useEffect(() => {
     // Fetch user data from backend
@@ -19,13 +20,11 @@ export function UserProvider({ children }) {
         if (data.success && data.user) {
           setUser(data.user);
         } else {
-          // User not authenticated
           console.log('User not authenticated');
           setUser(null);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
-        // User not authenticated on error
         setUser(null);
       } finally {
         setLoading(false);
@@ -34,6 +33,25 @@ export function UserProvider({ children }) {
 
     fetchUser();
   }, []);
+
+  // One-time short retry after initial load to catch late-arriving session cookie
+  useEffect(() => {
+    if (!loading && !user && !retriedRef.current) {
+      retriedRef.current = true;
+      const t = setTimeout(async () => {
+        try {
+          console.log('Retrying user fetch after delay...');
+          const data = await API.getUser();
+          if (data.success && data.user) {
+            setUser(data.user);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }, 1200);
+      return () => clearTimeout(t);
+    }
+  }, [loading, user]);
 
   const refreshUser = async () => {
     try {

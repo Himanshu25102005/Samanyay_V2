@@ -1,10 +1,11 @@
+export const runtime = 'nodejs';
+
 import { NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'http://localhost:5000';
 
 export async function GET(request) {
   try {
-    // Forward the cookies/headers for session-based auth
     const headers = new Headers(request.headers);
     headers.delete('host');
     headers.delete('content-length');
@@ -15,8 +16,7 @@ export async function GET(request) {
     const res = await fetch(backendUrl.toString(), {
       method: 'GET',
       headers,
-      credentials: 'include', // VERY IMPORTANT: send cookies (session)
-      // For Node fetch credentials: 'include' is not always enough, cookies must forward
+      duplex: 'half',
     });
     
     const responseHeaders = new Headers(res.headers);
