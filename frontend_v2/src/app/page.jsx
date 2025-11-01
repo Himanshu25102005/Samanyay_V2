@@ -5,9 +5,9 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Playfair_Display, Inter } from "next/font/google";
 import Plasma from "../../animations/Plasma";
 import { createPortal } from "react-dom";
-import { useUser } from "../../components/UserContext";
+import { useUser } from "../components/UserContext";
 import { useRouter } from "next/navigation";
-import { API } from "../../lib/api";
+import { API } from "../lib/api";
 
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
