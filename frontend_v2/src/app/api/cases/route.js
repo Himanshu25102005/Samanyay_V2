@@ -18,10 +18,17 @@ async function proxy(request) {
     headers.delete('content-length');
     headers.delete('connection');
 
+    // Explicitly forward cookies from the incoming request
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader) {
+      headers.set('cookie', cookieHeader);
+    }
+
     const init = {
       method: request.method,
       headers,
       body: request.method !== 'GET' ? await request.text() : undefined,
+      credentials: 'include', // Include credentials (cookies)
       duplex: 'half',
     };
 
@@ -31,6 +38,23 @@ async function proxy(request) {
     
     const responseHeaders = new Headers(res.headers);
     responseHeaders.delete('transfer-encoding');
+
+    // Explicitly forward Set-Cookie headers to ensure session persistence
+    const setCookieHeaders = res.headers.getSetCookie();
+    if (setCookieHeaders && setCookieHeaders.length > 0) {
+      // Clear any existing set-cookie header
+      responseHeaders.delete('set-cookie');
+      // Add all set-cookie headers
+      setCookieHeaders.forEach((cookie) => {
+        responseHeaders.append('set-cookie', cookie);
+      });
+    } else {
+      // Also try the single set-cookie header (for compatibility)
+      const setCookie = res.headers.get('set-cookie');
+      if (setCookie) {
+        responseHeaders.set('set-cookie', setCookie);
+      }
+    }
 
     // Handle file downloads
     const contentType = res.headers.get('content-type');
