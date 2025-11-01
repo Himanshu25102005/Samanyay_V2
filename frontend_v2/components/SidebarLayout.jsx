@@ -9,9 +9,10 @@ export default function SidebarLayout({ children }) {
   const isHomeOrLogin = pathname === "/" || pathnameLower === "/login" || pathnameLower.startsWith("/login");
   const isPrivacyPolicy = pathnameLower === "/privacy-policy" || pathnameLower.startsWith("/privacy-policy");
   const isTermsConditions = pathnameLower === "/terms-and-conditions" || pathnameLower.startsWith("/terms-and-conditions");
+  const isTermsOfService = pathnameLower === "/terms-of-service" || pathnameLower.startsWith("/terms-of-service");
   const { isCollapsed, isMobileMenuOpen, isLargeScreen } = useNavbar();
 
-  if (isHomeOrLogin || isPrivacyPolicy || isTermsConditions) {
+  if (isHomeOrLogin || isPrivacyPolicy || isTermsConditions || isTermsOfService) {
     return (
       <div>
         {children}
