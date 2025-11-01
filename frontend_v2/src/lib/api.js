@@ -165,38 +165,78 @@ export const API = {
     });
   },
   
-  // Task endpoints
-  getTasks: (caseId) => apiRequest(`/api/cases/${caseId}/tasks`),
-  createTask: (caseId, taskData) => apiRequest(`/api/cases/${caseId}/tasks`, {
-    method: 'POST',
-    body: JSON.stringify(taskData),
-  }),
-  updateTask: (taskId, taskData) => apiRequest(`/api/tasks/${taskId}`, {
-    method: 'PUT',
-    body: JSON.stringify(taskData),
-  }),
-  deleteTask: (taskId) => apiRequest(`/api/tasks/${taskId}`, {
-    method: 'DELETE',
-  }),
-  completeTask: (taskId) => apiRequest(`/api/tasks/${taskId}/complete`, {
-    method: 'PATCH',
-  }),
-  incompleteTask: (taskId) => apiRequest(`/api/tasks/${taskId}/incomplete`, {
-    method: 'PATCH',
-  }),
+  // Task endpoints - make direct backend calls to ensure cookies are sent
+  getTasks: (caseId) => {
+    const url = `${API_BASE_URL}/api/cases/${caseId}/tasks`;
+    return apiRequest(url, { credentials: 'include' });
+  },
+  createTask: (caseId, taskData) => {
+    const url = `${API_BASE_URL}/api/cases/${caseId}/tasks`;
+    return apiRequest(url, {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+      credentials: 'include',
+    });
+  },
+  updateTask: (taskId, taskData) => {
+    const url = `${API_BASE_URL}/api/tasks/${taskId}`;
+    return apiRequest(url, {
+      method: 'PUT',
+      body: JSON.stringify(taskData),
+      credentials: 'include',
+    });
+  },
+  deleteTask: (taskId) => {
+    const url = `${API_BASE_URL}/api/tasks/${taskId}`;
+    return apiRequest(url, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+  },
+  completeTask: (taskId) => {
+    const url = `${API_BASE_URL}/api/tasks/${taskId}/complete`;
+    return apiRequest(url, {
+      method: 'PATCH',
+      credentials: 'include',
+    });
+  },
+  incompleteTask: (taskId) => {
+    const url = `${API_BASE_URL}/api/tasks/${taskId}/incomplete`;
+    return apiRequest(url, {
+      method: 'PATCH',
+      credentials: 'include',
+    });
+  },
   
-  // Document endpoints
-  getDocuments: (caseId) => apiRequest(`/api/cases/${caseId}/documents`),
-  uploadDocument: (caseId, formData) => apiRequest(`/api/cases/${caseId}/documents`, {
-    method: 'POST',
-    headers: {}, // Let browser set Content-Type for FormData
-    body: formData,
-  }),
-  deleteDocument: (docId) => apiRequest(`/api/documents/${docId}`, {
-    method: 'DELETE',
-  }),
-  downloadDocument: (docId) => apiRequest(`/api/documents/${docId}/download`),
-  previewDocument: (docId) => apiRequest(`/api/documents/${docId}/preview`),
+  // Document endpoints - make direct backend calls to ensure cookies are sent
+  getDocuments: (caseId) => {
+    const url = `${API_BASE_URL}/api/cases/${caseId}/documents`;
+    return apiRequest(url, { credentials: 'include' });
+  },
+  uploadDocument: (caseId, formData) => {
+    const url = `${API_BASE_URL}/api/cases/${caseId}/documents`;
+    return apiRequest(url, {
+      method: 'POST',
+      headers: {}, // Let browser set Content-Type for FormData
+      body: formData,
+      credentials: 'include',
+    });
+  },
+  deleteDocument: (docId) => {
+    const url = `${API_BASE_URL}/api/documents/${docId}`;
+    return apiRequest(url, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+  },
+  downloadDocument: (docId) => {
+    const url = `${API_BASE_URL}/api/documents/${docId}/download`;
+    return apiRequest(url, { credentials: 'include' });
+  },
+  previewDocument: (docId) => {
+    const url = `${API_BASE_URL}/api/documents/${docId}/preview`;
+    return apiRequest(url, { credentials: 'include' });
+  },
 };
 
 export default API;
