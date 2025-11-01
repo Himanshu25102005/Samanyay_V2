@@ -136,18 +136,34 @@ export const API = {
   logout: () => apiRequest('/api/auth/logout', { method: 'POST' }),
   
   // Case endpoints
-  getCases: () => apiRequest('/api/cases'),
-  createCase: (caseData) => apiRequest('/api/cases', {
-    method: 'POST',
-    body: JSON.stringify(caseData),
-  }),
-  updateCase: (caseId, caseData) => apiRequest(`/api/cases/${caseId}`, {
-    method: 'PUT',
-    body: JSON.stringify(caseData),
-  }),
-  deleteCase: (caseId) => apiRequest(`/api/cases/${caseId}`, {
-    method: 'DELETE',
-  }),
+  // Make direct backend calls to ensure cookies are sent (important for authentication)
+  getCases: () => {
+    const url = `${API_BASE_URL}/api/cases`;
+    return apiRequest(url, { credentials: 'include' });
+  },
+  createCase: (caseData) => {
+    const url = `${API_BASE_URL}/api/cases`;
+    return apiRequest(url, {
+      method: 'POST',
+      body: JSON.stringify(caseData),
+      credentials: 'include',
+    });
+  },
+  updateCase: (caseId, caseData) => {
+    const url = `${API_BASE_URL}/api/cases/${caseId}`;
+    return apiRequest(url, {
+      method: 'PUT',
+      body: JSON.stringify(caseData),
+      credentials: 'include',
+    });
+  },
+  deleteCase: (caseId) => {
+    const url = `${API_BASE_URL}/api/cases/${caseId}`;
+    return apiRequest(url, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+  },
   
   // Task endpoints
   getTasks: (caseId) => apiRequest(`/api/cases/${caseId}/tasks`),
