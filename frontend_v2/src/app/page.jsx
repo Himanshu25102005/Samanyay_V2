@@ -16,16 +16,25 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export default function Home() {
   const { scrollYProgress } = useScroll();
   const heroParallax = useTransform(scrollYProgress, [0, 1], [0, 60]);
-  const { user, loading: userLoading } = useUser();
+  const { user, loading: userLoading, clearUser } = useUser();
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
       await API.logout();
-      router.push('/');
-      router.refresh();
+      // Clear user state immediately
+      if (clearUser) {
+        clearUser();
+      }
+      // Redirect and refresh
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
+      // Clear user state and redirect even on error
+      if (clearUser) {
+        clearUser();
+      }
+      window.location.href = '/';
     }
   };
 

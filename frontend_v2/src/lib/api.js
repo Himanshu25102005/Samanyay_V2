@@ -133,7 +133,10 @@ export const API = {
     method: 'POST',
     body: JSON.stringify(credentials)
   }),
-  logout: () => apiRequest('/api/auth/logout', { method: 'POST' }),
+  logout: () => {
+    const url = `${API_BASE_URL}/api/auth/logout`;
+    return apiRequest(url, { method: 'POST', credentials: 'include' });
+  },
   
   // Case endpoints
   // Make direct backend calls to ensure cookies are sent (important for authentication)

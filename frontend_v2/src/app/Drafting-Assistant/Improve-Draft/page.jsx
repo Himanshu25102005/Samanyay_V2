@@ -750,9 +750,15 @@ function ImproveDraftContent({ type, initialDid }) {
                       <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Improvement Instructions</label>
                       <textarea 
                         value={prompt} 
-                        onChange={(e)=>setPrompt(e.target.value)} 
-                        rows={2} 
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm resize-none" 
+                        onChange={(e)=>{
+                          setPrompt(e.target.value);
+                          // Auto-resize textarea
+                          e.target.style.height = 'auto';
+                          e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+                        }} 
+                        rows={1} 
+                        style={{ minHeight: '40px', maxHeight: '200px' }}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm resize-none overflow-y-auto" 
                         placeholder="Describe improvements you want..." 
                       />
                     </div>

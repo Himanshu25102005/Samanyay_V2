@@ -923,9 +923,15 @@ function NewDraftContent({ type, initialDid }) {
                       <textarea 
                         ref={inputRef}
                         value={prompt} 
-                        onChange={(e)=>setPrompt(e.target.value)} 
-                        rows={3} 
-                        className="w-full rounded-xl border border-slate-300/60 bg-white/90 backdrop-blur-sm px-2 sm:px-3 lg:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 text-xs sm:text-sm resize-none transition-all duration-300 placeholder:text-slate-400 shadow-sm hover:shadow-md" 
+                        onChange={(e)=>{
+                          setPrompt(e.target.value);
+                          // Auto-resize textarea
+                          e.target.style.height = 'auto';
+                          e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+                        }} 
+                        rows={1} 
+                        style={{ minHeight: '40px', maxHeight: '200px' }}
+                        className="w-full rounded-xl border border-slate-300/60 bg-white/90 backdrop-blur-sm px-2 sm:px-3 lg:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 text-xs sm:text-sm resize-none transition-all duration-300 placeholder:text-slate-400 shadow-sm hover:shadow-md overflow-y-auto" 
                         placeholder="Describe the draft you want..." 
                       />
                     </div>

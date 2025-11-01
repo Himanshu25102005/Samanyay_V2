@@ -52,7 +52,16 @@ export function UserProvider({ children }) {
   };
 
   const refreshUser = async () => {
-    await fetchUserOnce();
+    const ok = await fetchUserOnce();
+    if (!ok) {
+      // If user fetch fails, clear user state (e.g., after logout)
+      setUser(null);
+    }
+    return ok;
+  };
+
+  const clearUser = () => {
+    setUser(null);
   };
 
   const value = {
@@ -61,7 +70,8 @@ export function UserProvider({ children }) {
     userId: user?.id || 'default_user',
     userName: user?.name || 'Guest User',
     userEmail: user?.email || 'guest@example.com',
-    refreshUser
+    refreshUser,
+    clearUser
   };
 
   return (
