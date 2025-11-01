@@ -920,10 +920,9 @@ export default function Home() {
               >Features</motion.a>
               <motion.a 
                 className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
-                href="#privacy"
+                href="https://samanyay-v2.vercel.app/Privacy-Policy"
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={(e) => onNavClick(e, "#privacy")}
               >Privacy Policy</motion.a>
               <motion.a 
                 className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 

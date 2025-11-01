@@ -5,10 +5,12 @@ import Navbar from "./Navbar.jsx";
 
 export default function SidebarLayout({ children }) {
   const pathname = usePathname();
-  const isHomeOrLogin = pathname === "/" || pathname?.toLowerCase() === "/login";
+  const pathnameLower = pathname?.toLowerCase() || "";
+  const isHomeOrLogin = pathname === "/" || pathnameLower === "/login" || pathnameLower.startsWith("/login");
+  const isPrivacyPolicy = pathnameLower === "/privacy-policy" || pathnameLower.startsWith("/privacy-policy");
   const { isCollapsed, isMobileMenuOpen, isLargeScreen } = useNavbar();
 
-  if (isHomeOrLogin) {
+  if (isHomeOrLogin || isPrivacyPolicy) {
     return (
       <div>
         {children}
