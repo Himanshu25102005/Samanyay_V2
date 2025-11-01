@@ -231,8 +231,8 @@ export default function PrivacyPolicy() {
                 style={{
                     marginLeft: '0px',
                     marginRight: ' 0px',
-                    paddingRight: '8px',
-                    paddingLeft: '8px',
+                    paddingRight: '10px',
+                    paddingLeft: '10px',
                     backgroundColor: 'rgba(226, 232, 240, 0.5)',
                 }}
             >
@@ -299,9 +299,9 @@ export default function PrivacyPolicy() {
                                     {t('privacySubtitle')}
                                 </p>
                             </div>
-                            {/* <div className="animate-fade-in">
+                            <div className="animate-fade-in">
                                 <LanguageSelector />
-                            </div> */}
+                            </div>
                         </div>
                     </div>
                 </header>
@@ -732,13 +732,13 @@ export default function PrivacyPolicy() {
                                 <span className="text-lg font-semibold">Samanyay</span>
                             </div>
                             <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-100/90">
-                                <motion.a 
+                                {/* <motion.a 
                                     className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
-                                    href="https://samanyay-v2.vercel.app/#features"
+                                    href="#features"
                                     whileHover={{ y: -2 }}
                                     whileTap={{ scale: 0.95 }}
-                                    /* onClick={(e) => onNavClick(e, "#features")} */
-                                >Features</motion.a>
+                                    onClick={(e) => onNavClick(e, "#features")}
+                                >Features</motion.a> */}
                                 <motion.a 
                                     className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
                                     href="/Privacy-Policy"
@@ -754,10 +754,9 @@ export default function PrivacyPolicy() {
                                 >Contact</motion.a>
                                 <motion.a 
                                     className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
-                                    href="#terms"
+                                    href="https://samanyay-v2.vercel.app/Terms-of-Service"
                                     whileHover={{ y: -2 }}
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={(e) => onNavClick(e, "#terms")}
                                 >Terms of Service</motion.a>
                             </nav>
                             <div className="flex items-center gap-3">

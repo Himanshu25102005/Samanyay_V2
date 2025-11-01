@@ -499,10 +499,10 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-                className="relative rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur p-4 shadow-[0_10px_40px_rgba(26,44,78,0.08)]"
+                className="relative rounded-3xl border border-slate-200/70  p-4 shadow-[0_10px_40px_rgba(26,44,78,0.08)]"
               >
                 <div className="aspect-[16/10] w-full overflow-hidden rounded-2xl">
-                  <Image src="/window12.jpg" alt="AI legal assistant" fill priority className="object-cover rounded-2xl" />
+                  <Image src="/logo2.png" alt="AI legal assistant" fill priority className="object-cover rounded-2xl" />
                 </div>
               </motion.div>
             </div>
@@ -933,10 +933,9 @@ export default function Home() {
               >Contact</motion.a>
               <motion.a 
                 className="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/60 focus:ring-offset-[#0818A8] rounded transition-all duration-300 hover:text-white hover:scale-105" 
-                href="#terms"
+                href="https://samanyay-v2.vercel.app/Terms-of-Service"
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={(e) => onNavClick(e, "#terms")}
               >Terms of Service</motion.a>
             </nav>
             <div className="flex items-center gap-3">

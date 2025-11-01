@@ -8,9 +8,10 @@ export default function SidebarLayout({ children }) {
   const pathnameLower = pathname?.toLowerCase() || "";
   const isHomeOrLogin = pathname === "/" || pathnameLower === "/login" || pathnameLower.startsWith("/login");
   const isPrivacyPolicy = pathnameLower === "/privacy-policy" || pathnameLower.startsWith("/privacy-policy");
+  const isTermsConditions = pathnameLower === "/terms-and-conditions" || pathnameLower.startsWith("/terms-and-conditions");
   const { isCollapsed, isMobileMenuOpen, isLargeScreen } = useNavbar();
 
-  if (isHomeOrLogin || isPrivacyPolicy) {
+  if (isHomeOrLogin || isPrivacyPolicy || isTermsConditions) {
     return (
       <div>
         {children}
