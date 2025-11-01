@@ -11,16 +11,40 @@ export async function GET(request) {
     headers.delete('content-length');
     headers.delete('connection');
 
+    // Explicitly forward cookies from the incoming request
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader) {
+      headers.set('cookie', cookieHeader);
+    }
+
     const backendUrl = new URL('/api/user', BACKEND_URL);
 
     const res = await fetch(backendUrl.toString(), {
       method: 'GET',
       headers,
+      credentials: 'include', // Include credentials (cookies)
       duplex: 'half',
     });
     
     const responseHeaders = new Headers(res.headers);
     responseHeaders.delete('transfer-encoding');
+
+    // Explicitly forward Set-Cookie headers to ensure session persistence
+    const setCookieHeaders = res.headers.getSetCookie();
+    if (setCookieHeaders && setCookieHeaders.length > 0) {
+      // Clear any existing set-cookie header
+      responseHeaders.delete('set-cookie');
+      // Add all set-cookie headers
+      setCookieHeaders.forEach((cookie) => {
+        responseHeaders.append('set-cookie', cookie);
+      });
+    } else {
+      // Also try the single set-cookie header (for compatibility)
+      const setCookie = res.headers.get('set-cookie');
+      if (setCookie) {
+        responseHeaders.set('set-cookie', setCookie);
+      }
+    }
 
     const contentType = res.headers.get('content-type');
     let body;
