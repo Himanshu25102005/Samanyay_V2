@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from "../../../components/Navbar.jsx";
 import { useI18n, getFontClass } from "../../../components/I18nProvider";
 import { useUser } from "../../components/UserContext";
+import { API } from "../../lib/api";
 
 export default function Profile() {
     const router = useRouter();
@@ -29,29 +30,6 @@ export default function Profile() {
     const [upcomingDeadlines, setUpcomingDeadlines] = useState([]);
     const [recentActivity, setRecentActivity] = useState([]);
 
-    // Professional quotes for different languages
-    const quotes = {
-        English: [
-            "Justice delayed is justice denied. - William E. Gladstone",
-            "The law is not a light for you or any man to see by; the law is not a shelter for you or any man to hide behind. - Ayn Rand",
-            "In matters of truth and justice, there is no difference between large and small problems, for issues concerning the treatment of people are all the same. - Albert Einstein"
-        ],
-        Hindi: [
-            "न्याय में देरी न्याय से इनकार है।",
-            "कानून सभी के लिए समान होना चाहिए।",
-            "सत्य और न्याय के मामलों में, बड़ी और छोटी समस्याओं के बीच कोई अंतर नहीं है।"
-        ],
-        Marathi: [
-            "न्यायात उशीर म्हणजे न्याय नाकारणे.",
-            "कायदा सर्वांसाठी समान असावा.",
-            "सत्य आणि न्यायाच्या बाबतीत, मोठ्या आणि लहान समस्यांमध्ये फरक नाही."
-        ],
-        Gujarati: [
-            "ન્યાયમાં વિલંબ એ ન્યાયનો ઇનકાર છે.",
-            "કાયદો બધા માટે સમાન હોવો જોઈએ.",
-            "સત્ય અને ન્યાયના બાબતોમાં, મોટી અને નાની સમસ્યાઓ વચ્ચે કોઈ તફાવત નથી."
-        ]
-    };
 
     const languages = [
         { code: 'en', name: 'English', displayName: 'English', flag: '🇺🇸' },
@@ -63,14 +41,9 @@ export default function Profile() {
     // Data fetching functions
     const fetchCases = async () => {
         try {
-            const response = await fetch('/api/cases', {
-                credentials: 'include'
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    setCases(data.cases || []);
-                }
+            const data = await API.getCases();
+            if (data.success) {
+                setCases(data.cases || []);
             }
         } catch (error) {
             console.error('Error fetching cases:', error);
@@ -82,14 +55,13 @@ export default function Profile() {
             // Fetch tasks from all cases
             const allTasks = [];
             for (const caseItem of cases) {
-                const response = await fetch(`/api/cases/${caseItem._id}/tasks`, {
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    const data = await response.json();
+                try {
+                    const data = await API.getTasks(caseItem._id);
                     if (data.success) {
                         allTasks.push(...(data.tasks || []));
                     }
+                } catch (err) {
+                    console.error(`Error fetching tasks for case ${caseItem._id}:`, err);
                 }
             }
             setTasks(allTasks);
@@ -99,7 +71,7 @@ export default function Profile() {
     };
 
     const fetchAnalytics = () => {
-        const activeCases = cases.filter(c => c.status === 'Active').length;
+        const activeCases = cases.filter(c => c.status === 'Active' || c.status === 'Pre-litigation').length;
         const completedTasks = tasks.filter(t => t.isCompleted).length;
         const pendingTasks = tasks.filter(t => !t.isCompleted).length;
         
@@ -189,6 +161,16 @@ export default function Profile() {
         setRecentActivity(activities.slice(0, 5));
     };
 
+    // Format date to DD/MM/YYYY
+    const formatDate = (date) => {
+        if (!date) return '';
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
     // Load data on component mount
     useEffect(() => {
         const loadData = async () => {
@@ -222,11 +204,6 @@ export default function Profile() {
         window.dispatchEvent(new CustomEvent('app-language-change', { detail: newLang }));
     };
 
-    // Get random quote
-    const getRandomQuote = () => {
-        const langQuotes = quotes[lang] || quotes.English;
-        return langQuotes[Math.floor(Math.random() * langQuotes.length)];
-    };
 
     if (loading || userLoading) {
         return (
@@ -266,7 +243,7 @@ export default function Profile() {
                                     {t('welcomeBack')}, {user?.name || 'User'}
                                 </h1>
                                 <p className="text-gray-600 text-xs sm:text-sm xl:text-base truncate">{user?.email || 'user@example.com'}</p>
-                                <p className="text-gray-500 text-xs sm:text-sm">{t('dashboard')} • {new Date().toLocaleDateString()}</p>
+                                <p className="text-gray-500 text-xs sm:text-sm">{t('dashboard')} • {formatDate(new Date())}</p>
                             </div>
                         </div>
                         
@@ -292,25 +269,6 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Quote Section */}
-                <div className={`mb-8 ${
-                    isLoaded ? 'animate-fade-in' : 'opacity-0 translate-y-4'
-                }`} style={{ animationDelay: '0.1s' }}>
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
-                        <div className="flex items-start space-x-4">
-                            <div className="flex-shrink-0">
-                                <svg className="w-6 h-6 text-blue-600 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-gray-800 text-lg font-medium italic leading-relaxed">
-                                    "{getRandomQuote()}"
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Analytics Overview */}
                 <div className={`grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8 ${
@@ -452,7 +410,7 @@ export default function Profile() {
                                         } group-hover/item:scale-125 transition-transform duration-200 flex-shrink-0`}></div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-medium text-gray-900 truncate">{deadline.title}</p>
-                                            <p className="text-xs text-gray-500">{deadline.date.toLocaleDateString()}</p>
+                                            <p className="text-xs text-gray-500">{formatDate(deadline.date)}</p>
                                         </div>
                                     </div>
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -498,7 +456,7 @@ export default function Profile() {
                                     <div className="w-2 h-2 bg-indigo-500 rounded-full group-hover/item:scale-125 transition-transform duration-200 mt-2 flex-shrink-0"></div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm text-gray-700 leading-relaxed">{activity.text}</p>
-                                        <p className="text-xs text-gray-500 mt-1">{activity.time.toLocaleDateString()}</p>
+                                        <p className="text-xs text-gray-500 mt-1">{formatDate(activity.time)}</p>
                                     </div>
                                 </div>
                             ))}

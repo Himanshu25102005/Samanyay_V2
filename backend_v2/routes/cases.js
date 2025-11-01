@@ -43,13 +43,20 @@ const upload = multer({
 
 // Middleware to check authentication
 const isAuthenticated = (req, res, next) => {
-  // For development, allow all requests
-  // Uncomment below lines for production
-  // if (req.isAuthenticated()) {
-  //   return next();
-  // }
-  // return res.status(401).json({ success: false, message: "Authentication required" });
-  return next();
+  console.log("=== AUTHENTICATION CHECK ===");
+  console.log("Session ID:", req.sessionID);
+  console.log("Is authenticated:", req.isAuthenticated());
+  console.log("User:", req.user);
+  console.log("Cookies:", req.cookies);
+  
+  // Check if user is authenticated
+  if (req.isAuthenticated() && req.user) {
+    console.log("User is authenticated, proceeding...");
+    return next();
+  }
+  
+  console.log("User is NOT authenticated, returning 401");
+  return res.status(401).json({ success: false, message: "Authentication required" });
 };
 
 // ========== CASE ROUTES ==========
@@ -57,12 +64,35 @@ const isAuthenticated = (req, res, next) => {
 // Get all cases for the authenticated user
 router.get("/api/cases", isAuthenticated, async (req, res) => {
   try {
-    console.log("Fetching cases for user:", req.user && req.user._id);
+    console.log("Fetching cases for user:", req.user);
+    console.log("User _id:", req.user && req.user._id);
+    console.log("User _id type:", req.user && req.user._id && typeof req.user._id);
+    console.log("User _id string:", req.user && req.user._id && req.user._id.toString());
+    
     if (!req.user || !req.user._id) {
+      console.log("Authentication failed - no user or _id");
       return res.status(401).json({ success: false, message: "Authentication required" });
     }
-    const cases = await Case.find({ userId: req.user._id }).sort({ updatedAt: -1 });
+    
+    // Ensure userId is an ObjectId
+    const userId = req.user._id instanceof mongoose.Types.ObjectId 
+      ? req.user._id 
+      : new mongoose.Types.ObjectId(req.user._id);
+    
+    console.log("Querying with userId:", userId);
+    console.log("UserId as string:", userId.toString());
+    
+    // Query cases matching the user's ID
+    // Use $or to match both ObjectId and string formats (in case some cases were stored with string IDs)
+    const cases = await Case.find({
+      $or: [
+        { userId: userId },
+        { userId: userId.toString() }
+      ]
+    }).sort({ updatedAt: -1 });
+    
     console.log("Found cases:", cases.length);
+    console.log("Cases sample:", cases.length > 0 ? cases[0].userId : 'none');
     res.json({ success: true, cases: cases || [] });
   } catch (error) {
     console.error("Error fetching cases:", error);
@@ -103,24 +133,17 @@ router.post("/api/cases", isAuthenticated, async (req, res) => {
   try {
     console.log("Creating case with data:", req.body);
     
-    // Use user ID from authentication or Google ID
-    let userId;
-    if (req.user && req.user._id) {
-      userId = req.user._id;
-      console.log("Using authenticated userId:", userId);
-    } else if (req.user && req.user.google_id) {
-      // Use Google ID as string if available
-      userId = req.user.google_id.toString();
-      console.log("Using Google ID as userId:", userId);
-    } else {
-      // For development: create a consistent user ID based on email or use a default
-      const email = req.body.clientEmail || 'default@example.com';
-      // Create a consistent hash-based ID for the same email
-      const crypto = require('crypto');
-      const hash = crypto.createHash('md5').update(email).digest('hex');
-      userId = hash.substring(0, 24); // Use first 24 characters as ObjectId-like string
-      console.log("Using hash-based userId for development:", userId);
+    // Use user ID from authentication - req.user should already be the full user document
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
     }
+    
+    // Ensure userId is stored as ObjectId
+    const userId = req.user._id instanceof mongoose.Types.ObjectId 
+      ? req.user._id 
+      : new mongoose.Types.ObjectId(req.user._id);
+    
+    console.log("Creating case with userId:", userId);
     
     const caseData = {
       userId: userId,
@@ -128,12 +151,14 @@ router.post("/api/cases", isAuthenticated, async (req, res) => {
       clientDetails: {
         name: req.body.clientName,
         phone: req.body.clientPhone,
-        email: req.body.clientEmail
+        email: req.body.clientEmail,
+        address: req.body.address || '',
+        profession: req.body.profession || ''
       },
       caseSummary: req.body.caseSummary,
       nextSteps: req.body.nextSteps,
       nextDate: req.body.nextDate ? new Date(req.body.nextDate) : null,
-      status: req.body.status || 'Active',
+      status: req.body.status || 'Pre-litigation',
       tags: req.body.tags || []
     };
     
@@ -168,8 +193,10 @@ router.put("/api/cases/:caseId", isAuthenticated, async (req, res) => {
     
     // Update fields
     if (req.body.clientName) caseData.clientDetails.name = req.body.clientName;
-    if (req.body.clientPhone) caseData.clientDetails.phone = req.body.clientPhone;
-    if (req.body.clientEmail) caseData.clientDetails.email = req.body.clientEmail;
+    if (req.body.clientPhone !== undefined) caseData.clientDetails.phone = req.body.clientPhone;
+    if (req.body.clientEmail !== undefined) caseData.clientDetails.email = req.body.clientEmail;
+    if (req.body.address !== undefined) caseData.clientDetails.address = req.body.address;
+    if (req.body.profession !== undefined) caseData.clientDetails.profession = req.body.profession;
     if (req.body.caseSummary !== undefined) caseData.caseSummary = req.body.caseSummary;
     if (req.body.nextSteps !== undefined) caseData.nextSteps = req.body.nextSteps;
     if (req.body.nextDate !== undefined) caseData.nextDate = req.body.nextDate ? new Date(req.body.nextDate) : null;
@@ -328,7 +355,7 @@ router.post("/api/cases/:caseId/tasks", isAuthenticated, async (req, res) => {
 });
 
 // Update a task
-router.put("/api/tasks/:taskId", async (req, res) => {
+router.put("/api/tasks/:taskId", isAuthenticated, async (req, res) => {
   try {
     const task = await Task.findById(req.params.taskId).populate('caseId');
     if (!task) {
@@ -372,7 +399,7 @@ router.put("/api/tasks/:taskId", async (req, res) => {
 });
 
 // Mark task as completed
-router.patch("/api/tasks/:taskId/complete", async (req, res) => {
+router.patch("/api/tasks/:taskId/complete", isAuthenticated, async (req, res) => {
   try {
     const task = await Task.findById(req.params.taskId);
     if (!task) {
@@ -394,7 +421,7 @@ router.patch("/api/tasks/:taskId/complete", async (req, res) => {
 });
 
 // Mark task as incomplete
-router.patch("/api/tasks/:taskId/incomplete", async (req, res) => {
+router.patch("/api/tasks/:taskId/incomplete", isAuthenticated, async (req, res) => {
   try {
     const task = await Task.findById(req.params.taskId);
     if (!task) {
@@ -631,7 +658,7 @@ router.delete("/api/documents/:docId", isAuthenticated, async (req, res) => {
 });
 
 // Download a document
-router.get("/api/documents/:docId/download", async (req, res) => {
+router.get("/api/documents/:docId/download", isAuthenticated, async (req, res) => {
   try {
     const doc = await Document.findById(req.params.docId).populate('caseId');
     if (!doc) {

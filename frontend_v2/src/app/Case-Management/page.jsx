@@ -42,20 +42,26 @@ export default function CaseManagement() {
     clientName: '',
     clientPhone: '',
     clientEmail: '',
+    address: '',
+    profession: '',
     caseSummary: '',
     nextSteps: '',
     nextDate: '',
-    status: 'Active'
+    status: 'Pre-litigation',
+    otherStatus: ''
   });
 
   const [editFormData, setEditFormData] = useState({
     clientName: '',
     clientPhone: '',
     clientEmail: '',
+    address: '',
+    profession: '',
     caseSummary: '',
     nextSteps: '',
     nextDate: '',
-    status: 'Active'
+    status: 'Pre-litigation',
+    otherStatus: ''
   });
 
   const [taskFormData, setTaskFormData] = useState({
@@ -72,6 +78,16 @@ export default function CaseManagement() {
     description: '',
     file: null
   });
+
+  // Format date to DD/MM/YYYY
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   // Fetch cases on mount
   useEffect(() => {
@@ -124,10 +140,12 @@ export default function CaseManagement() {
         clientName: formData.clientName,
         clientPhone: formData.clientPhone,
         clientEmail: formData.clientEmail,
+        address: formData.address,
+        profession: formData.profession,
         caseSummary: formData.caseSummary,
         nextSteps: formData.nextSteps,
         nextDate: formData.nextDate,
-        status: formData.status
+        status: formData.status === 'Other' ? formData.otherStatus : formData.status
       });
 
       setShowCreateModal(false);
@@ -135,10 +153,13 @@ export default function CaseManagement() {
         clientName: '',
         clientPhone: '',
         clientEmail: '',
+        address: '',
+        profession: '',
         caseSummary: '',
         nextSteps: '',
         nextDate: '',
-        status: 'Active'
+        status: 'Pre-litigation',
+        otherStatus: ''
       });
       await fetchCases();
       alert(t('caseCreated'));
@@ -207,14 +228,19 @@ export default function CaseManagement() {
 
   const handleEditCase = (caseItem) => {
     setEditingCase(caseItem);
+    const currentStatus = caseItem.status;
+    const isOtherStatus = !['Pre-litigation', 'Pending', 'Closed'].includes(currentStatus);
     setEditFormData({
       clientName: caseItem.clientDetails.name,
       clientPhone: caseItem.clientDetails.phone,
       clientEmail: caseItem.clientDetails.email,
+      address: caseItem.clientDetails.address || '',
+      profession: caseItem.clientDetails.profession || '',
       caseSummary: caseItem.caseSummary,
       nextSteps: caseItem.nextSteps,
       nextDate: caseItem.nextDate ? new Date(caseItem.nextDate).toISOString().split('T')[0] : '',
-      status: caseItem.status
+      status: isOtherStatus ? 'Other' : caseItem.status,
+      otherStatus: isOtherStatus ? caseItem.status : ''
     });
     setShowEditModal(true);
   };
@@ -224,7 +250,10 @@ export default function CaseManagement() {
     if (!editingCase) return;
 
     try {
-      await API.updateCase(editingCase._id, editFormData);
+      await API.updateCase(editingCase._id, {
+        ...editFormData,
+        status: editFormData.status === 'Other' ? editFormData.otherStatus : editFormData.status
+      });
       setShowEditModal(false);
       setEditingCase(null);
       await fetchCases();
@@ -314,7 +343,10 @@ export default function CaseManagement() {
   const downloadDocument = async (docId, fileName) => {
     try {
       console.log('Downloading document:', docId, fileName);
-      const response = await fetch(`/api/documents/${docId}/download`, {
+      // Use direct backend URL to ensure cookies are sent
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const cleanBackendUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
+      const response = await fetch(`${cleanBackendUrl}/api/documents/${docId}/download`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -606,9 +638,10 @@ export default function CaseManagement() {
                   <h3 className="text-xl font-semibold text-gray-800">{t('caseDetails')}</h3>
                   <div className="flex items-center">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedCase.status === 'Active' ? 'bg-green-100 text-green-700 border border-green-200' :
+                      selectedCase.status === 'Pre-litigation' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
                       selectedCase.status === 'Closed' ? 'bg-gray-100 text-gray-700 border border-gray-200' :
-                      'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                      selectedCase.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' :
+                      'bg-purple-100 text-purple-700 border border-purple-200'
                     }`}>
                       {selectedCase.status}
                     </span>
@@ -628,12 +661,7 @@ export default function CaseManagement() {
                       <div className="bg-white rounded-lg p-4 border border-gray-100">
                         <label className="text-sm font-medium text-gray-600 block mb-2">{t('nextDate')}</label>
                         <p className="text-gray-800 font-medium">
-                          {new Date(selectedCase.nextDate).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+                          {formatDate(selectedCase.nextDate)}
                         </p>
                     </div>
                   )}
@@ -806,7 +834,7 @@ export default function CaseManagement() {
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
-                            Due: {new Date(task.dueDate).toLocaleDateString()}
+                            Due: {formatDate(task.dueDate)}
                           </span>
                         )}
                       </div>
@@ -851,7 +879,7 @@ export default function CaseManagement() {
                               <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
                             )}
                             <p className="text-xs text-green-600 mt-1">
-                              Completed on {new Date(task.completedAt).toLocaleDateString()}
+                              Completed on {formatDate(task.completedAt)}
                             </p>
                           </div>
                           <div className="flex items-center gap-2 ml-3">
@@ -891,7 +919,7 @@ export default function CaseManagement() {
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
-                              Due: {new Date(task.dueDate).toLocaleDateString()}
+                              Due: {formatDate(task.dueDate)}
                             </span>
                           )}
                         </div>
@@ -955,11 +983,7 @@ export default function CaseManagement() {
                                 <p className="font-medium text-gray-800 truncate">{doc.fileName}</p>
                                 <div className="flex items-center gap-3 mt-1">
                               <p className="text-xs text-gray-500">
-                                    {new Date(doc.uploadedAt).toLocaleDateString('en-US', { 
-                                      year: 'numeric', 
-                                      month: 'short', 
-                                      day: 'numeric' 
-                                    })}
+                                    {formatDate(doc.uploadedAt)}
                                   </p>
                                   {doc.fileSize && (
                                     <span className="text-xs text-gray-400">
@@ -1086,9 +1110,9 @@ export default function CaseManagement() {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option>All</option>
-              <option>Active</option>
-              <option>Closed</option>
+              <option>Pre-litigation</option>
               <option>Pending</option>
+              <option>Closed</option>
             </select>
           </div>
         </div>
@@ -1121,9 +1145,10 @@ export default function CaseManagement() {
                       <p className="text-sm text-gray-600 mt-1">{caseItem.clientDetails.name}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      caseItem.status === 'Active' ? 'bg-green-100 text-green-700' :
+                      caseItem.status === 'Pre-litigation' ? 'bg-blue-100 text-blue-700' :
                       caseItem.status === 'Closed' ? 'bg-gray-100 text-gray-700' :
-                      'bg-yellow-100 text-yellow-700'
+                      caseItem.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-purple-100 text-purple-700'
                     }`}>
                       {caseItem.status}
                     </span>
@@ -1138,7 +1163,7 @@ export default function CaseManagement() {
                     </div>
                   )}
                   <div className="flex justify-between items-center pt-3 border-t border-amber-200">
-                    <span className="text-xs text-gray-500">{new Date(caseItem.updatedAt).toLocaleDateString()}</span>
+                    <span className="text-xs text-gray-500">{formatDate(caseItem.updatedAt)}</span>
                     <div className="flex gap-2">
                       <button
                         onClick={(e) => {
@@ -1222,6 +1247,28 @@ export default function CaseManagement() {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Client Address"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Profession</label>
+                  <input
+                    type="text"
+                    value={formData.profession}
+                    onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Client Profession"
+                  />
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('caseSummary')}</label>
                 <textarea
@@ -1257,15 +1304,29 @@ export default function CaseManagement() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('status')}</label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value, otherStatus: '' })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option>Active</option>
+                    <option>Pre-litigation</option>
                     <option>Pending</option>
                     <option>Closed</option>
+                    <option>Other</option>
                   </select>
                 </div>
               </div>
+              {formData.status === 'Other' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Specify Status</label>
+                  <input
+                    type="text"
+                    required={formData.status === 'Other'}
+                    value={formData.otherStatus}
+                    onChange={(e) => setFormData({ ...formData, otherStatus: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter custom status"
+                  />
+                </div>
+              )}
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
@@ -1330,6 +1391,28 @@ export default function CaseManagement() {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <input
+                    type="text"
+                    value={editFormData.address}
+                    onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Client Address"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Profession</label>
+                  <input
+                    type="text"
+                    value={editFormData.profession}
+                    onChange={(e) => setEditFormData({ ...editFormData, profession: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Client Profession"
+                  />
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Case Summary</label>
                 <textarea
@@ -1363,15 +1446,29 @@ export default function CaseManagement() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                   <select
                     value={editFormData.status}
-                    onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                    onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value, otherStatus: '' })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option>Active</option>
+                    <option>Pre-litigation</option>
                     <option>Pending</option>
                     <option>Closed</option>
+                    <option>Other</option>
                   </select>
                 </div>
               </div>
+              {editFormData.status === 'Other' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Specify Status</label>
+                  <input
+                    type="text"
+                    required={editFormData.status === 'Other'}
+                    value={editFormData.otherStatus}
+                    onChange={(e) => setEditFormData({ ...editFormData, otherStatus: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter custom status"
+                  />
+                </div>
+              )}
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
@@ -1580,7 +1677,7 @@ export default function CaseManagement() {
                     </div>
                     <div className="text-right text-sm text-gray-500">
                       <p>Size: {previewDocument.fileSize ? `${(previewDocument.fileSize / 1024).toFixed(1)} KB` : 'Unknown'}</p>
-                      <p>Uploaded: {new Date(previewDocument.uploadedAt).toLocaleDateString()}</p>
+                      <p>Uploaded: {formatDate(previewDocument.uploadedAt)}</p>
                     </div>
                   </div>
                 </div>

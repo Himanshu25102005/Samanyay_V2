@@ -54,7 +54,7 @@ app.use(session({
   saveUninitialized: false,
   secret: process.env.SESSION_SECRET || "hey hey hey",
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // secure cookies in production
+    secure: true, // Must be true when sameSite is 'none' for cross-origin cookies
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'none' // Allow cross-origin cookies

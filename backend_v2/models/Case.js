@@ -17,15 +17,16 @@ const caseSchema = mongoose.Schema({
       required: true
     },
     phone: String,
-    email: String
+    email: String,
+    address: String,
+    profession: String
   },
   caseSummary: String,
   nextSteps: String,
   nextDate: Date,
   status: {
     type: String,
-    enum: ['Active', 'Closed', 'Pending'],
-    default: 'Active'
+    default: 'Pre-litigation'
   },
   collaborators: [{
     type: mongoose.Schema.Types.ObjectId,

@@ -18,9 +18,16 @@ export async function GET(request, context) {
     headers.delete('content-length');
     headers.delete('connection');
     
+    // Explicitly forward cookies from the incoming request
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader) {
+      headers.set('cookie', cookieHeader);
+    }
+    
     const res = await fetch(targetUrl.toString(), {
       method: 'GET',
       headers,
+      credentials: 'include', // Include credentials (cookies)
       duplex: 'half',
     });
     

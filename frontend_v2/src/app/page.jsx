@@ -5,6 +5,9 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Playfair_Display, Inter } from "next/font/google";
 import Plasma from "../../animations/Plasma";
 import { createPortal } from "react-dom";
+import { useUser } from "../../components/UserContext";
+import { useRouter } from "next/navigation";
+import { API } from "../../lib/api";
 
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
@@ -13,6 +16,18 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export default function Home() {
   const { scrollYProgress } = useScroll();
   const heroParallax = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const { user, loading: userLoading } = useUser();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await API.logout();
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const testimonials = useMemo(
     () => [
@@ -274,22 +289,57 @@ export default function Home() {
             ))}
           </nav>
           <div className="hidden md:flex items-center gap-3">
-            <motion.a
-              href="/login"
-              whileHover={{ y: -2, boxShadow: "0 10px 24px rgba(8,24,168,0.22)" }}
-              whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center justify-center rounded-lg border border-slate-300/80 bg-white/60 backdrop-blur px-4 py-2 text-sm text-[#1A2C4E] hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300"
-            >
-              Sign In
-            </motion.a>
-            <motion.a
-              href="/login"
-              whileHover={{ y: -2, boxShadow: "0 12px 28px rgba(8,24,168,0.28)", filter: "brightness(1.05)" }}
-              whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center justify-center rounded-lg bg-[#0818A8] px-4 py-2 text-sm text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0818A8]"
-            >
-              Get Started
-            </motion.a>
+            {userLoading ? (
+              <div className="w-8 h-8 border-2 border-slate-300 border-t-[#0818A8] rounded-full animate-spin"></div>
+            ) : user ? (
+              <>
+                <motion.button
+                  onClick={() => router.push('/profile')}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center justify-center rounded-full w-10 h-10 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 transition-all"
+                  aria-label="Profile"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0818A8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </motion.button>
+                <motion.button
+                  onClick={handleLogout}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center justify-center rounded-lg border border-slate-300/80 bg-white/60 backdrop-blur px-4 py-2 text-sm text-[#1A2C4E] hover:bg-red-50 hover:border-red-300 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-300 transition-all"
+                  aria-label="Logout"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                  </svg>
+                  Logout
+                </motion.button>
+              </>
+            ) : (
+              <>
+                <motion.a
+                  href="/login"
+                  whileHover={{ y: -2, boxShadow: "0 10px 24px rgba(8,24,168,0.22)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center justify-center rounded-lg border border-slate-300/80 bg-white/60 backdrop-blur px-4 py-2 text-sm text-[#1A2C4E] hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300"
+                >
+                  Sign In
+                </motion.a>
+                <motion.a
+                  href="/login"
+                  whileHover={{ y: -2, boxShadow: "0 12px 28px rgba(8,24,168,0.28)", filter: "brightness(1.05)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center justify-center rounded-lg bg-[#0818A8] px-4 py-2 text-sm text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0818A8]"
+                >
+                  Get Started
+                </motion.a>
+              </>
+            )}
           </div>
         </div>
       </header>

@@ -48,12 +48,18 @@ passport.use(new GoogleStrategy({
       const user = await userModel.findOne({ google_id: profile.id});
       
       if (user) {
-        return cb(null, user);
+        // Ensure name field is set for existing users
+        if (!user.name && profile.displayName) {
+          user.name = profile.displayName;
+          await user.save();
+        }
         console.log('User found:', user);
+        return cb(null, user);
       } else {
         const newUser = await userModel.create({
           google_id: profile.id,
           username: profile.displayName,
+          name: profile.displayName, // Ensure name field is set
           email: profile.emails[0].value,
           photo: profile.photos[0].value,
         });
