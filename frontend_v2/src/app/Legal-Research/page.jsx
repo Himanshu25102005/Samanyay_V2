@@ -155,13 +155,13 @@ export default function LegalResearch() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="sticky top-0 z-10 w-full border-b-2 border-gray-500 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 mb-6 sm:mb-8"
+                    className="sticky top-0 z-10 w-full border-b-2 border-gray-500 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 mb-[10px]"
                     style={{ background: 'transparent' }}
                 >
                     <div className="max-w-7xl mx-auto">
                         <div className="flex items-center justify-between">
                             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
-                                Legal Research
+                                {t('legalResearch')}
                             </h1>
                             <div className="flex items-center gap-3">
                                 <span className={`text-xs px-2 py-1 rounded-full ${health==='running'?'bg-green-100 text-green-700':'bg-slate-100 text-slate-600'}`}>
@@ -173,7 +173,7 @@ export default function LegalResearch() {
                     </div>
                 </motion.div>
 
-                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-2">
 
                     {/* Main Content */}
                     <AnimatePresence mode="wait">
@@ -195,10 +195,10 @@ export default function LegalResearch() {
                                     className="mb-8"
                                 >
                                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-4">
-                                        Your Legal Research Assistant
+                                        {t('legalResearchAssistant')}
                                     </h2>
                                     <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
-                                        Get instant answers to your legal questions with AI-powered research
+                                        {t('legalResearchSubtitle')}
                                     </p>
                                 </motion.div>
 
@@ -220,7 +220,7 @@ export default function LegalResearch() {
                                                     send();
                                                 }
                                             }}
-                                            placeholder="Type your legal query here"
+                                            placeholder={t('typeYourLegalQuery')}
                                             className="w-full rounded-2xl border-2 border-slate-200 bg-white/90 backdrop-blur-sm px-6 py-4 text-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 transition-all duration-200 placeholder:text-slate-400"
                                         />
                                         <button 
@@ -248,7 +248,7 @@ export default function LegalResearch() {
                                     className="w-full max-w-3xl"
                                 >
                                     <h3 className="text-lg font-semibold text-slate-700 mb-4">
-                                        Sample Questions:
+                                        {t('sampleQuestions')}:
                                     </h3>
                                     <div className="space-y-3">
                                         {sampleQuestions.map((q, index) => (
@@ -288,7 +288,8 @@ export default function LegalResearch() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.6, delay: 0.2 }}
-                                        className="rounded-xl border border-slate-200/60 bg-white/95 backdrop-blur-sm flex flex-col shadow-lg h-[85vh]"
+                                        className="rounded-xl border border-slate-200/60 bg-white/95 backdrop-blur-sm flex flex-col shadow-lg"
+                                        style={{ height: 'calc(100vh - 110px)' }}
                                     >
                                         {/* Chat Header */}
                                         <div className="p-4 sm:p-5 border-b border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-white/50 flex-shrink-0">
@@ -300,8 +301,8 @@ export default function LegalResearch() {
                                                     </svg>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="font-bold text-slate-800 text-lg">Legal Research Chat</div>
-                                                    <div className="text-sm text-slate-500">Ask your legal questions</div>
+                                                    <div className="font-bold text-slate-800 text-lg">{t('legalResearchChat')}</div>
+                                                    <div className="text-sm text-slate-500">{t('askYourLegalQuestions')}</div>
                                                 </div>
                         </div>
                     </div>
@@ -361,7 +362,7 @@ export default function LegalResearch() {
                                                             <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
                                                         </div>
                                                         <div className="bg-slate-100 rounded-xl p-4">
-                                                            <div className="text-sm text-slate-600">Processing your query...</div>
+                                                            <div className="text-sm text-slate-600">{t('processingYourQuery')}</div>
                                                         </div>
                                         </motion.div>
                                 )}
@@ -393,7 +394,7 @@ export default function LegalResearch() {
                                                                 }`}
                                                                 style={answerType===v ? { backgroundColor: '#0818A8' } : {}}
                                             >
-                                                {v==='detailed'?'Detailed':'Short'}
+                                                {v==='detailed'?t('detailed'):t('short')}
                                             </button>
                                         ))}
                                     </div>
@@ -422,7 +423,7 @@ export default function LegalResearch() {
                                                             e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
                                                         }} 
                                                         onKeyDown={(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } }} 
-                                                        placeholder="Type your legal question…" 
+                                                        placeholder={t('typeYourLegalQuestion')} 
                                                         rows={1}
                                                         style={{ minHeight: '40px', maxHeight: '150px' }}
                                                         className="flex-1 rounded-xl border border-slate-300/60 bg-white/80 backdrop-blur-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 resize-none transition-all duration-200 placeholder:text-slate-400 overflow-y-auto" 
@@ -440,7 +441,7 @@ export default function LegalResearch() {
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                                             </svg>
                                                         )}
-                                                        <span className="hidden sm:inline">Send</span>
+                                                        <span className="hidden sm:inline">{t('send')}</span>
                                     </button>
                                 </div>
                                 <div className="flex justify-end gap-2">
@@ -448,13 +449,13 @@ export default function LegalResearch() {
                                         onClick={clearChat} 
                                                         className="px-3 py-1.5 rounded-lg border bg-white border-slate-300 hover:bg-slate-50 text-slate-600 text-sm transition-all duration-200"
                                     >
-                                        Clear
+                                        {t('clear')}
                                     </button>
                                     <button 
                                         onClick={exportChat} 
                                                         className="px-3 py-1.5 rounded-lg border bg-white border-slate-300 hover:bg-slate-50 text-slate-600 text-sm transition-all duration-200"
                                     >
-                                        Download
+                                        {t('download')}
                                     </button>
                                                 </div>
                                 </div>
@@ -477,7 +478,7 @@ export default function LegalResearch() {
                                                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                                                     </svg>
                                                 </div>
-                                                Sample Questions
+                                                {t('sampleQuestions')}
                                             </div>
                                             <div className="space-y-2">
                                                 {sampleQuestions.map((q, index) => (

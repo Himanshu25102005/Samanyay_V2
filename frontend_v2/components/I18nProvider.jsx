@@ -261,7 +261,19 @@ const DICT = {
     draftingAssistantDescription: 'Generate professional legal documents with AI assistance for various legal scenarios.',
     getStarted: 'Get Started',
     exploreNow: 'Explore Now',
-    startDrafting: 'Start Drafting'
+    startDrafting: 'Start Drafting',
+    
+    // Legal Research specific
+    legalResearchAssistant: 'Your Legal Research Assistant',
+    legalResearchSubtitle: 'Get instant answers to your legal questions with AI-powered research',
+    typeYourLegalQuery: 'Type your legal query here',
+    sampleQuestions: 'Sample Questions',
+    legalResearchChat: 'Legal Research Chat',
+    askYourLegalQuestions: 'Ask your legal questions',
+    processingYourQuery: 'Processing your query...',
+    detailed: 'Detailed',
+    short: 'Short',
+    typeYourLegalQuestion: 'Type your legal question…'
   },
   Hindi: {
     // Navigation
@@ -519,7 +531,19 @@ const DICT = {
     draftingAssistantDescription: 'विभिन्न कानूनी परिदृश्यों के लिए एआई सहायता के साथ पेशेवर कानूनी दस्तावेज़ उत्पन्न करें।',
     getStarted: 'शुरू करें',
     exploreNow: 'अभी खोजें',
-    startDrafting: 'ड्राफ्टिंग शुरू करें'
+    startDrafting: 'ड्राफ्टिंग शुरू करें',
+    
+    // Legal Research specific
+    legalResearchAssistant: 'आपका कानूनी अनुसंधान सहायक',
+    legalResearchSubtitle: 'एआई-संचालित अनुसंधान के साथ अपने कानूनी प्रश्नों के तत्काल उत्तर प्राप्त करें',
+    typeYourLegalQuery: 'अपना कानूनी प्रश्न यहाँ लिखें',
+    sampleQuestions: 'नमूना प्रश्न',
+    legalResearchChat: 'कानूनी अनुसंधान चैट',
+    askYourLegalQuestions: 'अपने कानूनी प्रश्न पूछें',
+    processingYourQuery: 'आपके प्रश्न को संसाधित किया जा रहा है...',
+    detailed: 'विस्तृत',
+    short: 'संक्षिप्त',
+    typeYourLegalQuestion: 'अपना कानूनी प्रश्न लिखें…'
   },
   Marathi: {
     // Navigation
@@ -763,7 +787,19 @@ const DICT = {
     draftingAssistantDescription: 'विविध कायदेशीर परिस्थितीसाठी एआय सहाय्याने व्यावसायिक कायदेशीर दस्तऐवज तयार करा.',
     getStarted: 'सुरू करा',
     exploreNow: 'आता शोधा',
-    startDrafting: 'मसुदा सुरू करा'
+    startDrafting: 'मसुदा सुरू करा',
+    
+    // Legal Research specific
+    legalResearchAssistant: 'तुमचे कायदेशीर संशोधन सहाय्यक',
+    legalResearchSubtitle: 'एआय-चालित संशोधनासह तुमच्या कायदेशीर प्रश्नांची तात्काळ उत्तरे मिळवा',
+    typeYourLegalQuery: 'तुमचा कायदेशीर प्रश्न येथे लिहा',
+    sampleQuestions: 'नमुना प्रश्न',
+    legalResearchChat: 'कायदेशीर संशोधन चॅट',
+    askYourLegalQuestions: 'तुमचे कायदेशीर प्रश्न विचारा',
+    processingYourQuery: 'तुमचा प्रश्न प्रक्रिया करत आहे...',
+    detailed: 'तपशीलवार',
+    short: 'संक्षिप्त',
+    typeYourLegalQuestion: 'तुमचा कायदेशीर प्रश्न लिहा…'
   },
   Gujarati: {
     // Navigation
@@ -1020,7 +1056,19 @@ const DICT = {
     draftingAssistantDescription: 'વિવિધ કાનૂની પરિસ્થિતિઓ માટે એઆઇ સહાયતા સાથે વ્યાવસાયિક કાનૂની દસ્તાવેજો ઉત્પન્ન કરો.',
     getStarted: 'શરૂ કરો',
     exploreNow: 'હવે અન્વેષણ કરો',
-    startDrafting: 'ડ્રાફ્ટિંગ શરૂ કરો'
+    startDrafting: 'ડ્રાફ્ટિંગ શરૂ કરો',
+    
+    // Legal Research specific
+    legalResearchAssistant: 'તમારું કાનૂની સંશોધન સહાયક',
+    legalResearchSubtitle: 'એઆઇ-સંચાલિત સંશોધન સાથે તમારા કાનૂની પ્રશ્નોના તાત્કાલિક જવાબો મેળવો',
+    typeYourLegalQuery: 'તમારો કાનૂની પ્રશ્ન અહીં લખો',
+    sampleQuestions: 'નમૂના પ્રશ્નો',
+    legalResearchChat: 'કાનૂની સંશોધન ચેટ',
+    askYourLegalQuestions: 'તમારા કાનૂની પ્રશ્નો પૂછો',
+    processingYourQuery: 'તમારા પ્રશ્નને પ્રક્રિયા કરી રહ્યા છીએ...',
+    detailed: 'વિગતવાર',
+    short: 'ટૂંકું',
+    typeYourLegalQuestion: 'તમારો કાનૂની પ્રશ્ન લખો…'
   }
 };
 
