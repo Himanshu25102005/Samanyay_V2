@@ -205,7 +205,7 @@ export default function Home() {
         transition={{ duration: 0.18, ease: "easeOut" }}
         role="menu"
         ref={dropdownRef}
-        className="fixed z-[9999] w-64 overflow-hidden rounded-xl border border-slate-200/70 bg-white/90 backdrop-blur shadow-[0_20px_50px_rgba(26,44,78,0.15)]"
+        className="fixed z-[60] w-64 overflow-hidden rounded-xl border border-slate-200/70 bg-white/90 backdrop-blur shadow-[0_20px_50px_rgba(26,44,78,0.15)]"
         style={{
           top: `${top}px`,
           left: left === 'auto' ? 'auto' : `${left}px`,

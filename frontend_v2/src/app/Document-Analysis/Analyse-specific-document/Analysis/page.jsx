@@ -591,7 +591,7 @@ export default function AnalysisPage() {
                                 </span>
                             </motion.div>
                         </div>
-                        <div className="hidden sm:block">
+                        <div className="block">
                             <LanguageSelector />
                         </div>
                     </div>
@@ -976,10 +976,7 @@ export default function AnalysisPage() {
                 </div>
             </div>
 
-            {/* Mobile language selector */}
-            <div className="sm:hidden fixed bottom-6 left-6 z-50">
-                <LanguageSelector />
-            </div>
+            {/* Mobile language selector moved into header above to avoid overlapping inputs */}
         </div>
     );
 }
