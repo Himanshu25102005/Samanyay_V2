@@ -14,9 +14,6 @@ export async function POST(req) {
     
     const target = `${BASE}/drafting/improve?${url.searchParams.toString()}`;
     
-    console.log(`[Drafting Assistant - Improve] Proxying request to: ${target}`);
-    console.log(`[Drafting Assistant - Improve] User ID: ${userId}`);
-    
     const res = await fetch(target, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

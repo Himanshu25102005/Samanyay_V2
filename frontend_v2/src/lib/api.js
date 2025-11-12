@@ -6,22 +6,6 @@
 const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
 
-// Debug logging
-console.log('=== API CONFIGURATION DEBUG ===');
-console.log('Raw NEXT_PUBLIC_API_URL:', JSON.stringify(process.env.NEXT_PUBLIC_API_URL));
-console.log('Clean API_BASE_URL:', JSON.stringify(API_BASE_URL));
-console.log('Environment check:', {
-  NODE_ENV: process.env.NODE_ENV,
-  VERCEL: process.env.VERCEL,
-  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
-});
-console.log('URL validation:', {
-  hasTrailingSlash: rawApiUrl.endsWith('/'),
-  hasDoubleSlash: rawApiUrl.includes('//'),
-  length: rawApiUrl.length
-});
-console.log('================================');
-
 /**
  * Makes an API request with proper error handling
  * @param {string} endpoint - The API endpoint
@@ -45,24 +29,6 @@ export async function apiRequest(endpoint, options = {}) {
     url = isNextApi ? cleanEndpoint : `${API_BASE_URL}${cleanEndpoint}`;
   }
   
-  console.log('=== URL CONSTRUCTION DEBUG ===');
-  console.log('Original endpoint:', endpoint);
-  console.log('Is full URL:', isFullUrl);
-  if (!isFullUrl) {
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const isNextApi = cleanEndpoint.startsWith('/api/');
-    console.log('Clean endpoint:', cleanEndpoint);
-    console.log('Using Next proxy:', isNextApi);
-  }
-  console.log('API_BASE_URL (for non-proxied):', API_BASE_URL);
-  console.log('Final URL:', url);
-  console.log('URL validation:', {
-    hasDoubleSlash: url.includes('//'),
-    startsWithHttp: url.startsWith('http'),
-    endsWithSlash: url.endsWith('/')
-  });
-  console.log('================================');
-  
   const defaultOptions = {
     credentials: 'include',
     cache: 'no-store',
@@ -75,9 +41,6 @@ export async function apiRequest(endpoint, options = {}) {
   const config = { ...defaultOptions, ...options };
 
   try {
-    console.log(`API Request: ${config.method || 'GET'} ${url}`);
-    console.log('Request options:', config);
-
     let response;
     try {
       response = await fetch(url, config);
@@ -89,9 +52,6 @@ export async function apiRequest(endpoint, options = {}) {
       }
       throw fetchErr;
     }
-
-    console.log(`API Response: ${response.status} ${response.statusText}`);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     // Handle non-JSON responses
     const contentType = response.headers.get('content-type');

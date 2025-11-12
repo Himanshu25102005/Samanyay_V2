@@ -43,9 +43,7 @@ export default function Navbar() {
     // Handle logout
     const handleLogout = async () => {
         try {
-            console.log('Logout clicked');
             await API.logout();
-            console.log('Logout successful');
             // Clear any local storage or state
             localStorage.clear();
             // Redirect to home page

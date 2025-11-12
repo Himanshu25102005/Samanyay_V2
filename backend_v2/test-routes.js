@@ -1,4 +1,10 @@
+// ============================================================================
+// DEVELOPMENT/TEST FILE - DO NOT DEPLOY TO PRODUCTION
+// ============================================================================
 // Test script to verify all backend routes are working
+// This file is for development and testing purposes only.
+// ============================================================================
+
 const express = require('express');
 const request = require('supertest');
 const app = require('./app');

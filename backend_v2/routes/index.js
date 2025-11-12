@@ -27,11 +27,6 @@ router.get("/api/test", function (req, res, next) {
 });
 
 router.post("/api/register", (req, res) => {
-  console.log("=== REGISTER REQUEST ===");
-  console.log("Registration request received:", req.body);
-  console.log("Headers:", req.headers);
-  console.log("Origin:", req.get('origin'));
-  
   const data = new userModel({
     name: req.body.name,
     email: req.body.email,
@@ -40,8 +35,6 @@ router.post("/api/register", (req, res) => {
 
   userModel.register(data, req.body.password)
     .then((user) => {
-      console.log("User registered successfully:", user);
-      
       // Use passport authentication after registration
       passport.authenticate("local")(req, res, () => {
         res.json({ 
@@ -63,11 +56,6 @@ router.post("/api/register", (req, res) => {
 
 
 router.post("/api/login", (req, res, next) => {
-  console.log("=== LOGIN REQUEST ===");
-  console.log("Login request received:", req.body);
-  console.log("Headers:", req.headers);
-  console.log("Origin:", req.get('origin'));
-  
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       console.error("Authentication error:", err);
@@ -79,7 +67,6 @@ router.post("/api/login", (req, res, next) => {
     }
     
     if (!user) {
-      console.log("Authentication failed:", info);
       return res.status(401).json({ 
         success: false, 
         message: info.message || "Authentication failed" 
@@ -88,12 +75,7 @@ router.post("/api/login", (req, res, next) => {
     
     req.logIn(user, (err) => {
       if (err) {
-        console.error("=== LOGIN ERROR ===");
-        console.error("Error:", err);
-        console.error("Error message:", err.message);
-        console.error("User object:", user);
-        console.error("User._id:", user?._id);
-        console.error("User.id:", user?.id);
+        console.error("Login error:", err);
         return res.status(500).json({ 
           success: false, 
           message: "Login failed", 
@@ -101,7 +83,6 @@ router.post("/api/login", (req, res, next) => {
         });
       }
       
-      console.log("User logged in successfully:", user);
       return res.json({ 
         success: true, 
         message: "Login successful",
@@ -117,17 +98,7 @@ router.get("/new", function (req, res, next) {
 
 // Get current user data
 router.get("/api/user", (req, res) => {
-  console.log("=== USER API DEBUG ===");
-  console.log("Session ID:", req.sessionID);
-  console.log("Session data:", req.session);
-  console.log("Is authenticated:", req.isAuthenticated());
-  console.log("User object:", req.user);
-  console.log("Cookies:", req.cookies);
-  console.log("Headers:", req.headers);
-  console.log("=====================");
-  
   if (req.isAuthenticated() && req.user) {
-    console.log("User authenticated:", req.user);
     res.json({
       success: true,
       user: {
@@ -139,7 +110,6 @@ router.get("/api/user", (req, res) => {
       }
     });
   } else {
-    console.log("User not authenticated, returning 401");
     res.status(401).json({
       success: false,
       message: "User not authenticated"
@@ -160,7 +130,6 @@ router.get(
   "/api/google/callback",
   passport.authenticate("google", { failureRedirect: "https://samanyay-v2.vercel.app/" }),
   (req, res) => {
-    console.log("Google OAuth successful, redirecting to profile...");
     // Redirect to frontend profile page
     res.redirect("https://samanyay-v2.vercel.app/profile");
   }
@@ -181,9 +150,6 @@ router.get("/api/Document-Analysis", isloggedin, (req, res) => {
 // User registration route
 router.post("/api/auth/register", async (req, res) => {
   try {
-    console.log("=== REGISTRATION DEBUG ===");
-    console.log("Registration data:", req.body);
-    
     const { name, email, password, phone } = req.body;
     
     // Basic validation
@@ -214,8 +180,6 @@ router.post("/api/auth/register", async (req, res) => {
     });
     
     await newUser.save();
-    
-    console.log("User registered successfully:", newUser._id);
     
     // Auto-login the user after registration
     req.login(newUser, (err) => {
@@ -250,9 +214,6 @@ router.post("/api/auth/register", async (req, res) => {
 // User login route
 router.post("/api/auth/login", async (req, res) => {
   try {
-    console.log("=== LOGIN DEBUG ===");
-    console.log("Login data:", req.body);
-    
     const { email, password } = req.body;
     
     // Basic validation
@@ -287,8 +248,6 @@ router.post("/api/auth/login", async (req, res) => {
         return res.status(500).json({ success: false, message: "Login failed" });
       }
       
-      console.log("User logged in successfully:", user._id);
-      
       res.json({ 
         success: true, 
         message: "Login successful",
@@ -314,10 +273,6 @@ router.post("/api/auth/login", async (req, res) => {
 
 // Logout route
 router.post("/api/auth/logout", (req, res) => {
-  console.log("=== LOGOUT DEBUG ===");
-  console.log("Session before logout:", req.session);
-  console.log("User before logout:", req.user);
-  
   req.logout((err) => {
     if (err) {
       console.error("Logout error:", err);
@@ -330,7 +285,6 @@ router.post("/api/auth/logout", (req, res) => {
         return res.status(500).json({ success: false, message: "Session cleanup failed" });
       }
       
-      console.log("User logged out successfully");
       res.clearCookie('connect.sid'); // Clear session cookie
       res.json({ success: true, message: "Logged out successfully" });
     });
@@ -350,12 +304,6 @@ router.all("*", (req, res, next) => {
     return next();
   }
   
-  console.log("=== 404 REQUEST ===");
-  console.log("Method:", req.method);
-  console.log("URL:", req.url);
-  console.log("Headers:", req.headers);
-  console.log("Body:", req.body);
-  console.log("Origin:", req.get('origin'));
   res.status(404).json({ 
     error: "Route not found", 
     method: req.method, 

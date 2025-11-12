@@ -1,4 +1,10 @@
+// ============================================================================
+// DEVELOPMENT/DEBUG FILE - DO NOT DEPLOY TO PRODUCTION
+// ============================================================================
 // Debug script to check environment variables
+// This file is for development and debugging purposes only.
+// ============================================================================
+
 console.log('=== ENVIRONMENT DEBUG ===');
 console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
 console.log('Raw value type:', typeof process.env.NEXT_PUBLIC_API_URL);

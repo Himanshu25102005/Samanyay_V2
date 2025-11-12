@@ -1,4 +1,10 @@
+// ============================================================================
+// DEVELOPMENT/TEST FILE - DO NOT DEPLOY TO PRODUCTION
+// ============================================================================
 // Test script to verify API URL construction
+// This file is for development and testing purposes only.
+// ============================================================================
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 function testApiUrl(endpoint) {

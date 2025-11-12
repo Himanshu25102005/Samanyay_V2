@@ -7,11 +7,7 @@ export async function GET(request, context) {
     const params = await context.params;
     const docId = params.docId;
     
-    console.log('Document preview request for docId:', docId);
-    
     const targetUrl = new URL(`/api/documents/${docId}/download`, BACKEND_URL);
-    
-    console.log('Proxying document preview request to:', targetUrl.toString());
     
     const headers = new Headers(request.headers);
     headers.delete('host');
@@ -31,8 +27,6 @@ export async function GET(request, context) {
       duplex: 'half',
     });
     
-    console.log('Backend response status:', res.status);
-    
     if (!res.ok) {
       const errorText = await res.text();
       console.error('Backend responded with error:', res.status, errorText);
@@ -45,7 +39,6 @@ export async function GET(request, context) {
     }
     
     const blob = await res.blob();
-    console.log('Blob size for preview:', blob.size, 'bytes');
     
     // Return the file with appropriate headers for preview
     return new NextResponse(blob, {

@@ -138,7 +138,6 @@ export default function LegalResearch() {
     function toggleVoiceChat() {
         setIsVoiceActive(!isVoiceActive);
         // TODO: Implement actual voice recognition functionality
-        console.log('Voice chat toggled:', !isVoiceActive);
     }
 
     return (

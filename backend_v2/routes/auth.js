@@ -13,19 +13,12 @@ passport.use(new LocalStrategy(
   },
   async function(email, password, done) {
     try {
-      console.log("=== LOCAL STRATEGY AUTH ===");
-      console.log("Email:", email);
-      
       // Use passport-local-mongoose authenticate method
       const result = await userModel.authenticate()(email, password);
-      console.log("Auth result:", result);
       
       if (result.user) {
-        console.log("Authentication successful, user:", result.user);
-        console.log("User._id:", result.user._id);
         return done(null, result.user);
       } else {
-        console.log("Authentication failed");
         return done(null, false, { message: 'Invalid email or password' });
       }
     } catch (error) {
@@ -43,8 +36,6 @@ passport.use(new GoogleStrategy({
   },
   async function(accessToken, refreshToken, profile, cb) {
     try {
-      console.log('Google Profile:', profile);
-      
       const user = await userModel.findOne({ google_id: profile.id});
       
       if (user) {
@@ -53,7 +44,6 @@ passport.use(new GoogleStrategy({
           user.name = profile.displayName;
           await user.save();
         }
-        console.log('User found:', user);
         return cb(null, user);
       } else {
         const newUser = await userModel.create({
@@ -73,12 +63,6 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.serializeUser((user, done) => {
-    console.log("=== SERIALIZE USER ===");
-    console.log("User object:", user);
-    console.log("User._id:", user._id);
-    console.log("User.id:", user.id);
-    console.log("User keys:", Object.keys(user));
-    
     if (!user._id) {
         console.error("No _id found in user object!");
         return done(new Error("User object missing _id"), null);

@@ -15,10 +15,6 @@ export async function POST(req) {
     const qs = url.searchParams.toString();
     const target = `${BASE}/drafting/upload${qs ? `?${qs}` : ''}`;
 
-    console.log('Proxying upload request to:', target);
-    console.log('Content-Type:', req.headers.get('content-type'));
-    console.log(`[Drafting Assistant - Upload] User ID: ${userId}`);
-
     const res = await fetch(target, {
       method: 'POST',
       // Forward the original content-type for multipart boundaries
@@ -27,10 +23,7 @@ export async function POST(req) {
       duplex: 'half', // Required for Node.js fetch API when sending a body
     });
 
-    console.log('Backend response status:', res.status, res.statusText);
-
     const text = await res.text();
-    console.log('Backend response text:', text.substring(0, 200) + (text.length > 200 ? '...' : ''));
     
     return new Response(text, {
       status: res.status,

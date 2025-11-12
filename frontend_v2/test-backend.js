@@ -1,4 +1,10 @@
+// ============================================================================
+// DEVELOPMENT/TEST FILE - DO NOT DEPLOY TO PRODUCTION
+// ============================================================================
 // Test script to check if backend is reachable
+// This file is for development and testing purposes only.
+// ============================================================================
+
 const BACKEND_URL = 'http://localhost:5000';
 
 async function testBackend() {

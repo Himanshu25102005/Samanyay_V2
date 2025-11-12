@@ -9,9 +9,6 @@ async function proxy(request) {
     const url = new URL(request.url);
     const targetUrl = new URL(targetPath, BACKEND_URL);
     targetUrl.search = url.search;
-    
-    console.log('Proxying to backend:', targetUrl.toString());
-    console.log('Request method:', request.method);
 
     const headers = new Headers(request.headers);
     headers.delete('host');
@@ -33,8 +30,6 @@ async function proxy(request) {
     };
 
     const res = await fetch(targetUrl.toString(), init);
-    console.log('Backend response status:', res.status);
-    console.log('Backend response headers:', Object.fromEntries(res.headers.entries()));
     
     const responseHeaders = new Headers(res.headers);
     responseHeaders.delete('transfer-encoding');
@@ -83,11 +78,6 @@ async function proxy(request) {
     return new NextResponse(text, { status: res.status, headers: responseHeaders });
   } catch (err) {
     console.error('Proxy error:', err);
-    console.error('Backend URL:', targetUrl.toString());
-    console.error('Environment variables:', {
-      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-      BACKEND_URL: process.env.BACKEND_URL
-    });
     return NextResponse.json({ 
       success: false,
       error: 'Proxy error', 

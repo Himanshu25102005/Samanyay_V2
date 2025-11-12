@@ -15,9 +15,6 @@ export async function POST(req) {
     const qs = url.searchParams.toString();
     const target = `${BASE}/drafting/new${qs ? `?${qs}` : ''}`;
     
-    console.log(`[Drafting Assistant - New] Proxying request to: ${target}`);
-    console.log(`[Drafting Assistant - New] User ID: ${userId}`);
-    
     const res = await fetch(target, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

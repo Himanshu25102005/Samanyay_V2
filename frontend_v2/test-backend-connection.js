@@ -1,5 +1,10 @@
+// ============================================================================
+// DEVELOPMENT/TEST FILE - DO NOT DEPLOY TO PRODUCTION
+// ============================================================================
 // Test script to verify backend connection
 // Run with: node test-backend-connection.js
+// This file is for development and testing purposes only.
+// ============================================================================
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'http://localhost:5000';
 

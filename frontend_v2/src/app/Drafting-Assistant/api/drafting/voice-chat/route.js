@@ -48,9 +48,6 @@ export async function POST(req) {
     
     const target = `${BASE}/drafting/voice-chat?${queryParams.toString()}`;
 
-    console.log('Voice chat request to:', target);
-    console.log('Mode:', mode, 'Document Type:', documentType, 'Language:', language, 'User ID:', userId, 'Document ID:', documentId);
-
     const res = await fetch(target, {
       method: 'POST',
       headers: { 'content-type': req.headers.get('content-type') || undefined },

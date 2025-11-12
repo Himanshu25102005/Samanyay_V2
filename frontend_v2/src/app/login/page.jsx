@@ -30,7 +30,6 @@ export default function LoginPage() {
       }
       
       if (response.success) {
-        console.log("Auth successful:", response);
         // Redirect to profile page
         router.push("/profile");
       } else {

@@ -41,14 +41,14 @@ export function extractUserId(request) {
         // For now, we'll use a simple approach
         return 'authenticated_user';
       } catch (error) {
-        console.warn('Error parsing auth token:', error);
+        // Error parsing auth token - use fallback
       }
     }
 
     // Default fallback
     return 'default_user';
   } catch (error) {
-    console.warn('Error extracting user ID:', error);
+    // Error extracting user ID - use fallback
     return 'default_user';
   }
 }

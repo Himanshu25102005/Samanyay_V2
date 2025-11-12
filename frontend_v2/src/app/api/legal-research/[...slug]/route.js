@@ -41,9 +41,6 @@ async function proxy(request, context) {
       duplex: 'half' 
     };
     
-    console.log(`[Legal Research] Proxying ${request.method} request to: ${targetUrl.toString()}`);
-    console.log(`[Legal Research] User ID: ${userId}`);
-    
     const res = await fetch(targetUrl.toString(), init);
     const responseHeaders = new Headers(res.headers);
     responseHeaders.delete('transfer-encoding');

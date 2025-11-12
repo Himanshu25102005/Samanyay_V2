@@ -176,14 +176,10 @@ function ImproveDraftContent({ type, initialDid }) {
       const fd = new FormData();
       fd.append("file", file);
       
-      console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
-      
       const res = await fetch(`/Drafting-Assistant/api/drafting/upload?user_id=${encodeURIComponent(userId)}&document_type=${encodeURIComponent(type)}&language=${encodeURIComponent(language || 'en')}`, { 
         method: "POST", 
         body: fd 
       });
-      
-      console.log('Upload response status:', res.status, res.statusText);
       
       if (!res.ok) {
         const errorText = await res.text();
@@ -192,7 +188,6 @@ function ImproveDraftContent({ type, initialDid }) {
       }
       
       const text = await res.text();
-      console.log('Upload response text:', text);
       
       let data;
       try {
@@ -205,7 +200,6 @@ function ImproveDraftContent({ type, initialDid }) {
       if (data?.data?.document_id) {
         setDocumentId(data.data.document_id);
         setUploadStatus('success');
-        console.log('Upload successful, document ID:', data.data.document_id);
       } else {
         console.error('No document ID in response:', data);
         throw new Error('No document ID received from server. Response: ' + JSON.stringify(data));
@@ -259,7 +253,6 @@ function ImproveDraftContent({ type, initialDid }) {
           format: 'docx'
         });
         
-        console.log('Generating improved draft with voice recording...');
         const res = await fetch(`/Drafting-Assistant/api/drafting/voice-chat?${queryParams.toString()}`, { 
           method: "POST", 
           body: fd 
@@ -325,7 +318,6 @@ function ImproveDraftContent({ type, initialDid }) {
       }
       
       const data = await res.json();
-      console.log("download:", data);
       alert("File downloaded");
     } catch (err) {
       console.error('Download error:', err);
@@ -346,7 +338,6 @@ function ImproveDraftContent({ type, initialDid }) {
       
       const data = await res.json();
       setBackendStatus(data);
-      console.log('Backend health check:', data);
     } catch (err) {
       console.error('Health check failed:', err);
       setBackendStatus({ status: 'error', message: err.message });
@@ -379,7 +370,6 @@ function ImproveDraftContent({ type, initialDid }) {
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
         setAudioBlob(blob);
-        console.log('Recording stopped, audio blob created:', blob.size, 'bytes');
         
         // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
@@ -397,8 +387,6 @@ function ImproveDraftContent({ type, initialDid }) {
       
       // Store interval reference for cleanup
       mediaRecorderRef.current.durationInterval = durationInterval;
-      
-      console.log('Recording started');
     } catch (err) {
       console.error('Error starting recording:', err);
       setError('Failed to start recording. Please check microphone permissions.');
@@ -416,8 +404,6 @@ function ImproveDraftContent({ type, initialDid }) {
     if (mr.durationInterval) {
       clearInterval(mr.durationInterval);
     }
-    
-    console.log('Recording stopped');
   }
 
   async function processVoiceRecording() {
@@ -450,7 +436,6 @@ function ImproveDraftContent({ type, initialDid }) {
         format: 'docx'
       });
       
-      console.log('Sending voice recording to API with params:', queryParams.toString());
       const res = await fetch(`/Drafting-Assistant/api/drafting/voice-chat?${queryParams.toString()}`, { 
         method: "POST", 
         body: fd 
@@ -473,7 +458,6 @@ function ImproveDraftContent({ type, initialDid }) {
       }
       
       setVoiceResult(data?.data || null);
-      console.log('Voice processing successful:', data);
     } catch (err) {
       console.error('Voice processing error:', err);
       setError(err.message);

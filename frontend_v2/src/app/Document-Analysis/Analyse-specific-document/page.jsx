@@ -23,7 +23,6 @@ export default function AnalyseSpecificDocument() {
                 throw new Error('Response is not JSON');
             })
             .then(data => {
-                console.log('Analyzer health:', data);
                 setHealth(data?.status || 'unknown');
             })
             .catch(err => {

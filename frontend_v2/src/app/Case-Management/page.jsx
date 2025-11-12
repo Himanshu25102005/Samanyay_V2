@@ -342,7 +342,6 @@ export default function CaseManagement() {
 
   const downloadDocument = async (docId, fileName) => {
     try {
-      console.log('Downloading document:', docId, fileName);
       // Use direct backend URL to ensure cookies are sent
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       const cleanBackendUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
@@ -354,17 +353,11 @@ export default function CaseManagement() {
         }
       });
 
-      console.log('Download response status:', response.status);
-      console.log('Download response headers:', Object.fromEntries(response.headers.entries()));
-
       if (response.ok) {
         // Get the content type from response
         const contentType = response.headers.get('content-type') || 'application/octet-stream';
-        console.log('Content type:', contentType);
         
         const blob = await response.blob();
-        console.log('Blob size:', blob.size, 'bytes');
-        console.log('Blob type:', blob.type);
         
         // Create download link
         const url = window.URL.createObjectURL(blob);
@@ -380,8 +373,6 @@ export default function CaseManagement() {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
         }, 100);
-        
-        console.log('Document downloaded successfully');
       } else {
         const errorText = await response.text();
         console.error('Download failed:', response.status, errorText);
@@ -395,7 +386,6 @@ export default function CaseManagement() {
 
   const handlePreviewDocument = async (doc) => {
     try {
-      console.log('Previewing document:', doc._id, doc.fileName);
       setPreviewDocument(doc);
       setShowPreviewModal(true);
     } catch (err) {

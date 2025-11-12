@@ -10,9 +10,7 @@ const fs = require("fs");
 
 // Connect to MongoDB if not already connected
 if (mongoose.connection.readyState === 0) {
-  console.log("Connecting to MongoDB from cases router...");
   mongoose.connect(process.env.MONGO_URL || process.env.DB_SAMANYAY || "mongodb://127.0.0.1:27017/Samanyay_v2")
-    .then(() => console.log("MongoDB connected from cases router"))
     .catch(err => console.error("MongoDB connection error:", err));
 }
 
@@ -43,19 +41,11 @@ const upload = multer({
 
 // Middleware to check authentication
 const isAuthenticated = (req, res, next) => {
-  console.log("=== AUTHENTICATION CHECK ===");
-  console.log("Session ID:", req.sessionID);
-  console.log("Is authenticated:", req.isAuthenticated());
-  console.log("User:", req.user);
-  console.log("Cookies:", req.cookies);
-  
   // Check if user is authenticated
   if (req.isAuthenticated() && req.user) {
-    console.log("User is authenticated, proceeding...");
     return next();
   }
   
-  console.log("User is NOT authenticated, returning 401");
   return res.status(401).json({ success: false, message: "Authentication required" });
 };
 
@@ -64,13 +54,7 @@ const isAuthenticated = (req, res, next) => {
 // Get all cases for the authenticated user
 router.get("/api/cases", isAuthenticated, async (req, res) => {
   try {
-    console.log("Fetching cases for user:", req.user);
-    console.log("User _id:", req.user && req.user._id);
-    console.log("User _id type:", req.user && req.user._id && typeof req.user._id);
-    console.log("User _id string:", req.user && req.user._id && req.user._id.toString());
-    
     if (!req.user || !req.user._id) {
-      console.log("Authentication failed - no user or _id");
       return res.status(401).json({ success: false, message: "Authentication required" });
     }
     
@@ -78,9 +62,6 @@ router.get("/api/cases", isAuthenticated, async (req, res) => {
     const userId = req.user._id instanceof mongoose.Types.ObjectId 
       ? req.user._id 
       : new mongoose.Types.ObjectId(req.user._id);
-    
-    console.log("Querying with userId:", userId);
-    console.log("UserId as string:", userId.toString());
     
     // Query cases matching the user's ID
     // Use $or to match both ObjectId and string formats (in case some cases were stored with string IDs)
@@ -91,12 +72,9 @@ router.get("/api/cases", isAuthenticated, async (req, res) => {
       ]
     }).sort({ updatedAt: -1 });
     
-    console.log("Found cases:", cases.length);
-    console.log("Cases sample:", cases.length > 0 ? cases[0].userId : 'none');
     res.json({ success: true, cases: cases || [] });
   } catch (error) {
     console.error("Error fetching cases:", error);
-    console.error("Error stack:", error.stack);
     res.status(500).json({ success: false, message: "Failed to fetch cases", error: error.message });
   }
 });
@@ -131,8 +109,6 @@ router.get("/api/cases/:caseId", isAuthenticated, async (req, res) => {
 // Create a new case
 router.post("/api/cases", isAuthenticated, async (req, res) => {
   try {
-    console.log("Creating case with data:", req.body);
-    
     // Use user ID from authentication - req.user should already be the full user document
     if (!req.user || !req.user._id) {
       return res.status(401).json({ success: false, message: "Authentication required" });
@@ -142,8 +118,6 @@ router.post("/api/cases", isAuthenticated, async (req, res) => {
     const userId = req.user._id instanceof mongoose.Types.ObjectId 
       ? req.user._id 
       : new mongoose.Types.ObjectId(req.user._id);
-    
-    console.log("Creating case with userId:", userId);
     
     const caseData = {
       userId: userId,
@@ -165,11 +139,9 @@ router.post("/api/cases", isAuthenticated, async (req, res) => {
     const newCase = new Case(caseData);
     await newCase.save();
     
-    console.log("Case created successfully:", newCase);
     res.status(201).json({ success: true, case: newCase });
   } catch (error) {
     console.error("Error creating case:", error);
-    console.error("Error details:", error.stack);
     res.status(500).json({ success: false, message: "Failed to create case", error: error.message });
   }
 });
@@ -177,9 +149,6 @@ router.post("/api/cases", isAuthenticated, async (req, res) => {
 // Update a case
 router.put("/api/cases/:caseId", isAuthenticated, async (req, res) => {
   try {
-    console.log("Updating case:", req.params.caseId);
-    console.log("Update data:", req.body);
-    
     const caseData = await Case.findById(req.params.caseId);
     
     if (!caseData) {
@@ -215,8 +184,6 @@ router.put("/api/cases/:caseId", isAuthenticated, async (req, res) => {
 // Delete a case
 router.delete("/api/cases/:caseId", isAuthenticated, async (req, res) => {
   try {
-    console.log("Deleting case:", req.params.caseId);
-    
     const caseData = await Case.findById(req.params.caseId);
     
     if (!caseData) {
@@ -254,20 +221,10 @@ router.delete("/api/cases/:caseId", isAuthenticated, async (req, res) => {
 // Get all tasks for a case
 router.get("/api/cases/:caseId/tasks", isAuthenticated, async (req, res) => {
   try {
-    console.log("=== TASKS API DEBUG ===");
-    console.log("Case ID:", req.params.caseId);
-    console.log("Is authenticated:", req.isAuthenticated());
-    console.log("User:", req.user);
-    console.log("Session ID:", req.sessionID);
-    console.log("======================");
-    
     const caseData = await Case.findById(req.params.caseId);
     if (!caseData) {
-      console.log("Case not found for ID:", req.params.caseId);
       return res.status(404).json({ success: false, message: "Case not found" });
     }
-    
-    console.log("Case found:", caseData.caseID);
     
     // For development: skip user validation
     // if (caseData.userId.toString() !== req.user._id.toString()) {
@@ -278,13 +235,9 @@ router.get("/api/cases/:caseId/tasks", isAuthenticated, async (req, res) => {
       .populate('assignedTo', 'name email')
       .sort({ dueDate: 1 });
     
-    console.log("Found tasks:", tasks.length);
     res.json({ success: true, tasks });
   } catch (error) {
-    console.error("=== TASKS ERROR ===");
     console.error("Error fetching tasks:", error);
-    console.error("Error stack:", error.stack);
-    console.error("==================");
     res.status(500).json({ success: false, message: "Failed to fetch tasks", error: error.message });
   }
 });
@@ -337,8 +290,6 @@ router.post("/api/cases/:caseId/tasks", isAuthenticated, async (req, res) => {
       priority: req.body.priority || 'Medium',
       status: req.body.status || 'Pending'
     };
-    
-    console.log("Creating task with data:", taskData);
     
     const newTask = new Task(taskData);
     await newTask.save();
@@ -503,8 +454,6 @@ router.post("/api/tasks/:taskId/comments", isAuthenticated, async (req, res) => 
 // Get all documents for a case
 router.get("/api/cases/:caseId/documents", isAuthenticated, async (req, res) => {
   try {
-    console.log("Fetching documents for case:", req.params.caseId);
-    
     const caseData = await Case.findById(req.params.caseId);
     if (!caseData) {
       return res.status(404).json({ success: false, message: "Case not found" });
@@ -517,7 +466,6 @@ router.get("/api/cases/:caseId/documents", isAuthenticated, async (req, res) => 
     
     const documents = await Document.find({ caseId: req.params.caseId }).sort({ uploadedAt: -1 });
     
-    console.log("Found documents:", documents.length);
     res.json({ success: true, documents });
   } catch (error) {
     console.error("Error fetching documents:", error);
@@ -577,8 +525,6 @@ router.post("/api/cases/:caseId/documents", isAuthenticated, upload.single('file
       fileSize: req.file.size,
       description: req.body.description || ''
     };
-    
-    console.log("Creating document with data:", documentData);
     
     const newDoc = new Document(documentData);
     await newDoc.save();
@@ -677,30 +623,20 @@ router.get("/api/documents/:docId/download", isAuthenticated, async (req, res) =
     
     // Try different path constructions
     let filePath = path.join(__dirname, "..", "uploads", path.basename(doc.filePath));
-    console.log("Looking for file at:", filePath);
-    console.log("Document filePath:", doc.filePath);
     
     if (!fs.existsSync(filePath)) {
       // Try the original filePath as stored
       filePath = path.join(__dirname, "..", doc.filePath);
-      console.log("Trying original path:", filePath);
       
       if (!fs.existsSync(filePath)) {
         // Try just the filename in uploads
         filePath = path.join(__dirname, "..", "uploads", doc.fileName);
-        console.log("Trying filename in uploads:", filePath);
         
         if (!fs.existsSync(filePath)) {
-          console.error("File not found at any path. Tried:");
-          console.error("1. uploads/basename:", path.join(__dirname, "..", "uploads", path.basename(doc.filePath)));
-          console.error("2. original path:", path.join(__dirname, "..", doc.filePath));
-          console.error("3. uploads/filename:", path.join(__dirname, "..", "uploads", doc.fileName));
+          console.error("File not found at any path");
           return res.status(404).json({ 
             success: false, 
-            message: "File not found", 
-            filePath: filePath,
-            originalPath: doc.filePath,
-            fileName: doc.fileName
+            message: "File not found"
           });
         }
       }

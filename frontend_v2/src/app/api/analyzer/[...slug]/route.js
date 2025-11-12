@@ -49,9 +49,6 @@ async function proxy(request, context) {
       duplex: 'half', // allow streaming bodies in Node fetch
     };
 
-    console.log(`[Analyzer] Proxying ${request.method} request to: ${targetUrl.toString()}`);
-    console.log(`[Analyzer] User ID: ${userId}`);
-
     const res = await fetch(targetUrl.toString(), init);
     const responseHeaders = new Headers(res.headers);
     // CORS not needed between same-origin; ensure no conflicting headers leak
