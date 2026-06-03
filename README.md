@@ -519,6 +519,15 @@ Nginx (Port 443/80)
 
 **Reference**: See `Fixes/ANALYZER_ROUTE_FIX.md`
 
+#### 6. Large PDF upload: `net::ERR_CONNECTION_CLOSED` (upload works for small files only)
+**Symptoms**: Small PDFs upload and analyze successfully; large/multi-page PDFs fail with `ERR_CONNECTION_CLOSED`. Backend logs may show the request eventually completes (200 OK) after the client has already disconnected. You may see two upload API calls from the frontend (retry or duplicate).
+
+**Solutions**:
+- **Reverse proxy (nginx, etc.)**: Increase timeouts so long-running uploads are not closed. Example (nginx): `proxy_read_timeout 600s;` and `proxy_send_timeout 600s;` (and optionally `client_max_body_size 100M;`).
+- **Frontend**: The app now uses a 10-minute client timeout and prevents duplicate uploads (single in-flight request). Ensure you are on the latest frontend that includes these changes.
+- **Next.js**: The analyzer API route uses `maxDuration = 600` (10 min). If you host on Vercel, check plan limits for max duration.
+- If the connection is still closed before the backend responds, the bottleneck is between the client and the analyzer (proxy or load balancer); increase timeouts there.
+
 ### Debugging Tools
 
 **Backend Health Check**:
@@ -674,6 +683,33 @@ The Case Management module now includes a **Smart Modal** system that provides s
 - Results are editable directly in the modal
 - Citation links provide source document context on hover
 - Seamless integration with existing case document workflow
+
+---
+
+## Premium Features & Payments (Razorpay Integration)
+
+Samanyay V2 includes a robust premium subscription system powered by **Razorpay**, providing tiered access to advanced legal research and document processing tools.
+
+### Premium Plans
+- **Daily Pass**: 24-hour full access to AI tools (₹30). Ideal for quick research sessions.
+- **Monthly Access**: 30-day continuous access (₹350). The best value for regular professionals.
+
+### Payment Flow Overview
+1. **Initiation**: The user selects a plan from the `/premium` page. The frontend calls `/api/payments/create-order` to generate a secure Razorpay order ID.
+2. **Checkout**: The Razorpay checkout widget opens dynamically, allowing the user to select their payment method (UPI, Cards, Netbanking, etc.).
+3. **Verification**: Upon successful payment, Razorpay sends back a signature, order ID, and payment ID. The frontend passes this to `/api/payments/verify-payment`.
+4. **Validation**: The backend uses the `RAZORPAY_KEY_SECRET` to validate the HMAC SHA256 signature, ensuring the transaction is untampered. It also verifies the amount and currency directly with Razorpay.
+5. **Activation**: The user's MongoDB record is updated (`isPremium: true`) along with their chosen plan and calculated expiration date.
+6. **Redirection**: The user receives a success modal and is seamlessly redirected to their `/profile` dashboard, where a golden **PREMIUM** badge is now displayed next to their name.
+
+### Payment API Routes
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|----------------|
+| `POST` | `/api/payments/create-order` | backend controller for creating a unique Razorpay order linked to the user's session and chosen plan. | Yes |
+| `POST` | `/api/payments/verify-payment` | Backend validation endpoint checking `razorpay_signature`. Upgrades user to premium upon success. | Yes |
+
+*Note: The frontend proxies these `/api/payments` endpoints to the backend via Next.js API route handlers to secure session cookies and tokens.*
 
 ---
 
